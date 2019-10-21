@@ -226,6 +226,7 @@ lang: Dict[str, str] = {
     "command_type": (zh_cn and "命令类别有误") or "Incorrect Command Type",
     "command_usage": (zh_cn and "用法有误") or "Incorrect Usage",
     # Debug
+    "evidence": (zh_cn and "证据留存") or "Evidence",
     "triggered_by": (zh_cn and "触发消息") or "Triggered By",
     # Emergency
     "issue": (zh_cn and "发现状况") or "Issue",
@@ -271,6 +272,7 @@ lang: Dict[str, str] = {
     "user_bio": (zh_cn and "用户简介") or "User Bio",
     "user_name": (zh_cn and "用户昵称") or "User Name",
     "from_name": (zh_cn and "来源名称") or "Forward Name",
+    "joined": (zh_cn and "入群时间") or "Joined Time",
     "more": (zh_cn and "附加信息") or "Extra Info",
     # Terminate
     "auto_ban": (zh_cn and "自动封禁") or "Auto Ban",
@@ -319,7 +321,9 @@ default_config: Dict[str, Union[bool, int]] = {
     "forgive": True
 }
 
-default_user_status: Dict[str, Union[Dict[Union[int, str], Union[float, int]], Set[int]]] = {
+default_user_status: Dict[str, Union[str, Dict[Union[int, str], Union[float, int]], Set[int], Tuple[int, int]]] = {
+    "name": "",
+    "mid": (0, 0),
     "join": {},
     "wait": {},
     "pass": {},
@@ -423,9 +427,11 @@ message_ids: Dict[int, Tuple[int, int]] = {}
 #     -10012345678: (123, 1512345678)
 # }
 
-user_ids: Dict[int, Dict[str, Union[Dict[Union[int, str], Union[float, int]]], Set[int]]] = {}
+user_ids: Dict[int, Dict[str, Union[str, Dict[Union[int, str], Union[float, int]], Set[int], Tuple[int, int]]]] = {}
 # user_ids = {
 #     12345678: {
+#         "name": "name",
+#         "mid": (123, 1512345678),
 #         "join": {
 #               -10012345678: 1512345678
 #         },
