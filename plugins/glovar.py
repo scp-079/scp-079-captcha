@@ -232,6 +232,9 @@ lang: Dict[str, str] = {
     "default": (zh_cn and "默认") or "Default",
     "delete": (zh_cn and "协助删除") or "Help Delete",
     "restrict": (zh_cn and "禁言模式") or "Restriction Mode",
+    "ban": (zh_cn and "封禁模式") or "Ban Mode",
+    "forgive": (zh_cn and "自动解禁") or "Auto Forgive",
+    "hint": (zh_cn and "入群提示") or "Hint for New Joined User",
     # Command
     "command_lack": (zh_cn and "命令参数缺失") or "Lack of Parameter",
     "command_para": (zh_cn and "命令参数有误") or "Incorrect Command Parameter",
@@ -309,7 +312,7 @@ lang: Dict[str, str] = {
 
 # Init
 
-all_commands: List[str] = ["config", "config_captcha", "pass", "version"]
+all_commands: List[str] = ["config", "config_captcha", "pass", "static", "version"]
 
 bot_ids: Set[int] = {avatar_id, captcha_id, clean_id, lang_id, long_id, noflood_id,
                      noporn_id, nospam_id, recheck_id, tip_id, user_id, warn_id}
@@ -330,7 +333,8 @@ default_config: Dict[str, Union[bool, int]] = {
     "delete": True,
     "restrict": False,
     "ban": False,
-    "forgive": True
+    "forgive": True,
+    "hint": True
 }
 
 default_user_status: Dict[str, Union[str, Dict[Union[int, str], Union[float, int]], Set[int], Tuple[int, int]]] = {
@@ -434,9 +438,12 @@ bad_ids: Dict[str, Set[Union[int, str]]] = {
 #     "users": {12345678}
 # }
 
-message_ids: Dict[int, Tuple[int, int]] = {}
+message_ids: Dict[int, Dict[str, Union[int, Tuple[int, int]]]] = {}
 # message_ids = {
-#     -10012345678: (123, 1512345678)
+#     -10012345678: {
+#         "hint": (123, 12345678),
+#         "static": 124
+#     }
 # }
 
 user_ids: Dict[int, Dict[str, Union[str, Dict[Union[int, str], Union[float, int]], Set[int], Tuple[int, int]]]] = {}
@@ -498,7 +505,8 @@ configs: Dict[int, Dict[str, Union[bool, int]]] = {}
 #         "delete": True,
 #         "restrict": False,
 #         "ban": False,
-#         "forgive": True
+#         "forgive": True,
+#         "hint": False
 #     }
 # }
 

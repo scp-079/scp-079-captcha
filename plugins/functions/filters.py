@@ -25,8 +25,7 @@ from typing import Match, Optional, Union
 from pyrogram import Filters, Message, User
 
 from .. import glovar
-from .etc import get_entity_text, get_now, get_links, get_md5sum
-from .etc import get_stripped_link, get_text
+from .etc import get_now, get_text
 from .file import save
 from .ids import init_group_id
 
