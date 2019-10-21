@@ -72,12 +72,16 @@ test_group_id: int = 0
 backup: Union[bool, str] = ""
 date_reset: str = ""
 default_group_link: str = ""
+limit_track: int = 0
 project_link: str = ""
 project_name: str = ""
 time_captcha: int = 0
-time_prevent: int = 0
+time_new: int = 0
+time_punish: int = 0
 time_recheck: int = 0
 time_remove: int = 0
+time_short: int = 0
+time_track: int = 0
 zh_cn: Union[bool, str] = ""
 
 # [emoji]
@@ -123,12 +127,16 @@ try:
     backup = eval(backup)
     date_reset = config["custom"].get("date_reset", date_reset)
     default_group_link = config["custom"].get("default_group_link", default_group_link)
+    limit_track = int(config["custom"].get("limit_track", limit_track))
     project_link = config["custom"].get("project_link", project_link)
     project_name = config["custom"].get("project_name", project_name)
     time_captcha = int(config["custom"].get("time_captcha", time_captcha))
-    time_prevent = int(config["custom"].get("time_prevent", time_prevent))
+    time_new = int(config["custom"].get("time_new", time_new))
+    time_punish = int(config["custom"].get("time_punish", time_punish))
     time_recheck = int(config["custom"].get("time_recheck", time_recheck))
     time_remove = int(config["custom"].get("time_remove", time_remove))
+    time_short = int(config["custom"].get("time_short", time_short))
+    time_track = int(config["custom"].get("time_track", time_track))
     zh_cn = config["custom"].get("zh_cn", zh_cn)
     zh_cn = eval(zh_cn)
     # [emoji]
@@ -169,12 +177,16 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or backup not in {False, True}
         or date_reset in {"", "[DATA EXPUNGED]"}
         or default_group_link in {"", "[DATA EXPUNGED]"}
+        or limit_track == 0
         or project_link in {"", "[DATA EXPUNGED]"}
         or project_name in {"", "[DATA EXPUNGED]"}
         or time_captcha == 0
-        or time_prevent == 0
+        or time_new == 0
+        or time_punish == 0
         or time_recheck == 0
         or time_remove == 0
+        or time_short == 0
+        or time_track == 0
         or zh_cn not in {False, True}
         or emoji_ad_single == 0
         or emoji_ad_total == 0
