@@ -337,6 +337,11 @@ default_config: Dict[str, Union[bool, int]] = {
     "hint": True
 }
 
+default_message_data: Dict[str, Union[int, Tuple[int, int]]] = {
+    "hint": (0, 0),
+    "static": 0
+}
+
 default_user_status: Dict[str, Union[str, Dict[Union[int, str], Union[float, int]], Set[int], Tuple[int, int]]] = {
     "name": "",
     "mid": (0, 0),
