@@ -333,14 +333,14 @@ def static(client: Client, message: Message) -> bool:
         markup = get_captcha_markup("hint")
         result = send_message(client, gid, hint_text, 0, markup)
         if result:
-            rid = result.message_id
-            hid = glovar.message_ids[gid]["static"]
-            hid and delete_message(client, gid, hid)
-            glovar.message_ids[gid]["static"] = rid
+            new_id = result.message_id
+            old_id = glovar.message_ids[gid]["static"]
+            old_id and delete_message(client, gid, old_id)
+            glovar.message_ids[gid]["static"] = new_id
             save("message_ids")
 
             # Send the report message
-            thread(send_report_message, (15, client, gid, text, rid))
+            thread(send_report_message, (15, client, gid, text, new_id))
 
         return True
     except Exception as e:
