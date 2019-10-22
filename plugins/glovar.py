@@ -577,7 +577,7 @@ for word_type in regex:
 # }
 
 # Load data
-file_list: List[str] = ["admin_ids", "bad_ids", "user_ids", "watch_ids", "configs"]
+file_list: List[str] = ["admin_ids", "bad_ids", "message_ids", "user_ids", "watch_ids", "configs"]
 file_list += [f"{f}_words" for f in regex]
 for file in file_list:
     try:
