@@ -24,19 +24,21 @@ from pyrogram import Client, Filters, Message
 
 from .. import glovar
 from ..functions.channel import get_debug_text, share_data
-from ..functions.etc import bold, code, delay, get_command_context, get_command_type, get_now, lang
-from ..functions.etc import thread, mention_id
+from ..functions.etc import bold, code, delay, get_command_context, get_command_type, get_int, get_now, get_text, lang
+from ..functions.etc import mention_id, thread
 from ..functions.file import save
-from ..functions.filters import from_user, is_class_c, test_group
+from ..functions.filters import captcha_group, class_e, from_user, is_class_c, test_group
 from ..functions.group import delete_message, get_config_text
-from ..functions.telegram import get_group_info, send_message, send_report_message
+from ..functions.telegram import get_group_info, resolve_username, send_message, send_report_message
+from ..functions.user import terminate_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~test_group & from_user
-                   & Filters.command(["config"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["config"], glovar.prefix)
+                   & ~test_group & ~captcha_group
+                   & from_user)
 def config(client: Client, message: Message) -> bool:
     # Request CONFIG session
 
@@ -104,8 +106,10 @@ def config(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~test_group & from_user
-                   & Filters.command([f"config_{glovar.sender.lower()}"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.group
+                   & Filters.command([f"config_{glovar.sender.lower()}"], glovar.prefix)
+                   & ~test_group & ~captcha_group
+                   & from_user)
 def config_directly(client: Client, message: Message) -> bool:
     # Config the bot directly
 
@@ -142,7 +146,7 @@ def config_directly(client: Client, message: Message) -> bool:
                     new_config = deepcopy(glovar.default_config)
                 else:
                     if command_context:
-                        if command_type in {"delete", "restrict", "ban", "forgive", "hint"}:
+                        if command_type in {"delete", "restrict", "ban", "forgive", "hint", "pass"}:
                             if command_context == "off":
                                 new_config[command_type] = False
                             elif command_context == "on":
@@ -196,8 +200,111 @@ def config_directly(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & test_group & from_user
-                   & Filters.command(["version"], glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["pass"], glovar.prefix)
+                   & ~test_group & captcha_group
+                   & from_user & class_e)
+def pass_captcha(client: Client, message: Message) -> bool:
+    # Pass in CAPTCHA
+    glovar.locks["message"].acquire()
+    try:
+        # Basic data
+        cid = message.chat.id
+        aid = message.from_user.id
+        mid = message.message_id
+
+        # Generate the report message's text
+        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('action_pass'))}\n")
+
+        # Proceed
+        if message.reply_to_message and message.reply_to_message.from_user.is_self:
+            message_text = get_text(message.reply_to_message)
+            uid = get_int(message_text.split("\n")[1].split(lang("colon"))[1])
+            if uid:
+                terminate_user(client, "succeed", uid)
+                text += (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
+                         f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
+            else:
+                text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('command_origin'))}\n")
+        else:
+            text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
+
+        # Send the report message
+        thread(send_message, (client, cid, text, mid))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Pass captcha error: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
+
+    return False
+
+
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["pass"], glovar.prefix)
+                   & ~test_group & ~captcha_group
+                   & from_user)
+def pass_group(client: Client, message: Message) -> bool:
+    # Pass in group
+
+    if not message or not message.chat:
+        return True
+
+    # Basic data
+    gid = message.chat.id
+    mid = message.message_id
+
+    glovar.locks["message"].acquire()
+    try:
+        # Check permission
+        if not is_class_c(None, message):
+            return True
+
+        # Generate the report message's text
+        aid = message.from_user.id
+        text = (f"{lang('admin')}{lang('colon')}{code(aid)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('action_pass'))}\n")
+
+        # Proceed
+        if message.reply_to_message and message.reply_to_message.from_user:
+            uid = message.reply_to_message.from_user.id
+        else:
+            uid = 0
+            id_text, reason = get_command_context(message)
+            if id_text:
+                uid = get_int(id_text)
+
+            if not uid and id_text:
+                peer_id, peer_type = resolve_username(client, id_text)
+                if peer_type == "user":
+                    uid = peer_id
+
+        if uid and glovar.user_ids.get(uid) and glovar.user_ids[uid]["wait"].get(gid, 0):
+            terminate_user(client, "pass", uid, 0, 0, aid)
+            text += (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
+                     f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
+        else:
+            text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
+
+        # Send the report message
+        thread(send_message, (client, mid, text))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Pass group error: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
+        delete_message(client, gid, mid)
+
+    return False
+
+
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["version"], glovar.prefix)
+                   & test_group
+                   & from_user)
 def version(client: Client, message: Message) -> bool:
     # Check the program's version
     try:

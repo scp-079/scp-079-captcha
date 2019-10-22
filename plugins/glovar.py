@@ -227,6 +227,7 @@ lang: Dict[str, str] = {
     "rollback": (zh_cn and "数据回滚") or "Rollback",
     "score": (zh_cn and "评分") or "Score",
     "status_failed": (zh_cn and "未执行") or "Failed",
+    "status_succeeded": (zh_cn and "成功执行") or "Succeed",
     "version": (zh_cn and "版本") or "Version",
     # Config
     "config": (zh_cn and "设置") or "Settings",
@@ -244,6 +245,8 @@ lang: Dict[str, str] = {
     "ban": (zh_cn and "封禁模式") or "Ban Mode",
     "forgive": (zh_cn and "自动解禁") or "Auto Forgive",
     "hint": (zh_cn and "入群提示") or "Hint for New Joined User",
+    "yes": (zh_cn and "是") or "Yes",
+    "no": (zh_cn and "否") or "No",
     # Command
     "command_lack": (zh_cn and "命令参数缺失") or "Lack of Parameter",
     "command_para": (zh_cn and "命令参数有误") or "Incorrect Command Parameter",
@@ -299,6 +302,8 @@ lang: Dict[str, str] = {
     "joined": (zh_cn and "入群时间") or "Joined Time",
     "more": (zh_cn and "附加信息") or "Extra Info",
     # Special
+    "action_pass": (zh_cn and "手动通过") or "Pass Manually",
+    "action_verified": (zh_cn and "通过验证") or "Verified",
     "captcha_check": (zh_cn and "我需要验证吗？") or "Should I Verify?",
     "captcha_go": (zh_cn and "前往验证") or "Go to Verify",
     "description_ask": (zh_cn and ("请您尽快回答下方的问题以完成验证，"
@@ -444,6 +449,14 @@ for c in ascii_lowercase:
 sender: str = "CAPTCHA"
 
 should_hide: bool = False
+
+usernames: Dict[str, Dict[str, Union[int, str]]] = {}
+# usernames = {
+#     "SCP_079": {
+#         "peer_type": "channel",
+#         "peer_id": -1001196128009
+#     }
+# }
 
 version: str = "0.0.1"
 

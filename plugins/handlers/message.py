@@ -165,7 +165,7 @@ def check(client: Client, message: Message) -> bool:
 
 @Client.on_message(Filters.incoming & Filters.group & Filters.new_chat_members
                    & ~test_group & captcha_group & ~new_group
-                   & from_user & ~class_c & ~class_e
+                   & from_user & ~class_e
                    & ~declared_message)
 def verify_ask(client: Client, message: Message) -> bool:
     # Check the messages sent from groups
@@ -215,7 +215,7 @@ def verify_ask(client: Client, message: Message) -> bool:
 
 @Client.on_message(Filters.incoming & Filters.group & ~Filters.new_chat_members
                    & ~test_group & captcha_group
-                   & from_user & ~class_c & ~class_e
+                   & from_user & ~class_e
                    & ~declared_message)
 def verify_check(client: Client, message: Message) -> bool:
     # Check the messages sent from the CAPTCHA group

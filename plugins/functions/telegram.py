@@ -26,7 +26,7 @@ from pyrogram.errors import ChannelInvalid, ChannelPrivate, FloodWait, PeerIdInv
 from pyrogram.errors import UsernameInvalid, UsernameNotOccupied
 
 from .. import glovar
-from .etc import delay, t2t, wait_flood
+from .etc import delay, get_int, t2t, wait_flood
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -251,6 +251,39 @@ def resolve_peer(client: Client, pid: Union[int, str]) -> Optional[Union[bool, I
         logger.warning(f"Resolve peer {pid} error: {e}", exc_info=True)
 
     return result
+
+
+def resolve_username(client: Client, username: str, cache: bool = True) -> (str, int):
+    # Resolve peer by username
+    peer_type = ""
+    peer_id = 0
+    try:
+        username = username.strip("@")
+        if not username:
+            return "", 0
+
+        result = glovar.usernames.get(username)
+        if result and cache:
+            return result["peer_type"], result["peer_id"]
+
+        result = resolve_peer(client, username)
+        if result:
+            if isinstance(result, InputPeerChannel):
+                peer_type = "channel"
+                peer_id = result.channel_id
+                peer_id = get_int(f"-100{peer_id}")
+            elif isinstance(result, InputPeerUser):
+                peer_type = "user"
+                peer_id = result.user_id
+
+        glovar.usernames[username] = {
+            "peer_type": peer_type,
+            "peer_id": peer_id
+        }
+    except Exception as e:
+        logger.warning(f"Resolve username {username} error: {e}", exc_info=True)
+
+    return peer_type, peer_id
 
 
 def restrict_chat_member(client: Client, cid: int, uid: int, permissions: ChatPermissions,

@@ -176,12 +176,15 @@ def get_debug_text(client: Client, gids: List[int]) -> str:
     return text
 
 
-def send_debug(client: Client, gids: List[int], action: str, uid: int, em: Message) -> bool:
+def send_debug(client: Client, gids: List[int], action: str, uid: int, aid: int = 0, em: Message = None) -> bool:
     # Send the debug message
     try:
         text = get_debug_text(client, gids)
         text += (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
                  f"{lang('action')}{lang('colon')}{code(action)}\n")
+
+        if aid:
+            text += f"{lang('admin_group')}{lang('colon')}{code(aid)}\n"
 
         if em:
             mid = em.message_id

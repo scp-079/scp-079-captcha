@@ -49,11 +49,13 @@ def change_member_status(client: Client, level: str, gid: int, uid: int) -> bool
     # Chat member's status in the group
     try:
         if level == "restrict":
+            glovar.user_ids[uid]["restricted"].add(gid)
+            save("user_ids")
             restrict_user(client, gid, uid)
-            glovar.user_ids[uid]["restrict"].add(gid)
         elif level == "ban":
+            glovar.user_ids[uid]["banned"].add(gid)
+            save("user_ids")
             ban_user(client, gid, uid)
-            glovar.user_ids[uid]["ban"].add(gid)
         elif level == "kick":
             kick_user(client, gid, uid)
 
@@ -104,7 +106,7 @@ def restrict_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
     return False
 
 
-def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: int = 0) -> bool:
+def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: int = 0, aid: int = 0) -> bool:
     # Terminate the user
     try:
         # Basic data
@@ -114,6 +116,26 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
         if the_type == "delete" and mid:
             delete_message(client, gid, mid)
             declare_message(client, gid, mid)
+
+        # Pass in group
+        if the_type == "pass":
+            glovar.user_ids[uid]["wait"].pop(gid, 0)
+            unrestrict_user(client, gid, uid)
+            glovar.user_ids[uid]["failed"].pop(gid, 0)
+            glovar.user_ids[uid]["restricted"].discard(gid)
+            if gid in glovar.user_ids[uid]["banned"]:
+                glovar.user_ids[uid]["banned"].discard(gid)
+                unban_user(client, gid, uid)
+
+            save("user_ids")
+
+            send_debug(
+                client=client,
+                gids=[gid],
+                action=lang("action_pass"),
+                uid=uid,
+                aid=aid
+            )
 
         # User under punishment
         elif the_type == "punish":
@@ -162,6 +184,13 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
             # Update the score
             update_score(client, uid)
+
+            send_debug(
+                client=client,
+                gids=wait_group_list,
+                action=lang("action_verified"),
+                uid=uid
+            )
 
         # Verification timeout
         elif the_type == "timeout":
