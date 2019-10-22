@@ -43,7 +43,7 @@ update_status(app, "online")
 
 # Timer
 scheduler = BackgroundScheduler(job_defaults={"misfire_grace_time": 60})
-scheduler.add_job(interval_min_10, "interval", [app], minutes=1)
+scheduler.add_job(interval_min_01, "interval", [app], minutes=1)
 scheduler.add_job(interval_min_10, "interval", minutes=10)
 scheduler.add_job(update_status, "cron", [app, "awake"], minute=30)
 scheduler.add_job(backup_files, "cron", [app], hour=20)
