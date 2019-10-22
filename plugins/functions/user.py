@@ -128,7 +128,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
             failed_group_list = list(glovar.user_ids[uid]["failed"])
             for gid in failed_group_list:
-                glovar.user_ids[uid]["failed"].pop(gid, 0)
+                glovar.user_ids[uid]["failed"][gid] = 0
 
             restricted_group_list = list(glovar.user_ids[uid]["restrict"])
             for gid in restricted_group_list:
@@ -170,7 +170,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                 client=client,
                 uid=uid,
                 level=lang(f"auto_{level}"),
-                rule=lang("rule_global"),
+                rule=lang("rule_custom"),
                 gid=gid,
                 more=lang("description_timeout")
             )
@@ -183,7 +183,6 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                 glovar.user_ids[uid]["answer"] = ""
                 glovar.user_ids[uid]["try"] = 0
                 glovar.user_ids[uid]["wait"].pop(gid, 0)
-                glovar.user_ids[uid]["succeeded"].pop(gid, 0)
 
                 # Edit the message
                 name = glovar.user_ids[uid]["name"]
@@ -219,17 +218,19 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                 more=lang("description_wrong")
             )
             if result:
-                # Kick the user
+                # Get the group list
                 wait_group_list = list(glovar.user_ids[uid]["wait"])
+
+                # Kick the user
                 for gid in wait_group_list:
                     kick_user(client, gid, uid)
 
                 # Modify the status
                 glovar.user_ids[uid]["answer"] = ""
                 glovar.user_ids[uid]["try"] = 0
+                glovar.user_ids[uid]["wait"] = {}
                 for gid in wait_group_list:
-                    glovar.user_ids[uid]["wait"].pop(gid, 0)
-                    glovar.user_ids[uid]["succeeded"].pop(gid, 0)
+                    glovar.user_ids[uid]["failed"][gid] = now
                     glovar.user_ids[uid]["restricted"].discard(gid)
                     glovar.user_ids[uid]["banned"].discard(gid)
 
