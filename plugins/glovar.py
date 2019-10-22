@@ -313,10 +313,16 @@ lang: Dict[str, str] = {
     "check_yes": (zh_cn and "您需要验证才能在本群发言") or "You need to verify to send messages in this group",
     "captcha_check": (zh_cn and "我需要验证吗") or "Should I Verify",
     "captcha_go": (zh_cn and "前往验证") or "Go to Verify",
-    "description_ask": (zh_cn and ("请您尽快回答下方的问题以完成验证，"
-                                   "您可以点击相应按钮或直接发送答案")
-                        or ("Please answer the question below to complete the verification as soon as possible. "
-                            "You can click the button or send the answer directly")),
+    "description_ask": (zh_cn and (f"请您尽快回答下方的问题以完成验证，"
+                                   f"您可以点击相应按钮或直接发送正确答案。"
+                                   f"注意，您共有 {limit_try} 次机会回答问题，答错将导致验证失败。"
+                                   f"您在本群的任何发言均将视为对问题的回答，请谨慎发言")
+                        or (f"Please answer the question below to complete the verification as soon as possible. "
+                            f"You can click the button or send the right answer directly. "
+                            f"Note that you have {limit_try} chances to answer the question, "
+                            f"and incorrect answers will cause the verification to fail. "
+                            f"Any message you send in this group will be considered as an answer to the question, "
+                            f"please send carefully")),
     "description_hint": (zh_cn and (f"新入群的用户，请您点击下方右侧按钮进行验证，"
                                     f"请在 {time_captcha} 秒内完成验证，否则您将被移出本群")
                          or (f"For new joined users, please click the button below to verify. "
