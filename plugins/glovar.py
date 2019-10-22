@@ -245,8 +245,6 @@ lang: Dict[str, str] = {
     "ban": (zh_cn and "封禁模式") or "Ban Mode",
     "forgive": (zh_cn and "自动解禁") or "Auto Forgive",
     "hint": (zh_cn and "入群提示") or "Hint for New Joined User",
-    "yes": (zh_cn and "是") or "Yes",
-    "no": (zh_cn and "否") or "No",
     # Command
     "command_lack": (zh_cn and "命令参数缺失") or "Lack of Parameter",
     "command_para": (zh_cn and "命令参数有误") or "Incorrect Command Parameter",
@@ -305,6 +303,8 @@ lang: Dict[str, str] = {
     "action_pass": (zh_cn and "手动通过") or "Pass Manually",
     "action_static": (zh_cn and "发送固定提示消息") or "Send Static Hint",
     "action_verified": (zh_cn and "通过验证") or "Verified",
+    "check_no": (zh_cn and "您在本群中不需要验证即可发言") or "You can send messages without verification in this group",
+    "check_yes": (zh_cn and "您需要验证才能在本群发言") or "You need to verify to send messages in this group",
     "captcha_check": (zh_cn and "我需要验证吗") or "Should I Verify",
     "captcha_go": (zh_cn and "前往验证") or "Go to Verify",
     "description_ask": (zh_cn and ("请您尽快回答下方的问题以完成验证，"
