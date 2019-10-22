@@ -59,7 +59,7 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
         for wid in wait_user_list:
             text += mention_text("\U00002060", wid)
 
-        text += f"{lang('description')}{lang('colon')}{lang('description_hint')}\n"
+        text += f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n"
 
         # Generate the markup
         markup = get_captcha_markup("hint")

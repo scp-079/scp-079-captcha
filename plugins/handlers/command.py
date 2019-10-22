@@ -326,10 +326,10 @@ def static(client: Client, message: Message) -> bool:
         aid = message.from_user.id
         text = (f"{lang('admin')}{lang('colon')}{code(aid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('action_static'))}\n"
-                f"{lang('static')}{lang('colon')}{code(lang('status_succeeded'))}\n")
+                f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
 
         # Proceed
-        hint_text = f"{lang('description')}{lang('colon')}{lang('description_hint')}\n"
+        hint_text = f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n"
         markup = get_captcha_markup("hint")
         result = send_message(client, gid, hint_text, 0, markup)
         if result:
@@ -340,7 +340,7 @@ def static(client: Client, message: Message) -> bool:
             save("message_ids")
 
             # Send the report message
-            thread(send_message, (client, gid, text, rid))
+            thread(send_report_message, (15, client, gid, text, rid))
 
         return True
     except Exception as e:
