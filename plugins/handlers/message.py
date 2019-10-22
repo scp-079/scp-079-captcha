@@ -68,32 +68,40 @@ def hint(client: Client, message: Message) -> bool:
             if not init_user_id(uid):
                 continue
 
+            # Get user status
+            user_status = glovar.user_ids[uid]
+
             # Check pass list
-            pass_time = glovar.user_ids[uid]["pass"].get(gid, 0)
+            pass_time = user_status["pass"].get(gid, 0)
             if pass_time:
                 continue
 
             # Check wait list
-            wait_time = glovar.user_ids[uid]["wait"].get(gid, 0)
+            wait_time = user_status["wait"].get(gid, 0)
             if wait_time:
                 continue
 
             # Check succeeded list
-            succeeded_time = glovar.user_ids[uid]["succeeded"].get(gid, 0)
+            succeeded_time = user_status["succeeded"].get(gid, 0)
             if now - succeeded_time < glovar.time_recheck:
                 continue
 
             # Auto pass
-            if glovar.configs[gid].get("pass"):
-                succeeded_time = glovar.user_ids[uid]["succeeded"] and max(glovar.user_ids[uid]["succeeded"].values())
-                if (succeeded_time and now - succeeded_time < glovar.time_recheck
-                        and not is_watch_user(message, "ban")
-                        and not is_watch_user(message, "delete")
-                        and not is_limited_user(gid, new, now)):
+            if user_status["succeeded"]:
+                succeeded_time = user_status["succeeded"] and max(user_status["succeeded"].values())
+
+                if succeeded_time and now - succeeded_time < glovar.time_remove + 70:
                     continue
 
+                if glovar.configs[gid].get("pass"):
+                    if (succeeded_time and now - succeeded_time < glovar.time_recheck
+                            and not is_watch_user(message, "ban")
+                            and not is_watch_user(message, "delete")
+                            and not is_limited_user(gid, new, now)):
+                        continue
+
             # Check failed list
-            failed_time = glovar.user_ids[uid]["failed"].get(gid, 0)
+            failed_time = user_status["failed"].get(gid, 0)
             if now - failed_time < glovar.time_punish:
                 terminate_user(client, "punish", uid, gid)
 
@@ -431,7 +439,7 @@ def process_data(client: Client, message: Message) -> bool:
                     if action_type == "bad":
                         receive_remove_bad(sender, data)
                     elif action_type == "score":
-                        receive_remove_score(data)
+                        receive_remove_score(client, data)
                     elif action_type == "watch":
                         receive_remove_watch(data)
 

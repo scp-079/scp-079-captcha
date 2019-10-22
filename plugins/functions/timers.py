@@ -23,10 +23,11 @@ from pyrogram import Client
 
 from .. import glovar
 from .channel import share_data, share_regex_count
-from .etc import code, general_link, lang, thread
+from .etc import code, general_link, get_now, lang, thread
 from .file import save
-from .group import leave_group
+from .group import delete_message, leave_group
 from .telegram import get_admins, get_group_info, send_message
+from .user import kick_user, terminate_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -54,6 +55,45 @@ def backup_files(client: Client) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Backup error: {e}", exc_info=True)
+
+    return False
+
+
+def interval_min_01(client: Client) -> bool:
+    # Execute every minute
+    glovar.locks["message"].acquire()
+    try:
+        # Basic data
+        now = get_now()
+
+        # Delete hint messages
+        for gid in list(glovar.message_ids):
+            mid, time = glovar.message_ids[gid]["hint"]
+            if mid and now - time > glovar.time_captcha:
+                glovar.message_ids[gid]["hint"] = (0, 0)
+                delete_message(client, gid, mid)
+
+        save("message_ids")
+
+        # Remove users from CAPTCHA group
+        for uid in list(glovar.user_ids):
+            time = glovar.user_ids[uid]["time"]
+            if time and now - time > glovar.time_remove:
+                glovar.user_ids[uid]["time"] = 0
+                kick_user(client, glovar.captcha_group_id, uid)
+
+        # Check timeout
+        for uid in list(glovar.user_ids):
+            if glovar.user_ids[uid]["wait"]:
+                time = min(glovar.user_ids[uid]["wait"].values())
+                if now - time > glovar.time_captcha:
+                    terminate_user(client, "timeout", uid)
+
+        return True
+    except Exception as e:
+        logger.warning(f"Interval min 01 error: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
 
     return False
 

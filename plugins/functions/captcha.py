@@ -113,6 +113,7 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
     try:
         # Basic data
         uid = user.id
+        now = get_now()
 
         # Get the question data
         the_type = choice(["math"])
@@ -136,6 +137,7 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
         if result:
             captcha_message_id = result.message_id
             glovar.user_ids[uid]["mid"] = captcha_message_id
+            glovar.user_ids[uid]["now"] = now
         else:
             wait_group_list = list(glovar.user_ids[uid]["wait"])
 

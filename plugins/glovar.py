@@ -375,6 +375,7 @@ default_message_data: Dict[str, Union[int, Tuple[int, int]]] = {
 default_user_status: Dict[str, Union[int, str, Dict[Union[int, str], Union[float, int]], Set[int]]] = {
     "name": "",
     "mid": 0,
+    "time": 0,
     "answer": "",
     "try": 0,
     "join": {},
@@ -487,6 +488,7 @@ user_ids: Dict[int, Dict[str, Union[int, str, Dict[Union[int, str], Union[float,
 #     12345678: {
 #         "name": "name",
 #         "mid": 123,
+#         "time": 1512345678,
 #         "answer": "",
 #         "try": 0,
 #         "join": {
