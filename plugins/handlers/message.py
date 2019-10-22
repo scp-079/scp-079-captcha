@@ -21,7 +21,7 @@ import logging
 from pyrogram import Client, Filters, Message
 
 from .. import glovar
-from ..functions.captcha import add_wait, ask_question
+from ..functions.captcha import add_wait, answer_question, ask_question
 from ..functions.channel import get_debug_text
 from ..functions.etc import code, general_link, get_full_name, get_now, lang, thread, user_mention
 from ..functions.file import save
