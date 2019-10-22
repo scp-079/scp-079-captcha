@@ -152,7 +152,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             for gid in failed_group_list:
                 glovar.user_ids[uid]["failed"][gid] = 0
 
-            restricted_group_list = list(glovar.user_ids[uid]["restrict"])
+            restricted_group_list = list(glovar.user_ids[uid]["restricted"])
             for gid in restricted_group_list:
                 if glovar.configs[gid].get("forgive"):
                     unrestrict_user(client, gid, uid)
