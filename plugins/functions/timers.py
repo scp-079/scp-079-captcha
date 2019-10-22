@@ -84,10 +84,13 @@ def interval_min_01(client: Client) -> bool:
 
         # Check timeout
         for uid in list(glovar.user_ids):
-            if glovar.user_ids[uid]["wait"]:
-                time = min(glovar.user_ids[uid]["wait"].values())
+            if not glovar.user_ids[uid]["wait"]:
+                continue
+
+            for gid in list(glovar.user_ids[uid]["wait"]):
+                time = glovar.user_ids[uid]["wait"][gid]
                 if now - time > glovar.time_captcha:
-                    terminate_user(client, "timeout", uid)
+                    terminate_user(client, "timeout", uid, gid)
 
         return True
     except Exception as e:
