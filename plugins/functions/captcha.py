@@ -133,7 +133,8 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
         if result:
             captcha_message_id = result.message_id
             glovar.user_ids[uid]["mid"] = captcha_message_id
-            glovar.user_ids[uid]["now"] = now
+            glovar.user_ids[uid]["time"] = now
+            glovar.user_ids[uid]["answer"] = captcha["answer"]
         else:
             wait_group_list = list(glovar.user_ids[uid]["wait"])
 
