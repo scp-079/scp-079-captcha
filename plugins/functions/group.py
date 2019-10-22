@@ -17,14 +17,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from typing import Optional
 
-from pyrogram import Chat, Client, Message
+from pyrogram import Client
 
 from .. import glovar
 from .etc import code, lang, thread
 from .file import save
-from .telegram import delete_messages, get_chat, leave_chat
+from .telegram import delete_messages, leave_chat
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -69,65 +68,12 @@ def get_config_text(config: dict) -> str:
         # Hint
         hint_text = (lambda x: lang("enabled") if x else lang("disabled"))(config.get("hint"))
         result += f"{lang('hint')}{lang('colon')}{code(hint_text)}\n"
+        
+        # Pass
+        pass_text = (lambda x: lang("enabled") if x else lang("disabled"))(config.get("pass"))
+        result += f"{lang('pass')}{lang('colon')}{code(pass_text)}\n"
     except Exception as e:
         logger.warning(f"Get config text error: {e}", exc_info=True)
-
-    return result
-
-
-def get_description(client: Client, gid: int) -> str:
-    # Get group's description
-    result = ""
-    try:
-        group = get_group(client, gid)
-        if group and group.description:
-            result = group.description
-    except Exception as e:
-        logger.warning(f"Get description error: {e}", exc_info=True)
-
-    return result
-
-
-def get_group(client: Client, gid: int, cache: bool = True) -> Optional[Chat]:
-    # Get the group
-    result = None
-    try:
-        the_cache = glovar.chats.get(gid)
-        if the_cache:
-            result = the_cache
-        else:
-            result = get_chat(client, gid)
-
-        if cache and result:
-            glovar.chats[gid] = result
-    except Exception as e:
-        logger.warning(f"Get group error: {e}", exc_info=True)
-
-    return result
-
-
-def get_group_sticker(client: Client, gid: int) -> str:
-    # Get group sticker set name
-    result = ""
-    try:
-        group = get_group(client, gid)
-        if group and group.sticker_set_name:
-            result = group.sticker_set_name
-    except Exception as e:
-        logger.warning(f"Get group sticker error: {e}", exc_info=True)
-
-    return result
-
-
-def get_pinned(client: Client, gid: int) -> Optional[Message]:
-    # Get group's pinned message
-    result = None
-    try:
-        group = get_group(client, gid)
-        if group and group.pinned_message:
-            result = group.pinned_message
-    except Exception as e:
-        logger.warning(f"Get pinned error: {e}", exc_info=True)
 
     return result
 
