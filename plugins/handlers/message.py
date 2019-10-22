@@ -23,7 +23,7 @@ from pyrogram import Client, Filters, Message
 from .. import glovar
 from ..functions.captcha import add_wait, answer_question, ask_question
 from ..functions.channel import get_debug_text
-from ..functions.etc import code, general_link, get_full_name, get_now, lang, thread, mention_id
+from ..functions.etc import code, general_link, get_full_name, get_now, get_text, lang, thread, mention_id
 from ..functions.file import save
 from ..functions.filters import captcha_group, class_c, class_d, class_e, declared_message, exchange_channel, from_user
 from ..functions.filters import hide_channel, is_bio_text, is_class_d_user, is_declared_message, is_limited_user
@@ -245,7 +245,7 @@ def verify_check(client: Client, message: Message) -> bool:
             return True
 
         # Answer the question
-        answer_question(client, message)
+        answer_question(client, uid, get_text(message))
 
         return True
     except Exception as e:

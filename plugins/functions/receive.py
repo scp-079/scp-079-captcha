@@ -32,7 +32,7 @@ from .group import get_config_text, leave_group
 from .ids import init_group_id, init_user_id
 from .telegram import send_message, send_report_message
 from .timers import update_admins
-from .user import unban_user, unrestrict_user
+from .user import unrestrict_user
 
 # Enable logging
 logger = logging.getLogger(__name__)

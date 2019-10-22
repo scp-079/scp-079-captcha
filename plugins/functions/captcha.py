@@ -20,10 +20,10 @@ import logging
 from random import choice, randint, shuffle
 from typing import Optional
 
-from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message, User
+from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, User
 
 from .. import glovar
-from .etc import button_data, code, get_full_name, get_now, get_text, lang, mention_name, mention_text
+from .etc import button_data, code, get_full_name, get_now, lang, mention_name, mention_text
 from .file import save
 from .group import delete_message
 from .user import restrict_user, terminate_user, unrestrict_user
@@ -83,15 +83,11 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
     return False
 
 
-def answer_question(client: Client, message: Message) -> bool:
+def answer_question(client: Client, uid: int, text: str) -> bool:
     # Answer question
     try:
-        # Basic data
-        uid = message.from_user.id
-        text = get_text(message)
-
-        # Check answer
         answer = glovar.user_ids[uid]["answer"]
+
         if text and answer and text == answer:
             terminate_user(client, "succeed", uid)
         else:
