@@ -23,6 +23,7 @@ from copy import deepcopy
 from pyrogram import Client, Filters, Message
 
 from .. import glovar
+from ..functions.captcha import get_captcha_markup
 from ..functions.channel import get_debug_text, share_data
 from ..functions.etc import bold, code, delay, get_command_context, get_command_type, get_int, get_now, get_text, lang
 from ..functions.etc import mention_id, thread
@@ -290,11 +291,60 @@ def pass_group(client: Client, message: Message) -> bool:
                      f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
 
         # Send the report message
-        thread(send_message, (client, mid, text))
+        thread(send_report_message, (30, client, gid, text))
 
         return True
     except Exception as e:
         logger.warning(f"Pass group error: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
+        delete_message(client, gid, mid)
+
+    return False
+
+
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["static"], glovar.prefix)
+                   & ~test_group & ~captcha_group
+                   & from_user)
+def static(client: Client, message: Message) -> bool:
+    # Send a new static hint message
+
+    if not message or not message.chat:
+        return True
+
+    # Basic data
+    gid = message.chat.id
+    mid = message.message_id
+
+    glovar.locks["message"].acquire()
+    try:
+        # Check permission
+        if not is_class_c(None, message):
+            return True
+
+        # Generate the report message's text
+        aid = message.from_user.id
+        text = (f"{lang('admin')}{lang('colon')}{code(aid)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('action_static'))}\n"
+                f"{lang('static')}{lang('colon')}{code(lang('status_succeeded'))}\n")
+
+        # Proceed
+        hint_text = f"{lang('description')}{lang('colon')}{lang('description_hint')}\n"
+        markup = get_captcha_markup("hint")
+        result = send_message(client, gid, hint_text, markup)
+        if result:
+            rid = result.message_id
+            hid = glovar.message_ids[gid]["static"]
+            hid and delete_message(client, gid, hid)
+            glovar.message_ids[gid]["static"] = rid
+            save("message_ids")
+
+            # Send the report message
+            thread(send_message, (client, gid, text, rid))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Static error: {e}", exc_info=True)
     finally:
         glovar.locks["message"].release()
         delete_message(client, gid, mid)

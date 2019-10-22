@@ -303,6 +303,7 @@ lang: Dict[str, str] = {
     "more": (zh_cn and "附加信息") or "Extra Info",
     # Special
     "action_pass": (zh_cn and "手动通过") or "Pass Manually",
+    "action_static": (zh_cn and "发送固定提示消息") or "Send Static Hint",
     "action_verified": (zh_cn and "通过验证") or "Verified",
     "captcha_check": (zh_cn and "我需要验证吗？") or "Should I Verify?",
     "captcha_go": (zh_cn and "前往验证") or "Go to Verify",
