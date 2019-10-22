@@ -32,6 +32,7 @@ from .group import get_config_text, leave_group
 from .ids import init_group_id, init_user_id
 from .telegram import send_message, send_report_message
 from .timers import update_admins
+from .user import unban_user, unrestrict_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -391,8 +392,9 @@ def receive_remove_bad(sender: str, data: dict) -> bool:
     return False
 
 
-def receive_remove_score(data: int) -> bool:
+def receive_remove_score(client: Client, data: int) -> bool:
     # Receive remove user's score
+    glovar.locks["message"].acquire()
     try:
         # Basic data
         uid = data
@@ -400,12 +402,20 @@ def receive_remove_score(data: int) -> bool:
         if not glovar.user_ids.get(uid):
             return True
 
+        for gid in glovar.user_ids[uid]["restricted"]:
+            unrestrict_user(client, gid, uid)
+
+        for gid in glovar.user_ids[uid]["banned"]:
+            unban_user(client, gid, uid)
+
         glovar.user_ids[uid] = deepcopy(glovar.default_user_status)
         save("user_ids")
 
         return True
     except Exception as e:
         logger.warning(f"Receive remove score error: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
 
     return False
 
