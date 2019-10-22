@@ -125,6 +125,24 @@ def edit_message_text(client: Client, cid: int, mid: int, text: str,
     return result
 
 
+def export_chat_invite_link(client: Client, cid: int) -> str:
+    # Generate a new link for a chat
+    result = ""
+    try:
+        flood_wait = True
+        while flood_wait:
+            flood_wait = False
+            try:
+                result = client.export_chat_invite_link(chat_id=cid)
+            except FloodWait as e:
+                flood_wait = True
+                wait_flood(e)
+    except Exception as e:
+        logger.warning(f"Export chat invite link in {cid} error: {e}", exc_info=True)
+
+    return result
+
+
 def get_admins(client: Client, cid: int) -> Optional[Union[bool, List[ChatMember]]]:
     # Get a group's admins
     result = None

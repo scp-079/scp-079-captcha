@@ -61,6 +61,7 @@ user_id: int = 0
 warn_id: int = 0
 
 # [channels]
+captcha_channel_id: int = 0
 captcha_group_id: int = 0
 critical_channel_id: int = 0
 debug_channel_id: int = 0
@@ -79,6 +80,7 @@ limit_try: int = 0
 project_link: str = ""
 project_name: str = ""
 time_captcha: int = 0
+time_invite: int = 0
 time_new: int = 0
 time_punish: int = 0
 time_recheck: int = 0
@@ -119,6 +121,7 @@ try:
     user_id = int(config["bots"].get("user_id", user_id))
     warn_id = int(config["bots"].get("warn_id", warn_id))
     # [channels]
+    captcha_channel_id = int(config["channels"].get("captcha_channel_id", captcha_channel_id))
     captcha_group_id = int(config["channels"].get("captcha_group_id", captcha_group_id))
     critical_channel_id = int(config["channels"].get("critical_channel_id", critical_channel_id))
     debug_channel_id = int(config["channels"].get("debug_channel_id", debug_channel_id))
@@ -137,6 +140,7 @@ try:
     project_link = config["custom"].get("project_link", project_link)
     project_name = config["custom"].get("project_name", project_name)
     time_captcha = int(config["custom"].get("time_captcha", time_captcha))
+    time_invite = int(config["custom"].get("time_invite", time_invite))
     time_new = int(config["custom"].get("time_new", time_new))
     time_punish = int(config["custom"].get("time_punish", time_punish))
     time_recheck = int(config["custom"].get("time_recheck", time_recheck))
@@ -174,6 +178,7 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or tip_id == 0
         or user_id == 0
         or warn_id == 0
+        or captcha_channel_id == 0
         or captcha_group_id == 0
         or critical_channel_id == 0
         or debug_channel_id == 0
@@ -190,6 +195,7 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or project_link in {"", "[DATA EXPUNGED]"}
         or project_name in {"", "[DATA EXPUNGED]"}
         or time_captcha == 0
+        or time_invite == 0
         or time_new == 0
         or time_punish == 0
         or time_recheck == 0
@@ -320,6 +326,8 @@ lang: Dict[str, str] = {
                             or "The verification is successful and you can speak in corresponding groups"),
     "description_timeout": (zh_cn and "验证超时") or "Verification Timeout",
     "description_wrong": (zh_cn and "验证失败，回答错误") or "Verification failed. Wrong answer",
+    "invite_button": (zh_cn and "加入验证群组") or "Join CAPTCHA Group",
+    "invite_text": (zh_cn and "请在专用群组中进行验证") or "Please verify in a private group",
     "question": (zh_cn and "问题") or "Question",
     "wait_user": (zh_cn and "待验证用户") or "Users Need to Be Verified",
     # Terminate
@@ -411,6 +419,7 @@ left_group_ids: Set[int] = set()
 
 locks: Dict[str, Lock] = {
     "admin": Lock(),
+    "invite": Lock(),
     "message": Lock(),
     "regex": Lock()
 }
@@ -567,6 +576,11 @@ configs: Dict[int, Dict[str, Union[bool, int]]] = {}
 #     }
 # }
 
+invite: Dict[str, Union[int, str]] = {
+    "id": 0,
+    "link": ""
+}
+
 # Init word variables
 
 for word_type in regex:
@@ -577,7 +591,7 @@ for word_type in regex:
 # }
 
 # Load data
-file_list: List[str] = ["admin_ids", "bad_ids", "message_ids", "user_ids", "watch_ids", "configs"]
+file_list: List[str] = ["admin_ids", "bad_ids", "message_ids", "user_ids", "watch_ids", "configs", "invite"]
 file_list += [f"{f}_words" for f in regex]
 for file in file_list:
     try:

@@ -373,21 +373,21 @@ def process_data(client: Client, message: Message) -> bool:
         # so it is intentionally written like this
         if glovar.sender in receivers:
 
-            if sender == "CONFIG":
-
-                if action == "config":
-                    if action_type == "commit":
-                        receive_config_commit(data)
-                    elif action_type == "reply":
-                        receive_config_reply(client, data)
-
-            elif sender == "CLEAN":
+            if sender == "CLEAN":
 
                 if action == "add":
                     if action_type == "bad":
                         receive_add_bad(sender, data)
                     elif action_type == "watch":
                         receive_watch_user(data)
+
+            elif sender == "CONFIG":
+
+                if action == "config":
+                    if action_type == "commit":
+                        receive_config_commit(data)
+                    elif action_type == "reply":
+                        receive_config_reply(client, data)
 
             elif sender == "LANG":
 

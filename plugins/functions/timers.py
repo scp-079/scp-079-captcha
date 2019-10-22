@@ -19,14 +19,14 @@
 import logging
 from time import sleep
 
-from pyrogram import Client
+from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
 from .channel import share_data, share_regex_count
 from .etc import code, general_link, get_now, lang, thread
 from .file import save
 from .group import delete_message, leave_group
-from .telegram import get_admins, get_group_info, send_message
+from .telegram import edit_message_text, export_chat_invite_link, get_admins, get_group_info, send_message
 from .user import kick_user, terminate_user, unrestrict_user
 
 # Enable logging
@@ -115,6 +115,53 @@ def interval_min_10() -> bool:
         logger.warning(f"Interval min 10 error: {e}", exc_info=True)
     finally:
         glovar.locks["message"].release()
+
+    return False
+
+
+def new_invite_link(client: Client, the_type: str) -> bool:
+    # Generate new invite link
+    glovar.locks["invite"].acquire()
+    try:
+        # Basic data
+        mid = glovar.invite["id"]
+
+        # Generate link
+        link = export_chat_invite_link(client, glovar.captcha_channel_id)
+
+        if not link:
+            return True
+
+        glovar.invite["link"] = link
+
+        # Generate text and markup
+        text = f"{lang('description')}{lang('colon')}{code(lang('invite_text'))}\n"
+        markup = InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton(
+                        text=lang("invite_button"),
+                        url=link
+                    )
+                ]
+            ]
+        )
+
+        if the_type == "edit" and mid:
+            edit_message_text(client, glovar.captcha_channel_id, mid, text, markup)
+        elif the_type in {"edit", "new"}:
+            result = send_message(client, glovar.captcha_channel_id, text, None, markup)
+            if result:
+                glovar.invite["id"] = result.message_id
+                mid and delete_message(client, glovar.captcha_channel_id, mid)
+
+        save("invite")
+
+        return True
+    except Exception as e:
+        logger.warning(f"New invite link error: {e}", exc_info=True)
+    finally:
+        glovar.locks["invite"].release()
 
     return False
 
