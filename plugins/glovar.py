@@ -301,11 +301,16 @@ lang: Dict[str, str] = {
     # Special
     "captcha_check": (zh_cn and "我需要验证吗？") or "Should I Verify?",
     "captcha_go": (zh_cn and "前往验证") or "Go to Verify",
-    "description_captcha": (zh_cn and (f"新入群的用户，请您点击下方右侧按钮进行验证，"
-                                       f"请在 {time_captcha} 秒内完成验证，否则您将被移出本群")
-                            or (f"For new joined users, please click the button below to verify. "
-                                f"Please complete verification within {time_captcha} seconds, "
-                                f"or you will be removed from the group")),
+    "description_ask": (zh_cn and ("请您尽快回答下方的问题以完成验证，"
+                                   "您可以点击相应按钮或直接发送答案")
+                        or ("Please answer the question below to complete the verification as soon as possible. "
+                            "You can click the button or send the answer directly")),
+    "description_hint": (zh_cn and (f"新入群的用户，请您点击下方右侧按钮进行验证，"
+                                    f"请在 {time_captcha} 秒内完成验证，否则您将被移出本群")
+                         or (f"For new joined users, please click the button below to verify. "
+                             f"Please complete verification within {time_captcha} seconds, "
+                             f"or you will be removed from the group")),
+    "question": (zh_cn and "问题") or "Question",
     # Terminate
     "auto_ban": (zh_cn and "自动封禁") or "Auto Ban",
     "auto_delete": (zh_cn and "自动删除") or "Auto Delete",
@@ -476,7 +481,7 @@ user_ids: Dict[int, Dict[str, Union[int, str, Dict[Union[int, str], Union[float,
 # user_ids = {
 #     12345678: {
 #         "name": "name",
-#         "message_id": 123,
+#         "mid": 123,
 #         "answer": "",
 #         "try": "",
 #         "join": {

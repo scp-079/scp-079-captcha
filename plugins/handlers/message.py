@@ -21,14 +21,14 @@ import logging
 from pyrogram import Client, Filters, Message
 
 from .. import glovar
-from ..functions.captcha import add_wait
+from ..functions.captcha import add_wait, ask_question
 from ..functions.channel import get_debug_text
 from ..functions.etc import code, general_link, get_full_name, get_now, lang, thread, user_mention
 from ..functions.file import save
 from ..functions.filters import captcha_group, class_c, class_d, class_e, declared_message, exchange_channel, from_user
 from ..functions.filters import hide_channel, is_bio_text, is_class_d_user, is_declared_message, is_limited_user
 from ..functions.filters import is_nm_text, is_watch_user, new_group, test_group
-from ..functions.group import leave_group
+from ..functions.group import delete_message, leave_group
 from ..functions.ids import init_group_id, init_user_id
 from ..functions.receive import receive_add_bad, receive_config_commit, receive_clear_data
 from ..functions.receive import receive_config_reply, receive_config_show, receive_declared_message
@@ -37,7 +37,7 @@ from ..functions.receive import receive_remove_score, receive_remove_watch, rece
 from ..functions.receive import receive_text_data, receive_user_score, receive_watch_user
 from ..functions.telegram import get_admins, get_user_bio, send_message
 from ..functions.timers import backup_files, send_count
-from ..functions.user import terminate_user
+from ..functions.user import kick_user, terminate_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -114,7 +114,7 @@ def captcha(client: Client, message: Message) -> bool:
                 return True
 
             # Add to wait list
-            add_wait(client, gid, uid, mid)
+            add_wait(client, gid, new, mid)
 
             # Update user's join status
             glovar.user_ids[uid]["join"][gid] = now
@@ -129,8 +129,8 @@ def captcha(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & Filters.new_chat_members
-                   & ~test_group & captcha_group
+@Client.on_message(Filters.incoming & Filters.group & ~Filters.new_chat_members
+                   & ~test_group & ~captcha_group
                    & from_user & ~class_c & ~class_d & ~class_e
                    & ~declared_message)
 def check(client: Client, message: Message) -> bool:
@@ -155,28 +155,91 @@ def check(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~Filters.new_chat_members
-                   & ~test_group & ~captcha_group
-                   & from_user & ~class_c & ~class_d & ~class_e
+@Client.on_message(Filters.incoming & Filters.group & Filters.new_chat_members
+                   & ~test_group & captcha_group & ~new_group
+                   & from_user & ~class_c & ~class_e
                    & ~declared_message)
-def verify(client: Client, message: Message) -> bool:
+def verify_ask(client: Client, message: Message) -> bool:
     # Check the messages sent from groups
     glovar.locks["message"].acquire()
     try:
         # Basic data
         gid = message.chat.id
-        uid = message.from_user
         mid = message.message_id
 
-        # Check wait list
-        if glovar.user_ids[uid]["wait"].get(gid, 0):
-            terminate_user(client, gid, uid, "delete", mid)
+        for new in message.new_chat_members:
+            # Basic data
+            uid = new.id
+
+            # Check if the user is Class D personnel
+            if is_class_d_user(new):
+                kick_user(client, gid, uid)
+                delete_message(client, gid, mid)
+                return True
+
+            # Check wait list
+            if not glovar.user_ids[uid]["wait"]:
+                kick_user(client, gid, uid)
+                delete_message(client, gid, mid)
+                return True
+
+            # Check the question status
+            if glovar.user_ids[uid]["mid"]:
+                delete_message(client, gid, mid)
+                return True
+
+            # Ask a new question
+            ask_question(client, uid)
 
         return True
     except Exception as e:
-        logger.warning(f"Check error: {e}", exc_info=True)
+        logger.warning(f"Verify ask error: {e}", exc_info=True)
     finally:
         glovar.locks["message"].release()
+
+    return False
+
+
+@Client.on_message(Filters.incoming & Filters.group & ~Filters.new_chat_members
+                   & ~test_group & captcha_group
+                   & from_user & ~class_c & ~class_e
+                   & ~declared_message)
+def verify_check(client: Client, message: Message) -> bool:
+    # Check the messages sent from the CAPTCHA group
+
+    if not message or not message.chat:
+        return True
+
+    # Basic data
+    gid = message.chat.id
+    mid = message.message_id
+
+    glovar.locks["message"].acquire()
+    try:
+        # Basic data
+        uid = message.from_user
+
+        # Check if the user is Class D personnel
+        if is_class_d_user(message.from_user):
+            return True
+
+        # Check wait list
+        if not glovar.user_ids[uid]["wait"]:
+            return True
+
+        # Check the question status
+        if not glovar.user_ids[uid]["mid"]:
+            return True
+
+        # Answer the question
+        answer_question(client, message)
+
+        return True
+    except Exception as e:
+        logger.warning(f"Verify check error: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
+        delete_message(client, gid, mid)
 
     return False
 
