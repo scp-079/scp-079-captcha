@@ -67,9 +67,10 @@ def interval_min_01(client: Client) -> bool:
         now = get_now()
 
         # Delete hint messages
+        wait_group_list = {gid for uid in list(glovar.user_ids) for gid in list(glovar.user_ids[uid]["wait"])}
         for gid in list(glovar.message_ids):
             mid, time = glovar.message_ids[gid]["hint"]
-            if mid and now - time > glovar.time_captcha:
+            if mid and (now - time > glovar.time_captcha or gid not in wait_group_list):
                 glovar.message_ids[gid]["hint"] = (0, 0)
                 delete_message(client, gid, mid)
 
