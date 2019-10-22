@@ -1,7 +1,7 @@
 # SCP-079-CAPTCHA - Provide challenges for new joined members
 # Copyright (C) 2019 SCP-079 <https://scp-079.org>
 #
-# This file is part of SCP-079-CLEAN.
+# This file is part of SCP-079-CAPTCHA.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published
@@ -70,6 +70,7 @@ test_group_id: int = 0
 
 # [custom]
 backup: Union[bool, str] = ""
+captcha_link: str = ""
 date_reset: str = ""
 default_group_link: str = ""
 limit_track: int = 0
@@ -125,6 +126,7 @@ try:
     # [custom]
     backup = config["custom"].get("backup", backup)
     backup = eval(backup)
+    captcha_link = config["custom"].get("captcha_link", captcha_link)
     date_reset = config["custom"].get("date_reset", date_reset)
     default_group_link = config["custom"].get("default_group_link", default_group_link)
     limit_track = int(config["custom"].get("limit_track", limit_track))
@@ -175,6 +177,7 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or logging_channel_id == 0
         or test_group_id == 0
         or backup not in {False, True}
+        or captcha_link in {"", "[DATA EXPUNGED]"}
         or date_reset in {"", "[DATA EXPUNGED]"}
         or default_group_link in {"", "[DATA EXPUNGED]"}
         or limit_track == 0
@@ -289,9 +292,19 @@ lang: Dict[str, str] = {
     "from_name": (zh_cn and "来源名称") or "Forward Name",
     "joined": (zh_cn and "入群时间") or "Joined Time",
     "more": (zh_cn and "附加信息") or "Extra Info",
+    # Special
+    "captcha_check": (zh_cn and "我需要验证吗？") or "Should I Verify?",
+    "captcha_go": (zh_cn and "前往验证") or "Go to Verify",
+    "description_captcha": (zh_cn and (f"新入群的用户，请您点击下方右侧按钮进行验证，"
+                                       f"请在 {time_captcha} 秒内完成验证，否则您将被移出本群")
+                            or (f"For new joined users, please click the button below to verify. "
+                                f"Please complete verification within {time_captcha} seconds, "
+                                f"or you will be removed from the group")),
     # Terminate
     "auto_ban": (zh_cn and "自动封禁") or "Auto Ban",
     "auto_delete": (zh_cn and "自动删除") or "Auto Delete",
+    "auto_kick": (zh_cn and "自动移除") or "Auto Kick",
+    "auto_restrict": (zh_cn and "自动禁言") or "Auto Restrict",
     "global_delete": (zh_cn and "全局删除") or "Global Delete",
     "name_ban": (zh_cn and "名称封禁") or "Ban by Name",
     "name_examine": (zh_cn and "名称检查") or "Name Examination",
@@ -346,8 +359,8 @@ default_user_status: Dict[str, Union[str, Dict[Union[int, str], Union[float, int
     "name": "",
     "mid": (0, 0),
     "join": {},
-    "wait": {},
     "pass": {},
+    "wait": {},
     "succeed": {},
     "failed": {},
     "restricted": set(),
@@ -459,10 +472,10 @@ user_ids: Dict[int, Dict[str, Union[str, Dict[Union[int, str], Union[float, int]
 #         "join": {
 #               -10012345678: 1512345678
 #         },
-#         "wait": {
+#         "pass": {
 #               -10012345678: 1512345678
 #         },
-#         "pass": {
+#         "wait": {
 #               -10012345678: 1512345678
 #         },
 #         "succeed": {

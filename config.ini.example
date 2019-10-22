@@ -41,6 +41,7 @@ test_group_id = [DATA EXPUNGED]
 
 [custom]
 backup = [DATA EXPUNGED]
+captcha_link = [DATA EXPUNGED]
 date_reset = [DATA EXPUNGED]
 default_group_link = [DATA EXPUNGED]
 limit_track = [DATA EXPUNGED]

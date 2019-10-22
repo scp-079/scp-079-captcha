@@ -1,7 +1,7 @@
 # SCP-079-CAPTCHA - Provide challenges for new joined members
 # Copyright (C) 2019 SCP-079 <https://scp-079.org>
 #
-# This file is part of SCP-079-CLEAN.
+# This file is part of SCP-079-CAPTCHA.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published
@@ -50,16 +50,33 @@ def add_detected_user(gid: int, uid: int, now: int) -> bool:
 def ban_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
     # Ban a user
     try:
-        if glovar.configs[gid].get("restrict"):
-            thread(restrict_chat_member, (client, gid, uid, ChatPermissions()))
-        else:
-            thread(kick_chat_member, (client, gid, uid))
+        thread(kick_chat_member, (client, gid, uid))
 
         return True
     except Exception as e:
         logger.warning(f"Ban user error: {e}", exc_info=True)
 
     return False
+
+
+def change_member_status(client: Client, gid: int, uid: int) -> str:
+    # Chat member's status in the group
+    try:
+        if glovar.configs[gid].get("restrict"):
+            restrict_user(client, gid, uid)
+            glovar.user_ids[uid]["restrict"].add(gid)
+            return "restrict"
+
+        if glovar.configs[gid].get("ban"):
+            ban_user(client, gid, uid)
+            glovar.user_ids[uid]["ban"].add(gid)
+            return "ban"
+
+        kick_user(client, gid, uid)
+    except Exception as e:
+        logger.warning(f"Change member status: {e}", exc_info=True)
+
+    return "kick"
 
 
 def kick_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
@@ -76,6 +93,29 @@ def kick_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
     return False
 
 
+def restrict_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
+    # Restrict a user
+    try:
+        thread(restrict_chat_member, (client, gid, uid, ChatPermissions()))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Restrict user error: {e}", exc_info=True)
+
+    return False
+
+
+def terminate_user(client: Client, gid: int, uid: int, the_type: str) -> bool:
+    # Terminate the user
+    try:
+        if the_type == "punish":
+            change_member_status(client, gid, uid)
+    except Exception as e:
+        logger.warning(f"Terminate user error: {e}", exc_info=True)
+
+    return False
+
+
 def unban_user(client: Client, gid: int, uid: int) -> bool:
     # Unban a user
     try:
@@ -84,5 +124,27 @@ def unban_user(client: Client, gid: int, uid: int) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Unban user error: {e}", exc_info=True)
+
+    return False
+
+
+def unrestrict_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
+    # Unrestrict a user
+    try:
+        permissions = ChatPermissions(
+            can_send_messages=True,
+            can_send_media_messages=True,
+            can_send_other_messages=True,
+            can_add_web_page_previews=True,
+            can_send_polls=True,
+            can_change_info=True,
+            can_invite_users=True,
+            can_pin_messages=True
+        )
+        thread(restrict_chat_member, (client, gid, uid, permissions))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Unrestrict user error: {e}", exc_info=True)
 
     return False

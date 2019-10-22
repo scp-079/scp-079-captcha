@@ -4,7 +4,7 @@
 # SCP-079-CAPTCHA - Provide challenges for new joined members
 # Copyright (C) 2019 SCP-079 <https://scp-079.org>
 #
-# This file is part of SCP-079-CLEAN.
+# This file is part of SCP-079-CAPTCHA.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published
@@ -25,7 +25,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from pyrogram import Client
 
 from plugins import glovar
-from plugins.functions.timers import backup_files, interval_hour_01, interval_min_10
+from plugins.functions.timers import backup_files, interval_min_10
 from plugins.functions.timers import reset_data, send_count, update_admins, update_status
 
 # Enable logging
@@ -43,7 +43,6 @@ update_status(app, "online")
 
 # Timer
 scheduler = BackgroundScheduler(job_defaults={"misfire_grace_time": 60})
-scheduler.add_job(interval_hour_01, "interval", [app], hours=1)
 scheduler.add_job(interval_min_10, "interval", minutes=10)
 scheduler.add_job(update_status, "cron", [app, "awake"], minute=30)
 scheduler.add_job(backup_files, "cron", [app], hour=20)

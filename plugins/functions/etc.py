@@ -1,7 +1,7 @@
 # SCP-079-CAPTCHA - Provide challenges for new joined members
 # Copyright (C) 2019 SCP-079 <https://scp-079.org>
 #
-# This file is part of SCP-079-CLEAN.
+# This file is part of SCP-079-CAPTCHA.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published
@@ -341,6 +341,17 @@ def t2t(text: str, normal: bool, printable: bool = True) -> str:
             text = convert(text, config="t2s.json")
     except Exception as e:
         logger.warning(f"T2T error: {e}", exc_info=True)
+
+    return text
+
+
+def text_mention(the_text: str, uid: int) -> str:
+    # Get a mention text
+    text = ""
+    try:
+        text = general_link(f"{the_text}", f"tg://user?id={uid}")
+    except Exception as e:
+        logger.warning(f"Text mention error: {e}", exc_info=True)
 
     return text
 
