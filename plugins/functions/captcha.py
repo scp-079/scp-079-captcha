@@ -197,7 +197,7 @@ def get_captcha_markup(the_type: str, captcha: dict = None) -> Optional[InlineKe
 
             for candidate in candidates:
                 button = button_data("answer", candidate, uid)
-                markup_list[0][0].append(
+                markup_list[0].append(
                     InlineKeyboardButton(
                         text=candidate,
                         callback_data=button

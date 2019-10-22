@@ -147,7 +147,7 @@ def check(client: Client, message: Message) -> bool:
     try:
         # Basic data
         gid = message.chat.id
-        uid = message.from_user
+        uid = message.from_user.id
         mid = message.message_id
 
         # Check wait list
@@ -230,7 +230,7 @@ def verify_check(client: Client, message: Message) -> bool:
     glovar.locks["message"].acquire()
     try:
         # Basic data
-        uid = message.from_user
+        uid = message.from_user.id
 
         # Check if the user is Class D personnel
         if is_class_d_user(message.from_user):
