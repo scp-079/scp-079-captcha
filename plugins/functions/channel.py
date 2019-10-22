@@ -139,8 +139,6 @@ def forward_evidence(client: Client, uid: int, level: str, rule: str, gid: int,
                 f"{lang('rule')}{lang('colon')}{code(rule)}\n")
 
         # Additional information
-        text += f"{lang('message_type')}{lang('colon')}{code(lang('ser'))}\n"
-
         name = glovar.user_ids[uid]["name"]
         if name:
             text += f"{lang('user_name')}{lang('colon')}{code(name)}\n"
