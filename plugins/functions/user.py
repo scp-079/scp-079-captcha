@@ -23,7 +23,9 @@ from typing import Union
 from pyrogram import ChatPermissions, Client
 
 from .. import glovar
+from .channel import declare_message
 from .etc import thread
+from .group import delete_message
 from .ids import init_user_id
 from .telegram import kick_chat_member, restrict_chat_member, unban_chat_member
 
@@ -105,10 +107,14 @@ def restrict_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
     return False
 
 
-def terminate_user(client: Client, gid: int, uid: int, the_type: str) -> bool:
+def terminate_user(client: Client, gid: int, uid: int, the_type: str, mid: int = 0) -> bool:
     # Terminate the user
     try:
-        if the_type == "punish":
+        if the_type == "delete" and mid:
+            delete_message(client, gid, mid)
+            declare_message(client, gid, mid)
+
+        elif the_type == "punish":
             change_member_status(client, gid, uid)
     except Exception as e:
         logger.warning(f"Terminate user error: {e}", exc_info=True)

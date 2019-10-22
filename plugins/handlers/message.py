@@ -23,14 +23,12 @@ from pyrogram import Client, Filters, Message
 from .. import glovar
 from ..functions.captcha import add_wait
 from ..functions.channel import get_debug_text
-from ..functions.etc import code, general_link, get_forward_name, get_full_name, get_now, get_text
-from ..functions.etc import lang, thread, user_mention
+from ..functions.etc import code, general_link, get_full_name, get_now, lang, thread, user_mention
 from ..functions.file import save
-from ..functions.filters import captcha_group, class_c, class_d, declared_message, exchange_channel, from_user
-from ..functions.filters import hide_channel, is_ban_text, is_bio_text, is_class_d_user
-from ..functions.filters import is_declared_message, is_high_score_user, is_limited_user, is_nm_text, is_regex_text
-from ..functions.filters import is_watch_user, new_group, test_group
-from ..functions.group import delete_message, leave_group
+from ..functions.filters import captcha_group, class_c, class_d, class_e, declared_message, exchange_channel, from_user
+from ..functions.filters import hide_channel, is_bio_text, is_class_d_user, is_declared_message, is_limited_user
+from ..functions.filters import is_nm_text, is_watch_user, new_group, test_group
+from ..functions.group import leave_group
 from ..functions.ids import init_group_id, init_user_id
 from ..functions.receive import receive_add_bad, receive_config_commit, receive_clear_data
 from ..functions.receive import receive_config_reply, receive_config_show, receive_declared_message
@@ -45,73 +43,11 @@ from ..functions.user import terminate_user
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~test_group & ~captcha_group & from_user
-                   & ~Filters.new_chat_members & ~class_d & ~declared_message)
-def check(client: Client, message: Message) -> bool:
-    # Check the messages sent from groups
-
-    has_text = bool(message and (message.text or message.caption))
-
-    if has_text:
-        glovar.locks["text"].acquire()
-    else:
-        glovar.locks["message"].acquire()
-
-    try:
-        # Work with NOSPAM
-        gid = message.chat.id
-        now = message.date or get_now()
-        if glovar.nospam_id in glovar.admin_ids[gid]:
-            # Check the forward from name
-            forward_name = get_forward_name(message, True)
-            if forward_name:
-                if is_nm_text(forward_name):
-                    return False
-
-            # Check the user's name
-            name = get_full_name(message.from_user, True)
-            if name:
-                if is_nm_text(name):
-                    return False
-
-            # Check the text
-            message_text = get_text(message, True)
-            if is_ban_text(message_text):
-                return False
-
-            if is_regex_text("del", message_text):
-                return False
-
-            # User status
-            if is_watch_user(message, "ban"):
-                return False
-
-            if is_high_score_user(message):
-                return False
-
-            if is_limited_user(gid, message.from_user, now):
-                return False
-
-        # Check declare status
-        if is_declared_message(None, message):
-            return True
-
-        return True
-    except Exception as e:
-        logger.warning(f"Check error: {e}", exc_info=True)
-    finally:
-        if has_text:
-            glovar.locks["text"].release()
-        else:
-            glovar.locks["message"].release()
-
-    return False
-
-
-@Client.on_message(Filters.incoming & Filters.group & ~test_group & ~captcha_group & from_user
-                   & Filters.new_chat_members & ~new_group
-                   & ~class_c & ~declared_message)
-def check_join(client: Client, message: Message) -> bool:
+@Client.on_message(Filters.incoming & Filters.group & Filters.new_chat_members
+                   & ~test_group & ~captcha_group & ~new_group
+                   & from_user & ~class_c & ~class_e
+                   & ~declared_message)
+def captcha(client: Client, message: Message) -> bool:
     # Check new joined user
     glovar.locks["message"].acquire()
     try:
@@ -186,15 +122,67 @@ def check_join(client: Client, message: Message) -> bool:
 
         return True
     except Exception as e:
-        logger.warning(f"Check join error: {e}", exc_info=True)
+        logger.warning(f"Captcha error: {e}", exc_info=True)
     finally:
         glovar.locks["message"].release()
 
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.channel & hide_channel
-                   & ~Filters.command(glovar.all_commands, glovar.prefix), group=-1)
+@Client.on_message(Filters.incoming & Filters.group & Filters.new_chat_members
+                   & ~test_group & captcha_group
+                   & from_user & ~class_c & ~class_d & ~class_e
+                   & ~declared_message)
+def check(client: Client, message: Message) -> bool:
+    # Check the messages sent from groups
+    glovar.locks["message"].acquire()
+    try:
+        # Basic data
+        gid = message.chat.id
+        uid = message.from_user
+        mid = message.message_id
+
+        # Check wait list
+        if glovar.user_ids[uid]["wait"].get(gid, 0):
+            terminate_user(client, gid, uid, "delete", mid)
+
+        return True
+    except Exception as e:
+        logger.warning(f"Check error: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
+
+    return False
+
+
+@Client.on_message(Filters.incoming & Filters.group & ~Filters.new_chat_members
+                   & ~test_group & ~captcha_group
+                   & from_user & ~class_c & ~class_d & ~class_e
+                   & ~declared_message)
+def verify(client: Client, message: Message) -> bool:
+    # Check the messages sent from groups
+    glovar.locks["message"].acquire()
+    try:
+        # Basic data
+        gid = message.chat.id
+        uid = message.from_user
+        mid = message.message_id
+
+        # Check wait list
+        if glovar.user_ids[uid]["wait"].get(gid, 0):
+            terminate_user(client, gid, uid, "delete", mid)
+
+        return True
+    except Exception as e:
+        logger.warning(f"Check error: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
+
+    return False
+
+
+@Client.on_message(Filters.incoming & Filters.channel & ~Filters.command(glovar.all_commands, glovar.prefix)
+                   & hide_channel, group=-1)
 def exchange_emergency(client: Client, message: Message) -> bool:
     # Sent emergency channel transfer request
     try:
@@ -237,9 +225,10 @@ def exchange_emergency(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~test_group & from_user
+@Client.on_message(Filters.incoming & Filters.group
                    & (Filters.new_chat_members | Filters.group_chat_created | Filters.supergroup_chat_created)
-                   & new_group)
+                   & ~test_group & new_group
+                   & from_user)
 def init_group(client: Client, message: Message) -> bool:
     # Initiate new groups
     try:
@@ -288,8 +277,8 @@ def init_group(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.channel & exchange_channel
-                   & ~Filters.command(glovar.all_commands, glovar.prefix))
+@Client.on_message(Filters.incoming & Filters.channel & ~Filters.command(glovar.all_commands, glovar.prefix)
+                   & exchange_channel)
 def process_data(client: Client, message: Message) -> bool:
     # Process the data in exchange channel
     try:

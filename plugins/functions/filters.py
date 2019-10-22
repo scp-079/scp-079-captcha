@@ -79,6 +79,18 @@ def is_class_d(_, message: Message) -> bool:
     return False
 
 
+def is_class_e(_, message: Message, test: bool = False) -> bool:
+    # Check if the message is Class E object
+    try:
+        if message.from_user and not test:
+            if is_class_e_user(message.from_user):
+                return True
+    except Exception as e:
+        logger.warning(f"Is class e error: {e}", exc_info=True)
+
+    return False
+
+
 def is_declared_message(_, message: Message) -> bool:
     # Check if the message is declared by other bots
     try:
@@ -174,6 +186,11 @@ class_c = Filters.create(
 class_d = Filters.create(
     func=is_class_d,
     name="Class D"
+)
+
+class_e = Filters.create(
+    func=is_class_e,
+    name="Class E"
 )
 
 declared_message = Filters.create(
