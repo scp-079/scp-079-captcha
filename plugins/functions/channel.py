@@ -160,25 +160,31 @@ def forward_evidence(client: Client, uid: int, level: str, rule: str, gid: int,
 
 
 def get_debug_text(client: Client, context: Union[int, Chat, List[int]]) -> str:
-    # Get a debug message text prefix, accept int list
+    # Get a debug message text prefix
     text = ""
     try:
+        # Prefix
+        text = f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
+
+        # List of group ids
         if isinstance(context, list):
-            text = f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
             for group_id in context:
                 group_name, group_link = get_group_info(client, group_id)
                 text += (f"{lang('group_name')}{lang('colon')}{general_link(group_name, group_link)}\n"
                          f"{lang('group_id')}{lang('colon')}{code(group_id)}\n")
+
+        # One group
         else:
+            # Get group id
             if isinstance(context, int):
                 group_id = context
             else:
                 group_id = context.id
 
+            # Generate the group info text
             group_name, group_link = get_group_info(client, context)
-            text = (f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
-                    f"{lang('group_name')}{lang('colon')}{general_link(group_name, group_link)}\n"
-                    f"{lang('group_id')}{lang('colon')}{code(group_id)}\n")
+            text += (f"{lang('group_name')}{lang('colon')}{general_link(group_name, group_link)}\n"
+                     f"{lang('group_id')}{lang('colon')}{code(group_id)}\n")
     except Exception as e:
         logger.warning(f"Get debug text error: {e}", exc_info=True)
 
