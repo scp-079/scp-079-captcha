@@ -54,7 +54,7 @@ def hint(client: Client, message: Message) -> bool:
         # Basic data
         gid = message.chat.id
         mid = message.message_id
-        now = get_now()
+        now = message.date or get_now()
 
         for new in message.new_chat_members:
             # Basic data

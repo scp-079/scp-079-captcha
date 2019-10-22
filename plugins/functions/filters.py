@@ -22,7 +22,7 @@ from copy import deepcopy
 from string import ascii_lowercase
 from typing import Match, Optional, Union
 
-from pyrogram import Filters, Message, User
+from pyrogram import CallbackQuery, Filters, Message, User
 
 from .. import glovar
 from .etc import get_now, get_text
@@ -33,9 +33,14 @@ from .ids import init_group_id
 logger = logging.getLogger(__name__)
 
 
-def is_captcha_group(_, message: Message) -> bool:
+def is_captcha_group(_, update: Union[CallbackQuery, Message]) -> bool:
     # Check if the message is sent from the captcha group
     try:
+        if isinstance(update, CallbackQuery):
+            message = update.message
+        else:
+            message = update
+
         if message.chat:
             cid = message.chat.id
             if cid == glovar.captcha_group_id:
@@ -310,34 +315,6 @@ def is_declared_message_id(gid: int, mid: int) -> bool:
             return True
     except Exception as e:
         logger.warning(f"Is declared message id error: {e}", exc_info=True)
-
-    return False
-
-
-def is_detected_user(message: Message) -> bool:
-    # Check if the message is sent by a detected user
-    try:
-        if message.from_user:
-            gid = message.chat.id
-            uid = message.from_user.id
-            now = message.date or get_now()
-            return is_detected_user_id(gid, uid, now)
-    except Exception as e:
-        logger.warning(f"Is detected user error: {e}", exc_info=True)
-
-    return False
-
-
-def is_detected_user_id(gid: int, uid: int, now: int) -> bool:
-    # Check if the user_id is detected in the group
-    try:
-        user = glovar.user_ids.get(uid, {})
-        if user:
-            status = user["failed"].get(gid, 0)
-            if now - status < glovar.time_punish:
-                return True
-    except Exception as e:
-        logger.warning(f"Is detected user id error: {e}", exc_info=True)
 
     return False
 
