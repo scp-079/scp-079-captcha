@@ -442,6 +442,8 @@ regex: Dict[str, bool] = {
     "iml": False,
     "pho": False,
     "nm": False,
+    "spc": False,
+    "spe": False,
     "wb": True
 }
 for c in ascii_lowercase:
@@ -459,7 +461,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.0.1"
+version: str = "0.0.2"
 
 # Load data from pickle
 
