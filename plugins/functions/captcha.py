@@ -20,13 +20,13 @@ import logging
 from random import choice, randint, shuffle
 from typing import Optional
 
-from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, User
+from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message, User
 
 from .. import glovar
-from .etc import button_data, code, get_full_name, get_now, lang, text_mention
+from .etc import button_data, code, get_full_name, get_now, get_text, lang, text_mention
 from .file import save
 from .group import delete_message
-from .user import restrict_user
+from .user import restrict_user, terminate_user
 from .telegram import send_message
 
 # Enable logging
@@ -79,6 +79,30 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
         save("user_ids")
     except Exception as e:
         logger.warning(f"Add wait error: {e}", exc_info=True)
+
+    return False
+
+
+def answer_question(client: Client, message: Message) -> bool:
+    # Answer question
+    try:
+        # Basic data
+        uid = message.from_user.id
+        text = get_text(message)
+
+        # Check answer
+        answer = glovar.user_ids[uid]["answer"]
+        if text and answer and text == answer:
+            terminate_user(client, "succeed", uid)
+        else:
+            glovar.user_ids[uid]["try"] += 1
+            save("user_ids")
+            if glovar.user_ids[uid]["try"] == glovar.limit_try:
+                terminate_user(client, "wrong", uid)
+
+        return True
+    except Exception as e:
+        logger.warning(f"Answer question error: {e}", exc_info=True)
 
     return False
 

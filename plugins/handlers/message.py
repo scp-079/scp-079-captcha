@@ -78,15 +78,15 @@ def captcha(client: Client, message: Message) -> bool:
             if wait_time:
                 continue
 
-            # Check succeed list
-            succeed_time = glovar.user_ids[uid]["succeed"].get(gid, 0)
-            if now - succeed_time < glovar.time_recheck:
+            # Check succeeded list
+            succeeded_time = glovar.user_ids[uid]["succeeded"].get(gid, 0)
+            if now - succeeded_time < glovar.time_recheck:
                 continue
 
             # Auto pass
             if glovar.configs[gid].get("pass"):
-                succeed_time = glovar.user_ids[uid]["succeed"] and max(glovar.user_ids[uid]["succeed"].values())
-                if (succeed_time and now - succeed_time < glovar.time_recheck
+                succeeded_time = glovar.user_ids[uid]["succeeded"] and max(glovar.user_ids[uid]["succeeded"].values())
+                if (succeeded_time and now - succeeded_time < glovar.time_recheck
                         and not is_watch_user(message, "ban")
                         and not is_watch_user(message, "delete")
                         and not is_limited_user(gid, new, now)):
@@ -95,7 +95,7 @@ def captcha(client: Client, message: Message) -> bool:
             # Check failed list
             failed_time = glovar.user_ids[uid]["failed"].get(gid, 0)
             if now - failed_time < glovar.time_punish:
-                terminate_user(client, gid, uid, "punish")
+                terminate_user(client, "punish", uid, gid)
 
             # Work with NOSPAM
             if glovar.nospam_id in glovar.admin_ids[gid]:
@@ -144,7 +144,7 @@ def check(client: Client, message: Message) -> bool:
 
         # Check wait list
         if glovar.user_ids[uid]["wait"].get(gid, 0):
-            terminate_user(client, gid, uid, "delete", mid)
+            terminate_user(client, "delete", uid, gid, mid)
 
         return True
     except Exception as e:
@@ -189,7 +189,7 @@ def verify_ask(client: Client, message: Message) -> bool:
                 return True
 
             # Ask a new question
-            ask_question(client, uid)
+            ask_question(client, new, mid)
 
         return True
     except Exception as e:

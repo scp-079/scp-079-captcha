@@ -107,7 +107,7 @@ def restrict_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
     return False
 
 
-def terminate_user(client: Client, gid: int, uid: int, the_type: str, mid: int = 0) -> bool:
+def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: int = 0) -> bool:
     # Terminate the user
     try:
         if the_type == "delete" and mid:
@@ -116,6 +116,9 @@ def terminate_user(client: Client, gid: int, uid: int, the_type: str, mid: int =
 
         elif the_type == "punish":
             change_member_status(client, gid, uid)
+
+        elif the_type == "succeed":
+            pass
     except Exception as e:
         logger.warning(f"Terminate user error: {e}", exc_info=True)
 

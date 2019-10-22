@@ -288,9 +288,9 @@ def update_score(client: Client, uid: int) -> bool:
     # Update a user's score, share it
     try:
         pass_count = len(glovar.user_ids[uid]["pass"])
-        succeed_count = len(glovar.user_ids[uid]["succeed"])
+        succeeded_count = len(glovar.user_ids[uid]["succeeded"])
         failed_count = len(glovar.user_ids[uid]["failed"])
-        score = pass_count * -0.2 + succeed_count * -0.3 + failed_count * 0.6
+        score = pass_count * -0.2 + succeeded_count * -0.3 + failed_count * 0.6
         glovar.user_ids[uid]["score"][glovar.sender.lower()] = score
         save("user_ids")
         share_data(
