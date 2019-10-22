@@ -108,7 +108,8 @@ def check(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~test_group & from_user & Filters.new_chat_members & ~new_group
+@Client.on_message(Filters.incoming & Filters.group & ~test_group & ~captcha_group & from_user
+                   & Filters.new_chat_members & ~new_group
                    & ~class_c & ~declared_message)
 def check_join(client: Client, message: Message) -> bool:
     # Check new joined user
@@ -149,7 +150,10 @@ def check_join(client: Client, message: Message) -> bool:
             # Auto pass
             if glovar.configs[gid].get("pass"):
                 succeed_time = glovar.user_ids[uid]["succeed"] and max(glovar.user_ids[uid]["succeed"].values())
-                if succeed_time and now - succeed_time < glovar.time_recheck:
+                if (succeed_time and now - succeed_time < glovar.time_recheck
+                        and not is_watch_user(message, "ban")
+                        and not is_watch_user(message, "delete")
+                        and not is_limited_user(gid, new, now)):
                     continue
 
             # Check failed list
@@ -304,19 +308,21 @@ def process_data(client: Client, message: Message) -> bool:
         # so it is intentionally written like this
         if glovar.sender in receivers:
 
-            if sender == "CAPTCHA":
-
-                if action == "update":
-                    if action_type == "score":
-                        receive_user_score(sender, data)
-
-            elif sender == "CONFIG":
+            if sender == "CONFIG":
 
                 if action == "config":
                     if action_type == "commit":
                         receive_config_commit(data)
                     elif action_type == "reply":
                         receive_config_reply(client, data)
+
+            elif sender == "CLEAN":
+
+                if action == "add":
+                    if action_type == "bad":
+                        receive_add_bad(sender, data)
+                    elif action_type == "watch":
+                        receive_watch_user(data)
 
             elif sender == "LANG":
 
