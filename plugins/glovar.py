@@ -61,6 +61,7 @@ user_id: int = 0
 warn_id: int = 0
 
 # [channels]
+captcha_group_id: int = 0
 critical_channel_id: int = 0
 debug_channel_id: int = 0
 exchange_channel_id: int = 0
@@ -74,6 +75,7 @@ captcha_link: str = ""
 date_reset: str = ""
 default_group_link: str = ""
 limit_track: int = 0
+limit_try: int = 0
 project_link: str = ""
 project_name: str = ""
 time_captcha: int = 0
@@ -117,6 +119,7 @@ try:
     user_id = int(config["bots"].get("user_id", user_id))
     warn_id = int(config["bots"].get("warn_id", warn_id))
     # [channels]
+    captcha_group_id = int(config["channels"].get("captcha_group_id", captcha_group_id))
     critical_channel_id = int(config["channels"].get("critical_channel_id", critical_channel_id))
     debug_channel_id = int(config["channels"].get("debug_channel_id", debug_channel_id))
     exchange_channel_id = int(config["channels"].get("exchange_channel_id", exchange_channel_id))
@@ -130,6 +133,7 @@ try:
     date_reset = config["custom"].get("date_reset", date_reset)
     default_group_link = config["custom"].get("default_group_link", default_group_link)
     limit_track = int(config["custom"].get("limit_track", limit_track))
+    limit_try = int(config["custom"].get("limit_try", limit_try))
     project_link = config["custom"].get("project_link", project_link)
     project_name = config["custom"].get("project_name", project_name)
     time_captcha = int(config["custom"].get("time_captcha", time_captcha))
@@ -170,6 +174,7 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or tip_id == 0
         or user_id == 0
         or warn_id == 0
+        or captcha_group_id == 0
         or critical_channel_id == 0
         or debug_channel_id == 0
         or exchange_channel_id == 0
@@ -181,6 +186,7 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or date_reset in {"", "[DATA EXPUNGED]"}
         or default_group_link in {"", "[DATA EXPUNGED]"}
         or limit_track == 0
+        or limit_try == 0
         or project_link in {"", "[DATA EXPUNGED]"}
         or project_name in {"", "[DATA EXPUNGED]"}
         or time_captcha == 0
@@ -347,7 +353,8 @@ default_config: Dict[str, Union[bool, int]] = {
     "restrict": False,
     "ban": False,
     "forgive": True,
-    "hint": True
+    "hint": True,
+    "pass": True
 }
 
 default_message_data: Dict[str, Union[int, Tuple[int, int]]] = {
@@ -355,9 +362,11 @@ default_message_data: Dict[str, Union[int, Tuple[int, int]]] = {
     "static": 0
 }
 
-default_user_status: Dict[str, Union[str, Dict[Union[int, str], Union[float, int]], Set[int], Tuple[int, int]]] = {
+default_user_status: Dict[str, Union[int, str, Dict[Union[int, str], Union[float, int]], Set[int]]] = {
     "name": "",
-    "mid": (0, 0),
+    "mid": 0,
+    "answer": "",
+    "try": 0,
     "join": {},
     "pass": {},
     "wait": {},
@@ -386,8 +395,7 @@ left_group_ids: Set[int] = set()
 locks: Dict[str, Lock] = {
     "admin": Lock(),
     "message": Lock(),
-    "regex": Lock(),
-    "test": Lock()
+    "regex": Lock()
 }
 
 media_group_ids: Set[int] = set()
@@ -464,11 +472,13 @@ message_ids: Dict[int, Dict[str, Union[int, Tuple[int, int]]]] = {}
 #     }
 # }
 
-user_ids: Dict[int, Dict[str, Union[str, Dict[Union[int, str], Union[float, int]], Set[int], Tuple[int, int]]]] = {}
+user_ids: Dict[int, Dict[str, Union[int, str, Dict[Union[int, str], Union[float, int]], Set[int]]]] = {}
 # user_ids = {
 #     12345678: {
 #         "name": "name",
-#         "mid": (123, 1512345678),
+#         "message_id": 123,
+#         "answer": "",
+#         "try": "",
 #         "join": {
 #               -10012345678: 1512345678
 #         },
@@ -524,7 +534,8 @@ configs: Dict[int, Dict[str, Union[bool, int]]] = {}
 #         "restrict": False,
 #         "ban": False,
 #         "forgive": True,
-#         "hint": False
+#         "hint": False,
+#         "pass": True
 #     }
 # }
 

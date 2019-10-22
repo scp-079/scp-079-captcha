@@ -26,10 +26,10 @@ from ..functions.channel import get_debug_text
 from ..functions.etc import code, general_link, get_forward_name, get_full_name, get_now, get_text
 from ..functions.etc import lang, thread, user_mention
 from ..functions.file import save
-from ..functions.filters import class_c, class_d, declared_message, exchange_channel, from_user, hide_channel
-from ..functions.filters import is_ban_text, is_bio_text, is_class_d_user, is_declared_message, is_high_score_user
-from ..functions.filters import is_limited_user, is_nm_text, is_regex_text, is_watch_user
-from ..functions.filters import new_group, test_group
+from ..functions.filters import captcha_group, class_c, class_d, declared_message, exchange_channel, from_user
+from ..functions.filters import hide_channel, is_ban_text, is_bio_text, is_class_d_user
+from ..functions.filters import is_declared_message, is_high_score_user, is_limited_user, is_nm_text, is_regex_text
+from ..functions.filters import is_watch_user, new_group, test_group
 from ..functions.group import delete_message, leave_group
 from ..functions.ids import init_group_id, init_user_id
 from ..functions.receive import receive_add_bad, receive_config_commit, receive_clear_data
@@ -45,8 +45,8 @@ from ..functions.user import terminate_user
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~test_group & from_user & ~Filters.new_chat_members
-                   & ~class_d & ~declared_message)
+@Client.on_message(Filters.incoming & Filters.group & ~test_group & ~captcha_group & from_user
+                   & ~Filters.new_chat_members & ~class_d & ~declared_message)
 def check(client: Client, message: Message) -> bool:
     # Check the messages sent from groups
 
@@ -145,6 +145,12 @@ def check_join(client: Client, message: Message) -> bool:
             succeed_time = glovar.user_ids[uid]["succeed"].get(gid, 0)
             if now - succeed_time < glovar.time_recheck:
                 continue
+
+            # Auto pass
+            if glovar.configs[gid].get("pass"):
+                succeed_time = glovar.user_ids[uid]["succeed"] and max(glovar.user_ids[uid]["succeed"].values())
+                if succeed_time and now - succeed_time < glovar.time_recheck:
+                    continue
 
             # Check failed list
             failed_time = glovar.user_ids[uid]["failed"].get(gid, 0)

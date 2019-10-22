@@ -127,7 +127,7 @@ def format_data(sender: str, receivers: List[str], action: str, action_type: str
     return text
 
 
-def forward_evidence(client: Client, uid: int, level: str, rule: str,
+def forward_evidence(client: Client, uid: int, level: str, rule: str, gid: int,
                      more: str = None) -> Optional[Union[bool, Message]]:
     # Forward the message to the channel as evidence
     result = None
@@ -145,7 +145,7 @@ def forward_evidence(client: Client, uid: int, level: str, rule: str,
         if name:
             text += f"{lang('user_name')}{lang('colon')}{code(name)}\n"
 
-        joined = min(glovar.user_ids[uid]["wait"].values())
+        joined = glovar.user_ids[uid]["wait"].get(gid, 0)
         if joined:
             text += f"{lang('joined')}{lang('colon')}{code(joined)}\n"
 

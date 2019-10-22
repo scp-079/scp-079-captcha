@@ -33,6 +33,19 @@ from .ids import init_group_id
 logger = logging.getLogger(__name__)
 
 
+def is_captcha_group(_, message: Message) -> bool:
+    # Check if the message is sent from the captcha group
+    try:
+        if message.chat:
+            cid = message.chat.id
+            if cid == glovar.captcha_group_id:
+                return True
+    except Exception as e:
+        logger.warning(f"Is captcha group error: {e}", exc_info=True)
+
+    return False
+
+
 def is_class_c(_, message: Message) -> bool:
     # Check if the message is Class C object
     try:
@@ -147,6 +160,11 @@ def is_test_group(_, message: Message) -> bool:
 
     return False
 
+
+captcha_group = Filters.create(
+    func=is_captcha_group,
+    name="CAPTCHA Group"
+)
 
 class_c = Filters.create(
     func=is_class_c,

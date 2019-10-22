@@ -22,7 +22,10 @@ from typing import Optional
 from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
-from .etc import button_data, code, get_now, lang, text_mention, thread
+from .etc import button_data, code, get_now, lang, text_mention
+from .file import save
+from .group import delete_message
+from .user import restrict_user
 from .telegram import send_message
 
 # Enable logging
@@ -35,13 +38,14 @@ def add_wait(client: Client, gid: int, uid: int, mid: int) -> bool:
         # Add the user
         now = get_now()
         glovar.user_ids[uid]["wait"][gid] = now
+        save("user_ids")
 
         # Check hint config
         if not glovar.configs[gid].get("hint"):
             return True
 
         # Generate the hint text
-        wait_list = list(glovar.user_ids[uid]["wait"])
+        wait_list = [wid for wid in glovar.user_ids if glovar.user_ids[wid]["wait"].get(gid, 0)]
         count_text = f"{len(wait_list)} {lang('members')}"
         text = f"{lang('wait_user')}{lang('colon')}{code(count_text)}\n"
 
@@ -54,7 +58,16 @@ def add_wait(client: Client, gid: int, uid: int, mid: int) -> bool:
         markup = get_captcha_markup("hint")
 
         # Send the message
-        thread(send_message, (client, gid, text, mid, markup))
+        result = send_message(client, gid, text, mid, markup)
+        if result:
+            restrict_user(client, gid, uid)
+            new_id = result.message_id
+            old_id, _ = glovar.message_ids[gid]["hint"]
+            glovar.message_ids[gid]["hint"] = (new_id, now)
+            old_id and delete_message(client, gid, old_id)
+        else:
+            glovar.user_ids[uid]["wait"].pop(gid, 0)
+            save("user_ids")
     except Exception as e:
         logger.warning(f"Add wait error: {e}", exc_info=True)
 
