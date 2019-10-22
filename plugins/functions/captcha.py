@@ -23,7 +23,7 @@ from typing import Optional
 from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message, User
 
 from .. import glovar
-from .etc import button_data, code, get_full_name, get_now, get_text, lang, text_mention
+from .etc import button_data, code, get_full_name, get_now, get_text, lang, name_mention, text_mention
 from .file import save
 from .group import delete_message
 from .user import restrict_user, terminate_user
@@ -122,7 +122,7 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
 
         # Generate the question text
         question_text = captcha["question"]
-        text = (f"{lang('user_name')}{lang('colon')}{code(name)}\n"
+        text = (f"{lang('user_name')}{lang('colon')}{name_mention(user)}\n"
                 f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
                 f"{lang('description')}{lang('colon')}{code(lang('description_ask'))}\n"
                 f"{lang('question')}{lang('colon')}{code(question_text)}\n")

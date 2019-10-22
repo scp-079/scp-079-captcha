@@ -23,11 +23,12 @@ from typing import Union
 from pyrogram import ChatPermissions, Client
 
 from .. import glovar
-from .channel import declare_message
-from .etc import thread
+from .channel import declare_message, update_score
+from .etc import code, get_now, lang, text_mention, thread
+from .file import save
 from .group import delete_message
 from .ids import init_user_id
-from .telegram import kick_chat_member, restrict_chat_member, unban_chat_member
+from .telegram import edit_message_text, kick_chat_member, restrict_chat_member, unban_chat_member
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -110,6 +111,9 @@ def restrict_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
 def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: int = 0) -> bool:
     # Terminate the user
     try:
+        # Basic data
+        now = get_now()
+
         if the_type == "delete" and mid:
             delete_message(client, gid, mid)
             declare_message(client, gid, mid)
@@ -118,7 +122,51 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             change_member_status(client, gid, uid)
 
         elif the_type == "succeed":
+            wait_group_list = list(glovar.user_ids[uid]["wait"])
+            for gid in wait_group_list:
+                unrestrict_user(client, gid, uid)
+
+            failed_group_list = list(glovar.user_ids[uid]["failed"])
+            for gid in failed_group_list:
+                glovar.user_ids[uid]["failed"].pop(gid, 0)
+
+            restricted_group_list = list(glovar.user_ids[uid]["restrict"])
+            for gid in restricted_group_list:
+                if glovar.configs[gid].get("forgive"):
+                    unrestrict_user(client, gid, uid)
+                    glovar.user_ids[uid]["restricted"].discard(gid)
+
+            banned_group_list = list(glovar.user_ids[uid]["banned"])
+            for gid in banned_group_list:
+                if glovar.configs[gid].get("forgive"):
+                    unban_user(client, gid, uid)
+                    glovar.user_ids[uid]["banned"].discard(gid)
+
+            # Modify the status
+            glovar.user_ids[uid]["wait"] = {}
+            glovar.user_ids[uid]["answer"] = ""
+            glovar.user_ids[uid]["try"] = 0
+            glovar.user_ids[uid]["succeeded"][gid] = now
+
+            # Edit the message
+            name = glovar.user_ids[uid]["name"]
+            mid = glovar.user_ids[uid]["mid"]
+            captcha_text = (f"{lang('user_name')}{lang('colon')}{text_mention(name, uid)}\n"
+                            f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
+                            f"{lang('description')}{lang('colon')}{code('description_succeed')}\n")
+            thread(edit_message_text, (client, glovar.captcha_group_id, mid, captcha_text))
+
+            # Reset message id
+            glovar.user_ids[uid]["mid"] = 0
+            save("user_ids")
+
+            # Update the score
+            update_score(client, uid)
+
+        elif the_type in ("timeout", "wrong"):
             pass
+
+        return True
     except Exception as e:
         logger.warning(f"Terminate user error: {e}", exc_info=True)
 

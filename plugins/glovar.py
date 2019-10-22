@@ -310,6 +310,7 @@ lang: Dict[str, str] = {
                          or (f"For new joined users, please click the button below to verify. "
                              f"Please complete verification within {time_captcha} seconds, "
                              f"or you will be removed from the group")),
+    "description_succeed": (zh_cn and ("您已验证成功，您可在相应群组中正常发言")),
     "question": (zh_cn and "问题") or "Question",
     # Terminate
     "auto_ban": (zh_cn and "自动封禁") or "Auto Ban",

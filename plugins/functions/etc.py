@@ -311,6 +311,22 @@ def message_link(message: Message) -> str:
     return text
 
 
+def name_mention(user: User) -> str:
+    # Get a mention text with user's name
+    text = ""
+    try:
+        if not user:
+            return ""
+
+        name = get_full_name(user)
+        uid = user.id
+        text = general_link(f"{name}", f"tg://user?id={uid}")
+    except Exception as e:
+        logger.warning(f"Name mention error: {e}", exc_info=True)
+
+    return text
+
+
 def random_str(i: int) -> str:
     # Get a random string
     text = ""
