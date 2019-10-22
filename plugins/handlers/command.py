@@ -331,7 +331,7 @@ def static(client: Client, message: Message) -> bool:
         # Proceed
         hint_text = f"{lang('description')}{lang('colon')}{lang('description_hint')}\n"
         markup = get_captcha_markup("hint")
-        result = send_message(client, gid, hint_text, markup)
+        result = send_message(client, gid, hint_text, 0, markup)
         if result:
             rid = result.message_id
             hid = glovar.message_ids[gid]["static"]
