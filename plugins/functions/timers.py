@@ -27,7 +27,7 @@ from .etc import code, general_link, get_now, lang, thread
 from .file import save
 from .group import delete_message, leave_group
 from .telegram import get_admins, get_group_info, send_message
-from .user import kick_user, terminate_user
+from .user import kick_user, terminate_user, unrestrict_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -117,12 +117,17 @@ def interval_min_10() -> bool:
 
 def reset_data(client: Client) -> bool:
     # Reset user data every month
+    glovar.locks["message"].acquire()
     try:
         glovar.bad_ids = {
             "channels": set(),
             "users": set()
         }
         save("bad_ids")
+
+        for uid in list(glovar.user_ids):
+            for gid in list(glovar.user_ids[uid]["wait"]):
+                unrestrict_user(client, gid, uid)
 
         glovar.user_ids = {}
         save("user_ids")
@@ -141,6 +146,8 @@ def reset_data(client: Client) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Reset data error: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
 
     return False
 

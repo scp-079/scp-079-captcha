@@ -27,27 +27,10 @@ from .channel import ask_for_help, declare_message, forward_evidence, send_debug
 from .etc import code, get_now, lang, mention_text, thread
 from .file import save
 from .group import delete_message
-from .ids import init_user_id
 from .telegram import edit_message_text, kick_chat_member, restrict_chat_member, unban_chat_member
 
 # Enable logging
 logger = logging.getLogger(__name__)
-
-
-def add_detected_user(gid: int, uid: int, now: int) -> bool:
-    # Add or update a detected user's status
-    try:
-        if not init_user_id(uid):
-            return False
-
-        previous = glovar.user_ids[uid]["failed"].get(gid)
-        glovar.user_ids[uid]["failed"][gid] = now
-
-        return bool(previous)
-    except Exception as e:
-        logger.warning(f"Add detected user error: {e}", exc_info=True)
-
-    return False
 
 
 def ban_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
@@ -71,7 +54,7 @@ def change_member_status(client: Client, level: str, gid: int, uid: int) -> bool
         elif level == "ban":
             ban_user(client, gid, uid)
             glovar.user_ids[uid]["ban"].add(gid)
-        else:
+        elif level == "kick":
             kick_user(client, gid, uid)
 
         return True

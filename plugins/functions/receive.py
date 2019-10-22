@@ -402,11 +402,8 @@ def receive_remove_score(client: Client, data: int) -> bool:
         if not glovar.user_ids.get(uid):
             return True
 
-        for gid in glovar.user_ids[uid]["restricted"]:
+        for gid in list(glovar.user_ids[uid]["wait"]):
             unrestrict_user(client, gid, uid)
-
-        for gid in glovar.user_ids[uid]["banned"]:
-            unban_user(client, gid, uid)
 
         glovar.user_ids[uid] = deepcopy(glovar.default_user_status)
         save("user_ids")

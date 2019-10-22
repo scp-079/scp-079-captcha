@@ -183,18 +183,23 @@ def verify_ask(client: Client, message: Message) -> bool:
             if is_class_d_user(new):
                 kick_user(client, gid, uid)
                 delete_message(client, gid, mid)
-                return True
+                continue
+
+            # Check user status
+            if not glovar.user_ids.get(uid):
+                kick_user(client, gid, uid)
+                continue
 
             # Check wait list
             if not glovar.user_ids[uid]["wait"]:
                 kick_user(client, gid, uid)
                 delete_message(client, gid, mid)
-                return True
+                continue
 
             # Check the question status
             if glovar.user_ids[uid]["mid"]:
                 delete_message(client, gid, mid)
-                return True
+                continue
 
             # Ask a new question
             ask_question(client, new, mid)
