@@ -335,6 +335,7 @@ def static(client: Client, message: Message) -> bool:
         if result:
             new_id = result.message_id
             old_id = glovar.message_ids[gid]["static"]
+            logger.warning(old_id)
             old_id and delete_message(client, gid, old_id)
             glovar.message_ids[gid]["static"] = new_id
             save("message_ids")
