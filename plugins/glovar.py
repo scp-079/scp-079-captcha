@@ -315,6 +315,7 @@ lang: Dict[str, str] = {
     "description_timeout": (zh_cn and "验证超时") or "Verification Timeout",
     "description_wrong": (zh_cn and "验证失败，回答错误") or "Verification failed. Wrong answer",
     "question": (zh_cn and "问题") or "Question",
+    "wait_user": (zh_cn and "待验证用户") or "Users Need to Be Verified",
     # Terminate
     "auto_ban": (zh_cn and "自动封禁") or "Auto Ban",
     "auto_delete": (zh_cn and "自动删除") or "Auto Delete",

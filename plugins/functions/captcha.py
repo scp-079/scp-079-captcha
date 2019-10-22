@@ -26,7 +26,7 @@ from .. import glovar
 from .etc import button_data, code, get_full_name, get_now, get_text, lang, name_mention, text_mention
 from .file import save
 from .group import delete_message
-from .user import restrict_user, terminate_user
+from .user import restrict_user, terminate_user, unrestrict_user
 from .telegram import send_message
 
 # Enable logging
@@ -48,14 +48,15 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
 
         # Check hint config
         if not glovar.configs[gid].get("hint"):
+            restrict_user(client, gid, uid)
             return True
 
         # Generate the hint text
-        wait_list = [wid for wid in glovar.user_ids if glovar.user_ids[wid]["wait"].get(gid, 0)]
-        count_text = f"{len(wait_list)} {lang('members')}"
+        wait_user_list = [wid for wid in glovar.user_ids if glovar.user_ids[wid]["wait"].get(gid, 0)]
+        count_text = f"{len(wait_user_list)} {lang('members')}"
         text = f"{lang('wait_user')}{lang('colon')}{code(count_text)}\n"
 
-        for wid in wait_list:
+        for wid in wait_user_list:
             text += text_mention("\U00002060", wid)
 
         text += f"{lang('description')}{lang('colon')}{lang('description_hint')}\n"
@@ -115,7 +116,7 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
 
         # Get the question data
         the_type = choice(["math"])
-        captcha = eval(f"captcha_{the_type}")
+        captcha = eval(f"captcha_{the_type}")(uid)
 
         if not captcha:
             return True
@@ -136,6 +137,11 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
             captcha_message_id = result.message_id
             glovar.user_ids[uid]["mid"] = captcha_message_id
         else:
+            wait_group_list = list(glovar.user_ids[uid]["wait"])
+
+            for gid in wait_group_list:
+                unrestrict_user(client, gid, uid)
+
             glovar.user_ids[uid]["wait"] = {}
 
         save("user_ids")
@@ -190,6 +196,7 @@ def get_captcha_markup(the_type: str, captcha: dict = None) -> Optional[InlineKe
             uid = captcha["user_id"]
             candidates = captcha["candidates"]
             markup_list = [[]]
+
             for candidate in candidates:
                 button = button_data("answer", candidate, uid)
                 markup_list[0][0].append(
@@ -198,6 +205,8 @@ def get_captcha_markup(the_type: str, captcha: dict = None) -> Optional[InlineKe
                         callback_data=button
                     )
                 )
+
+            result = InlineKeyboardMarkup(markup_list)
         elif the_type == "hint":
             query_data = button_data("hint", "check", None)
             result = InlineKeyboardMarkup(
