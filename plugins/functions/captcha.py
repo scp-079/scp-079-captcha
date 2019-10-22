@@ -67,7 +67,6 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
         result = send_message(client, gid, text, mid, markup)
         if result:
             restrict_user(client, gid, uid)
-            glovar.user_ids[uid]["restricted"].add(gid)
             new_id = result.message_id
             old_id, _ = glovar.message_ids[gid]["hint"]
             glovar.message_ids[gid]["hint"] = (new_id, now)
