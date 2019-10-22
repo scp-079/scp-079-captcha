@@ -97,7 +97,8 @@ def answer_question(client: Client, message: Message) -> bool:
             glovar.user_ids[uid]["try"] += 1
             save("user_ids")
             if glovar.user_ids[uid]["try"] == glovar.limit_try:
-                terminate_user(client, "wrong", uid)
+                gid = min(glovar.user_ids[uid]["wait"], key=glovar.user_ids[uid]["wait"].get)
+                terminate_user(client, "wrong", uid, gid)
 
         return True
     except Exception as e:

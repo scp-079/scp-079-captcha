@@ -20,7 +20,7 @@ import logging
 from json import dumps
 from typing import List, Optional, Union
 
-from pyrogram import Chat, Client, Message
+from pyrogram import Client, Message
 
 from .. import glovar
 from .etc import code, code_block, general_link, lang, message_link, thread
@@ -161,29 +161,25 @@ def forward_evidence(client: Client, uid: int, level: str, rule: str, gid: int,
     return result
 
 
-def get_debug_text(client: Client, context: Union[int, Chat]) -> str:
-    # Get a debug message text prefix, accept int or Chat
+def get_debug_text(client: Client, gids: List[int]) -> str:
+    # Get a debug message text prefix, accept int list
     text = ""
     try:
-        if isinstance(context, int):
-            group_id = context
-        else:
-            group_id = context.id
-
-        group_name, group_link = get_group_info(client, context)
-        text = (f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
-                f"{lang('group_name')}{lang('colon')}{general_link(group_name, group_link)}\n"
-                f"{lang('group_id')}{lang('colon')}{code(group_id)}\n")
+        text = f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
+        for group_id in gids:
+            group_name, group_link = get_group_info(client, group_id)
+            text += (f"{lang('group_name')}{lang('colon')}{general_link(group_name, group_link)}\n"
+                     f"{lang('group_id')}{lang('colon')}{code(group_id)}\n")
     except Exception as e:
         logger.warning(f"Get debug text error: {e}", exc_info=True)
 
     return text
 
 
-def send_debug(client: Client, gid: int, action: str, uid: int, em: Message) -> bool:
+def send_debug(client: Client, gids: List[int], action: str, uid: int, em: Message) -> bool:
     # Send the debug message
     try:
-        text = get_debug_text(client, gid)
+        text = get_debug_text(client, gids)
         text += (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
                  f"{lang('action')}{lang('colon')}{code(action)}\n")
 
