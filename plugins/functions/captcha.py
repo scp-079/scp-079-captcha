@@ -111,7 +111,6 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
     try:
         # Basic data
         uid = user.id
-        name = get_full_name(user)
 
         # Get the question data
         the_type = choice(["math"])

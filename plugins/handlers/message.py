@@ -47,7 +47,7 @@ logger = logging.getLogger(__name__)
                    & ~test_group & ~captcha_group & ~new_group
                    & from_user & ~class_c & ~class_e
                    & ~declared_message)
-def captcha(client: Client, message: Message) -> bool:
+def hint(client: Client, message: Message) -> bool:
     # Check new joined user
     glovar.locks["message"].acquire()
     try:
@@ -122,7 +122,7 @@ def captcha(client: Client, message: Message) -> bool:
 
         return True
     except Exception as e:
-        logger.warning(f"Captcha error: {e}", exc_info=True)
+        logger.warning(f"Hint error: {e}", exc_info=True)
     finally:
         glovar.locks["message"].release()
 

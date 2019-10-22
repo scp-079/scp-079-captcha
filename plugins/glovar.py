@@ -312,6 +312,8 @@ lang: Dict[str, str] = {
                              f"or you will be removed from the group")),
     "description_succeed": ((zh_cn and "您已验证成功，您可在相应群组中正常发言")
                             or "The verification is successful and you can speak in corresponding groups"),
+    "description_timeout": (zh_cn and "验证超时") or "Verification Timeout",
+    "description_wrong": (zh_cn and "验证失败，回答错误") or "Verification failed. Wrong answer",
     "question": (zh_cn and "问题") or "Question",
     # Terminate
     "auto_ban": (zh_cn and "自动封禁") or "Auto Ban",

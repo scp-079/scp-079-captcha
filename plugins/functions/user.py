@@ -23,7 +23,7 @@ from typing import Union
 from pyrogram import ChatPermissions, Client
 
 from .. import glovar
-from .channel import declare_message, update_score
+from .channel import declare_message, forward_evidence, send_debug, update_score
 from .etc import code, get_now, lang, text_mention, thread
 from .file import save
 from .group import delete_message
@@ -62,22 +62,35 @@ def ban_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
     return False
 
 
-def change_member_status(client: Client, gid: int, uid: int) -> str:
+def change_member_status(client: Client, level: str, gid: int, uid: int) -> bool:
     # Chat member's status in the group
     try:
-        if glovar.configs[gid].get("restrict"):
+        if level == "restrict":
             restrict_user(client, gid, uid)
             glovar.user_ids[uid]["restrict"].add(gid)
+        elif level == "ban":
+            ban_user(client, gid, uid)
+            glovar.user_ids[uid]["ban"].add(gid)
+        else:
+            kick_user(client, gid, uid)
+
+        return True
+    except Exception as e:
+        logger.warning(f"Change member status: {e}", exc_info=True)
+
+    return False
+
+
+def get_level(gid: int) -> str:
+    # Get level
+    try:
+        if glovar.configs[gid].get("restrict"):
             return "restrict"
 
         if glovar.configs[gid].get("ban"):
-            ban_user(client, gid, uid)
-            glovar.user_ids[uid]["ban"].add(gid)
             return "ban"
-
-        kick_user(client, gid, uid)
     except Exception as e:
-        logger.warning(f"Change member status: {e}", exc_info=True)
+        logger.warning(f"Get level status: {e}", exc_info=True)
 
     return "kick"
 
@@ -119,7 +132,8 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             declare_message(client, gid, mid)
 
         elif the_type == "punish":
-            change_member_status(client, gid, uid)
+            level = get_level(gid)
+            change_member_status(client, level, gid, uid)
 
         elif the_type == "succeed":
             wait_group_list = list(glovar.user_ids[uid]["wait"])
@@ -163,8 +177,38 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             # Update the score
             update_score(client, uid)
 
-        elif the_type in ("timeout", "wrong"):
-            pass
+        elif the_type == "timeout":
+            level = get_level(gid)
+            result = forward_evidence(
+                client=client,
+                uid=uid,
+                level=lang(f"auto_{level}"),
+                rule=lang("rule_global"),
+                gid=gid,
+                more=lang("description_timeout")
+            )
+            if result:
+
+                change_member_status(client, level, gid, uid)
+
+                # Edit the message
+                name = glovar.user_ids[uid]["name"]
+                mid = glovar.user_ids[uid]["mid"]
+                captcha_text = (f"{lang('user_name')}{lang('colon')}{text_mention(name, uid)}\n"
+                                f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
+                                f"{lang('description')}{lang('colon')}{code('description_timeout')}\n")
+                thread(edit_message_text, (client, glovar.captcha_group_id, mid, captcha_text))
+
+                # Update the score
+                update_score(client, uid)
+
+                send_debug(
+                    client=client,
+                    gid=gid,
+                    action=lang(f"auto_{level}"),
+                    uid=uid,
+                    em=result
+                )
 
         return True
     except Exception as e:
