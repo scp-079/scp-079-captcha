@@ -5,6 +5,7 @@ api_hash = [DATA EXPUNGED]
 [plugins]
 root = plugins
 include =
+    handlers.callback
     handlers.command
     handlers.message
 
