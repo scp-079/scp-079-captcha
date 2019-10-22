@@ -305,7 +305,7 @@ lang: Dict[str, str] = {
     "action_pass": (zh_cn and "手动通过") or "Pass Manually",
     "action_static": (zh_cn and "发送固定提示消息") or "Send Static Hint",
     "action_verified": (zh_cn and "通过验证") or "Verified",
-    "captcha_check": (zh_cn and "我需要验证吗？") or "Should I Verify?",
+    "captcha_check": (zh_cn and "我需要验证吗") or "Should I Verify",
     "captcha_go": (zh_cn and "前往验证") or "Go to Verify",
     "description_ask": (zh_cn and ("请您尽快回答下方的问题以完成验证，"
                                    "您可以点击相应按钮或直接发送答案")
