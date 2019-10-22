@@ -23,7 +23,7 @@ from pyrogram import Client, Filters, Message
 from .. import glovar
 from ..functions.captcha import add_wait, answer_question, ask_question
 from ..functions.channel import get_debug_text
-from ..functions.etc import code, general_link, get_full_name, get_now, lang, thread, user_mention
+from ..functions.etc import code, general_link, get_full_name, get_now, lang, thread, mention_id
 from ..functions.file import save
 from ..functions.filters import captcha_group, class_c, class_d, class_e, declared_message, exchange_channel, from_user
 from ..functions.filters import hide_channel, is_bio_text, is_class_d_user, is_declared_message, is_limited_user
@@ -327,7 +327,7 @@ def init_group(client: Client, message: Message) -> bool:
             text += (f"{lang('status')}{lang('colon')}{code(lang('status_left'))}\n"
                      f"{lang('reason')}{lang('colon')}{code(lang('reason_unauthorized'))}\n")
             if message.from_user.username:
-                text += f"{lang('inviter')}{lang('colon')}{user_mention(invited_by)}\n"
+                text += f"{lang('inviter')}{lang('colon')}{mention_id(invited_by)}\n"
             else:
                 text += f"{lang('inviter')}{lang('colon')}{code(invited_by)}\n"
 

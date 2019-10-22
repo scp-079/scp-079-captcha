@@ -24,7 +24,7 @@ from pyrogram import ChatPermissions, Client
 
 from .. import glovar
 from .channel import ask_for_help, declare_message, forward_evidence, send_debug, update_score
-from .etc import code, get_now, lang, text_mention, thread
+from .etc import code, get_now, lang, mention_text, thread
 from .file import save
 from .group import delete_message
 from .ids import init_user_id
@@ -168,7 +168,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             # Edit the message
             name = glovar.user_ids[uid]["name"]
             mid = glovar.user_ids[uid]["mid"]
-            captcha_text = (f"{lang('user_name')}{lang('colon')}{text_mention(name, uid)}\n"
+            captcha_text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
                             f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
                             f"{lang('description')}{lang('colon')}{code('description_succeed')}\n")
             thread(edit_message_text, (client, glovar.captcha_group_id, mid, captcha_text))
@@ -205,7 +205,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                 # Edit the message
                 name = glovar.user_ids[uid]["name"]
                 mid = glovar.user_ids[uid]["mid"]
-                captcha_text = (f"{lang('user_name')}{lang('colon')}{text_mention(name, uid)}\n"
+                captcha_text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
                                 f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
                                 f"{lang('description')}{lang('colon')}{code('description_timeout')}\n")
                 thread(edit_message_text, (client, glovar.captcha_group_id, mid, captcha_text))
@@ -253,7 +253,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                 # Edit the message
                 name = glovar.user_ids[uid]["name"]
                 mid = glovar.user_ids[uid]["mid"]
-                captcha_text = (f"{lang('user_name')}{lang('colon')}{text_mention(name, uid)}\n"
+                captcha_text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
                                 f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
                                 f"{lang('description')}{lang('colon')}{code('description_timeout')}\n")
                 thread(edit_message_text, (client, glovar.captcha_group_id, mid, captcha_text))

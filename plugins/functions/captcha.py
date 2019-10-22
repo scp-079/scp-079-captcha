@@ -23,7 +23,7 @@ from typing import Optional
 from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message, User
 
 from .. import glovar
-from .etc import button_data, code, get_full_name, get_now, get_text, lang, name_mention, text_mention
+from .etc import button_data, code, get_full_name, get_now, get_text, lang, mention_name, mention_text
 from .file import save
 from .group import delete_message
 from .user import restrict_user, terminate_user, unrestrict_user
@@ -57,7 +57,7 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
         text = f"{lang('wait_user')}{lang('colon')}{code(count_text)}\n"
 
         for wid in wait_user_list:
-            text += text_mention("\U00002060", wid)
+            text += mention_text("\U00002060", wid)
 
         text += f"{lang('description')}{lang('colon')}{lang('description_hint')}\n"
 
@@ -123,7 +123,7 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
 
         # Generate the question text
         question_text = captcha["question"]
-        text = (f"{lang('user_name')}{lang('colon')}{name_mention(user)}\n"
+        text = (f"{lang('user_name')}{lang('colon')}{mention_name(user)}\n"
                 f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
                 f"{lang('description')}{lang('colon')}{code(lang('description_ask'))}\n"
                 f"{lang('question')}{lang('colon')}{code(question_text)}\n")

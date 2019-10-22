@@ -299,6 +299,44 @@ def lang(text: str) -> str:
     return result
 
 
+def mention_id(uid: int) -> str:
+    # Get a ID mention string
+    result = ""
+    try:
+        result = general_link(f"{uid}", f"tg://user?id={uid}")
+    except Exception as e:
+        logger.warning(f"Mention id error: {e}", exc_info=True)
+
+    return result
+
+
+def mention_name(user: User) -> str:
+    # Get a name mention string
+    result = ""
+    try:
+        if not user:
+            return ""
+
+        name = get_full_name(user)
+        uid = user.id
+        result = general_link(f"{name}", f"tg://user?id={uid}")
+    except Exception as e:
+        logger.warning(f"Mention name error: {e}", exc_info=True)
+
+    return result
+
+
+def mention_text(text: str, uid: int) -> str:
+    # Get a text mention string
+    result = ""
+    try:
+        result = general_link(f"{text}", f"tg://user?id={uid}")
+    except Exception as e:
+        logger.warning(f"Mention text error: {e}", exc_info=True)
+
+    return result
+
+
 def message_link(message: Message) -> str:
     # Get a message link in a channel
     text = ""
@@ -307,22 +345,6 @@ def message_link(message: Message) -> str:
         text = f"{get_channel_link(message)}/{mid}"
     except Exception as e:
         logger.warning(f"Message link error: {e}", exc_info=True)
-
-    return text
-
-
-def name_mention(user: User) -> str:
-    # Get a mention text with user's name
-    text = ""
-    try:
-        if not user:
-            return ""
-
-        name = get_full_name(user)
-        uid = user.id
-        text = general_link(f"{name}", f"tg://user?id={uid}")
-    except Exception as e:
-        logger.warning(f"Name mention error: {e}", exc_info=True)
 
     return text
 
@@ -361,17 +383,6 @@ def t2t(text: str, normal: bool, printable: bool = True) -> str:
     return text
 
 
-def text_mention(the_text: str, uid: int) -> str:
-    # Get a mention text
-    text = ""
-    try:
-        text = general_link(f"{the_text}", f"tg://user?id={uid}")
-    except Exception as e:
-        logger.warning(f"Text mention error: {e}", exc_info=True)
-
-    return text
-
-
 def thread(target: Callable, args: tuple) -> bool:
     # Call a function using thread
     try:
@@ -384,17 +395,6 @@ def thread(target: Callable, args: tuple) -> bool:
         logger.warning(f"Thread error: {e}", exc_info=True)
 
     return False
-
-
-def user_mention(uid: int) -> str:
-    # Get a mention text
-    text = ""
-    try:
-        text = general_link(f"{uid}", f"tg://user?id={uid}")
-    except Exception as e:
-        logger.warning(f"User mention error: {e}", exc_info=True)
-
-    return text
 
 
 def wait_flood(e: FloodWait) -> bool:
