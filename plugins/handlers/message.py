@@ -559,9 +559,10 @@ def process_data(client: Client, message: Message) -> bool:
                     if action_type == "delete":
                         gid = data["group_id"]
                         uid = data["user_id"]
-                        if glovar.user_ids.get(uid, {}):
-                            glovar.user_ids[uid]["wait"].pop(gid, 0)
-                            save("user_ids")
+                        with glovar.locks["message"]:
+                            if glovar.user_ids.get(uid, {}):
+                                glovar.user_ids[uid]["wait"].pop(gid, 0)
+                                save("user_ids")
 
         return True
     except Exception as e:

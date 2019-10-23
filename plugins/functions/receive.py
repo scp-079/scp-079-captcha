@@ -53,6 +53,11 @@ def receive_add_bad(sender: str, data: dict) -> bool:
         if the_type == "user":
             glovar.bad_ids["users"].add(the_id)
 
+            with glovar.locks["message"]:
+                if glovar.user_ids.get(the_id, {}):
+                    glovar.user_ids[the_id]["wait"] = {}
+                    save("user_ids")
+
         save("bad_ids")
 
         return True
