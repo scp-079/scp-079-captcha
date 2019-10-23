@@ -127,7 +127,7 @@ def new_invite_link(client: Client, the_type: str) -> bool:
         mid = glovar.invite["id"]
 
         # Generate link
-        link = export_chat_invite_link(client, glovar.captcha_channel_id)
+        link = export_chat_invite_link(client, glovar.captcha_group_id)
 
         if not link:
             return True
@@ -148,12 +148,15 @@ def new_invite_link(client: Client, the_type: str) -> bool:
         )
 
         if the_type == "edit" and mid:
-            edit_message_text(client, glovar.captcha_channel_id, mid, text, markup)
-        elif the_type in {"edit", "new"}:
-            result = send_message(client, glovar.captcha_channel_id, text, None, markup)
+            result = edit_message_text(client, glovar.captcha_channel_id, mid, text, markup)
             if result:
-                glovar.invite["id"] = result.message_id
-                mid and delete_message(client, glovar.captcha_channel_id, mid)
+                save("invite")
+                return True
+
+        result = send_message(client, glovar.captcha_channel_id, text, None, markup)
+        if result:
+            glovar.invite["id"] = result.message_id
+            mid and delete_message(client, glovar.captcha_channel_id, mid)
 
         save("invite")
 

@@ -219,7 +219,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                 captcha_text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
                                 f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
                                 f"{lang('description')}{lang('colon')}{code(lang('description_timeout'))}\n")
-                thread(edit_message_text, (client, glovar.captcha_group_id, mid, captcha_text))
+                mid and thread(edit_message_text, (client, glovar.captcha_group_id, mid, captcha_text))
 
                 # Reset message id
                 glovar.user_ids[uid]["mid"] = 0
