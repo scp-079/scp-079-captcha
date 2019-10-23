@@ -118,7 +118,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             declare_message(client, gid, mid)
 
         # Pass in group
-        if the_type == "pass":
+        elif the_type == "pass":
             glovar.user_ids[uid]["wait"].pop(gid, 0)
             unrestrict_user(client, gid, uid)
             glovar.user_ids[uid]["failed"].pop(gid, 0)
@@ -235,6 +235,19 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                     uid=uid,
                     em=result
                 )
+
+        # Pass in group
+        elif the_type == "undo_pass":
+            glovar.user_ids[uid]["pass"].pop(gid, 0)
+            save("user_ids")
+
+            send_debug(
+                client=client,
+                gids=[gid],
+                action=lang("action_undo_pass"),
+                uid=uid,
+                aid=aid
+            )
 
         # Verification Wrong
         elif the_type == "wrong":

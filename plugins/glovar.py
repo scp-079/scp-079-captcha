@@ -310,6 +310,7 @@ lang: Dict[str, str] = {
     "action_invite": (zh_cn and "重新生成邀请链接") or "Generate New Invite Link",
     "action_pass": (zh_cn and "手动通过") or "Pass Manually",
     "action_static": (zh_cn and "发送固定提示消息") or "Send Static Hint",
+    "action_undo_pass": (zh_cn and "撤销放行") or "Undo Pass",
     "action_verified": (zh_cn and "通过验证") or "Verified",
     "check_no": (zh_cn and "您在本群中不需要验证即可发言") or "You can send messages without verification in this group",
     "check_yes": (zh_cn and "您需要验证才能在本群发言") or "You need to verify to send messages in this group",
@@ -478,7 +479,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.0.2"
+version: str = "0.0.4"
 
 # Load data from pickle
 

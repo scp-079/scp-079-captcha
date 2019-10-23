@@ -300,8 +300,7 @@ def pass_group(client: Client, message: Message) -> bool:
 
         # Generate the report message's text
         aid = message.from_user.id
-        text = (f"{lang('admin')}{lang('colon')}{code(aid)}\n"
-                f"{lang('action')}{lang('colon')}{code(lang('action_pass'))}\n")
+        text = f"{lang('admin')}{lang('colon')}{code(aid)}\n"
 
         # Proceed
         if message.reply_to_message and message.reply_to_message.from_user:
@@ -317,18 +316,36 @@ def pass_group(client: Client, message: Message) -> bool:
                 if peer_type == "user":
                     uid = peer_id
 
-        if uid and glovar.user_ids.get(uid) and glovar.user_ids[uid]["wait"].get(gid, 0):
-            terminate_user(
-                client=client,
-                the_type="pass",
-                uid=uid,
-                gid=gid,
-                aid=aid
-            )
-            text += (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
-                     f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
+        if uid and glovar.user_ids.get(uid):
+            if glovar.user_ids[uid]["wait"].get(gid, 0):
+                terminate_user(
+                    client=client,
+                    the_type="pass",
+                    uid=uid,
+                    gid=gid,
+                    aid=aid
+                )
+                text += (f"{lang('action')}{lang('colon')}{code(lang('action_pass'))}\n"
+                         f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
+                         f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
+            elif glovar.user_ids[uid]["pass"].get(gid, 0):
+                terminate_user(
+                    client=client,
+                    the_type="undo_pass",
+                    uid=uid,
+                    gid=gid,
+                    aid=aid
+                )
+                text += (f"{lang('action')}{lang('colon')}{code(lang('action_undo_pass'))}\n"
+                         f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
+                         f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
+            else:
+                text += (f"{lang('action')}{lang('colon')}{code(lang('action_pass'))}\n"
+                         f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                         f"{lang('reason')}{lang('colon')}{code(lang('reason_none'))}\n")
         else:
-            text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+            text += (f"{lang('action')}{lang('colon')}{code(lang('action_pass'))}\n"
+                     f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
                      f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
 
         # Send the report message
