@@ -157,10 +157,11 @@ def config_directly(client: Client, message: Message) -> bool:
                                 success = False
                                 reason = lang("command_para")
 
-                            if command_type == "restrict" and new_config[command_type]:
-                                new_config["ban"] = False
-                            elif command_type == "ban" and new_config[command_type]:
-                                new_config["restrict"] = False
+                            config_list = ["restrict", "ban"]
+                            if command_type in config_list and new_config[command_type]:
+                                config_list.remove(command_type)
+                                for other in config_list:
+                                    new_config[other] = False
                         else:
                             success = False
                             reason = lang("command_type")
