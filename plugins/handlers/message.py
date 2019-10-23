@@ -550,6 +550,19 @@ def process_data(client: Client, message: Message) -> bool:
                     if action_type == "watch":
                         receive_watch_user(data)
 
+        # Temp
+        elif "USER" in receivers:
+
+            if sender == "WARN":
+
+                if action == "help":
+                    if action_type == "delete":
+                        gid = data["group_id"]
+                        uid = data["user_id"]
+                        if glovar.user_ids.get(uid, {}):
+                            glovar.user_ids[uid]["wait"].pop(gid, 0)
+                            save("user_ids")
+
         return True
     except Exception as e:
         logger.warning(f"Process data error: {e}", exc_info=True)
