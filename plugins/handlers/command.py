@@ -316,7 +316,7 @@ def pass_group(client: Client, message: Message) -> bool:
                 if peer_type == "user":
                     uid = peer_id
 
-        if uid and glovar.user_ids.get(uid):
+        if uid and glovar.user_ids.get(uid, {}):
             if glovar.user_ids[uid]["wait"].get(gid, 0):
                 terminate_user(
                     client=client,
