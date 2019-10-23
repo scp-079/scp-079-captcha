@@ -39,8 +39,9 @@ def ask_for_help(client: Client, level: str, gid: int, uid: int, group: str = "s
                 "user_id": uid
         }
 
-        if level == "ban":
-            data["type"] = (glovar.configs[gid].get("restrict") and "restrict") or "ban"
+        if level in {"ban", "restrict", "kick"}:
+            data["type"] = level
+            level = "ban"
         elif level == "delete":
             data["type"] = group
 
