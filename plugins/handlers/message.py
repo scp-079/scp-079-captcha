@@ -156,7 +156,7 @@ def check(client: Client, message: Message) -> bool:
         mid = message.message_id
 
         # Check wait list
-        if glovar.user_ids[uid]["wait"].get(gid, 0):
+        if glovar.user_ids.get(uid, {}) and glovar.user_ids[uid]["wait"].get(gid, 0):
             terminate_user(
                 client=client,
                 the_type="delete",
