@@ -196,8 +196,8 @@ def verify_ask(client: Client, message: Message) -> bool:
                 delete_message(client, gid, mid)
                 continue
 
-            # Check user status
-            if not glovar.user_ids.get(uid):
+            # Check data
+            if not glovar.user_ids.get(uid, {}):
                 kick_user(client, gid, uid)
                 continue
 
