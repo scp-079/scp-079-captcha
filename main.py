@@ -38,8 +38,6 @@ app = Client(
 )
 app.start()
 
-new_invite_link(app, "new")
-
 # Send online status
 update_status(app, "online")
 
