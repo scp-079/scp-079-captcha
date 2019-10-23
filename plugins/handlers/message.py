@@ -26,8 +26,8 @@ from ..functions.channel import get_debug_text
 from ..functions.etc import code, general_link, get_full_name, get_now, get_text, lang, thread, mention_id
 from ..functions.file import save
 from ..functions.filters import captcha_group, class_c, class_d, class_e, declared_message, exchange_channel, from_user
-from ..functions.filters import hide_channel, is_bio_text, is_class_d_user, is_declared_message, is_limited_user
-from ..functions.filters import is_nm_text, is_watch_user, new_group, test_group
+from ..functions.filters import hide_channel, is_bio_text, is_class_d_user, is_class_e_user, is_declared_message
+from ..functions.filters import is_limited_user, is_nm_text, is_watch_user, new_group, test_group
 from ..functions.group import delete_message, leave_group
 from ..functions.ids import init_group_id, init_user_id
 from ..functions.receive import receive_add_bad, receive_config_commit, receive_clear_data
@@ -226,8 +226,7 @@ def verify_ask(client: Client, message: Message) -> bool:
 
 @Client.on_message(Filters.incoming & Filters.group & ~Filters.new_chat_members
                    & ~test_group & captcha_group
-                   & from_user & ~class_e
-                   & ~declared_message)
+                   & from_user)
 def verify_check(client: Client, message: Message) -> bool:
     # Check the messages sent from the CAPTCHA group
 
@@ -245,6 +244,10 @@ def verify_check(client: Client, message: Message) -> bool:
 
         # Check if the user is Class D personnel
         if is_class_d_user(message.from_user):
+            return True
+
+        # Check if the user is Class E personnel
+        if is_class_e_user(message.from_user):
             return True
 
         # Check data
