@@ -247,6 +247,10 @@ def verify_check(client: Client, message: Message) -> bool:
         if is_class_d_user(message.from_user):
             return True
 
+        # Check data
+        if not glovar.user_ids.get(uid, {}):
+            return True
+
         # Check wait list
         if not glovar.user_ids[uid]["wait"]:
             return True
