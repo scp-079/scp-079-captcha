@@ -103,7 +103,12 @@ def hint(client: Client, message: Message) -> bool:
             # Check failed list
             failed_time = user_status["failed"].get(gid, 0)
             if now - failed_time < glovar.time_punish:
-                terminate_user(client, "punish", uid, gid)
+                terminate_user(
+                    client=client,
+                    the_type="punish",
+                    uid=uid,
+                    gid=gid
+                )
 
             # Work with NOSPAM
             if glovar.nospam_id in glovar.admin_ids[gid]:
@@ -152,7 +157,13 @@ def check(client: Client, message: Message) -> bool:
 
         # Check wait list
         if glovar.user_ids[uid]["wait"].get(gid, 0):
-            terminate_user(client, "delete", uid, gid, mid)
+            terminate_user(
+                client=client,
+                the_type="delete",
+                uid=uid,
+                gid=gid,
+                mid=mid
+            )
 
         return True
     except Exception as e:

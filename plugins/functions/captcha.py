@@ -89,13 +89,22 @@ def answer_question(client: Client, uid: int, text: str) -> bool:
         answer = glovar.user_ids[uid]["answer"]
 
         if text and answer and text == answer:
-            terminate_user(client, "succeed", uid)
+            terminate_user(
+                client=client,
+                the_type="succeed",
+                uid=uid
+            )
         else:
             glovar.user_ids[uid]["try"] += 1
             save("user_ids")
             if glovar.user_ids[uid]["try"] == glovar.limit_try:
                 gid = min(glovar.user_ids[uid]["wait"], key=glovar.user_ids[uid]["wait"].get)
-                terminate_user(client, "wrong", uid, gid)
+                terminate_user(
+                    client=client,
+                    the_type="wrong",
+                    uid=uid,
+                    gid=gid
+                )
 
         return True
     except Exception as e:

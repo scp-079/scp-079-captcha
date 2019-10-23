@@ -253,7 +253,11 @@ def pass_captcha(client: Client, message: Message) -> bool:
             message_text = get_text(message.reply_to_message)
             uid = get_int(message_text.split("\n")[1].split(lang("colon"))[1])
             if uid:
-                terminate_user(client, "succeed", uid)
+                terminate_user(
+                    client=client,
+                    the_type="succeed",
+                    uid=uid
+                )
                 text += (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
                          f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
             else:
@@ -314,7 +318,13 @@ def pass_group(client: Client, message: Message) -> bool:
                     uid = peer_id
 
         if uid and glovar.user_ids.get(uid) and glovar.user_ids[uid]["wait"].get(gid, 0):
-            terminate_user(client, "pass", uid, 0, 0, aid)
+            terminate_user(
+                client=client,
+                the_type="pass",
+                uid=uid,
+                gid=gid,
+                aid=aid
+            )
             text += (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
                      f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
         else:

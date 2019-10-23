@@ -83,6 +83,8 @@ def interval_min_01(client: Client) -> bool:
                 glovar.user_ids[uid]["time"] = 0
                 kick_user(client, glovar.captcha_group_id, uid)
 
+        save("user_ids")
+
         # Check timeout
         for uid in list(glovar.user_ids):
             if not glovar.user_ids[uid]["wait"]:
@@ -91,7 +93,12 @@ def interval_min_01(client: Client) -> bool:
             for gid in list(glovar.user_ids[uid]["wait"]):
                 time = glovar.user_ids[uid]["wait"][gid]
                 if now - time > glovar.time_captcha:
-                    terminate_user(client, "timeout", uid, gid)
+                    terminate_user(
+                        client=client,
+                        the_type="timeout",
+                        uid=uid,
+                        gid=gid
+                    )
 
         return True
     except Exception as e:
