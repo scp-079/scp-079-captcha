@@ -251,6 +251,7 @@ lang: Dict[str, str] = {
     "ban": (zh_cn and "封禁模式") or "Ban Mode",
     "forgive": (zh_cn and "自动解禁") or "Auto Forgive",
     "hint": (zh_cn and "入群提示") or "Hint for New Joined User",
+    "pass": (zh_cn and "自动免验证") or "Auto Pass",
     # Command
     "command_lack": (zh_cn and "命令参数缺失") or "Lack of Parameter",
     "command_para": (zh_cn and "命令参数有误") or "Incorrect Command Parameter",
@@ -306,6 +307,7 @@ lang: Dict[str, str] = {
     "joined": (zh_cn and "入群时间") or "Joined Time",
     "more": (zh_cn and "附加信息") or "Extra Info",
     # Special
+    "action_invite": (zh_cn and "重新生成邀请链接") or "Generate New Invite Link",
     "action_pass": (zh_cn and "手动通过") or "Pass Manually",
     "action_static": (zh_cn and "发送固定提示消息") or "Send Static Hint",
     "action_verified": (zh_cn and "通过验证") or "Verified",
@@ -361,7 +363,7 @@ lang: Dict[str, str] = {
 
 # Init
 
-all_commands: List[str] = ["config", "config_captcha", "pass", "static", "version"]
+all_commands: List[str] = ["config", "config_captcha", "invite", "pass", "static", "version"]
 
 bot_ids: Set[int] = {avatar_id, captcha_id, clean_id, lang_id, long_id, noflood_id,
                      noporn_id, nospam_id, recheck_id, tip_id, user_id, warn_id}

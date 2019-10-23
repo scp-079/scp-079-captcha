@@ -31,6 +31,7 @@ from ..functions.file import save
 from ..functions.filters import captcha_group, class_e, from_user, is_class_c, test_group
 from ..functions.group import delete_message, get_config_text
 from ..functions.telegram import get_group_info, resolve_username, send_message, send_report_message
+from ..functions.timers import new_invite_link
 from ..functions.user import terminate_user
 
 # Enable logging
@@ -197,6 +198,35 @@ def config_directly(client: Client, message: Message) -> bool:
         logger.warning(f"Config directly error: {e}", exc_info=True)
     finally:
         delete_message(client, gid, mid)
+
+    return False
+
+
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["invite"], glovar.prefix)
+                   & ~test_group & captcha_group
+                   & from_user & class_e)
+def invite(client: Client, message: Message) -> bool:
+    # Send a new invite link to CAPTCHA channel
+    try:
+        # Basic data
+        cid = message.chat.id
+        aid = message.from_user.id
+        mid = message.message_id
+
+        # Generate
+        new_invite_link(client, "new")
+
+        # Generate the report message's text
+        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('action_invite'))}\n"
+                f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
+
+        # Send the report message
+        thread(send_message, (client, cid, text, mid))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Invite error: {e}", exc_info=True)
 
     return False
 
