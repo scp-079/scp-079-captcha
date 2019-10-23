@@ -80,7 +80,7 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
             debug_text = get_debug_text(client, gid)
             debug_text += (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
                            f"{lang('action')}{lang('colon')}{code(lang('action_wait'))}\n"
-                           f"{lang('triggered')}{lang('colon')}{general_link(new_id, message_link(result))}\n")
+                           f"{lang('triggered_by')}{lang('colon')}{general_link(new_id, message_link(result))}\n")
             thread(send_message, (client, glovar.debug_channel_id, debug_text))
         else:
             glovar.user_ids[uid]["wait"].pop(gid, 0)
