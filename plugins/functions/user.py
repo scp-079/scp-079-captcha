@@ -212,6 +212,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                 glovar.user_ids[uid]["answer"] = ""
                 glovar.user_ids[uid]["try"] = 0
                 glovar.user_ids[uid]["wait"].pop(gid, 0)
+                glovar.user_ids[uid]["failed"][gid] = now
 
                 # Edit the message
                 name = glovar.user_ids[uid]["name"]
