@@ -312,6 +312,7 @@ lang: Dict[str, str] = {
     "action_static": (zh_cn and "发送固定提示消息") or "Send Static Hint",
     "action_undo_pass": (zh_cn and "撤销放行") or "Undo Pass",
     "action_verified": (zh_cn and "通过验证") or "Verified",
+    "action_wait": (zh_cn and "等待验证") or "Wait for Verification",
     "check_no": (zh_cn and "您在本群中不需要验证即可发言") or "You can send messages without verification in this group",
     "check_yes": (zh_cn and "您需要验证才能在本群发言") or "You need to verify to send messages in this group",
     "captcha_check": (zh_cn and "我需要验证吗") or "Should I Verify",
