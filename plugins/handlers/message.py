@@ -88,7 +88,7 @@ def hint(client: Client, message: Message) -> bool:
 
             # Auto pass
             if user_status["succeeded"]:
-                succeeded_time = user_status["succeeded"] and max(user_status["succeeded"].values())
+                succeeded_time = max(user_status["succeeded"].values())
 
                 if succeeded_time and now - succeeded_time < glovar.time_remove + 70:
                     continue
