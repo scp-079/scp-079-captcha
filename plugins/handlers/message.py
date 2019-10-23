@@ -34,7 +34,7 @@ from ..functions.receive import receive_add_bad, receive_config_commit, receive_
 from ..functions.receive import receive_config_reply, receive_config_show, receive_declared_message
 from ..functions.receive import receive_leave_approve, receive_regex, receive_refresh, receive_remove_bad
 from ..functions.receive import receive_remove_score, receive_remove_watch, receive_rollback
-from ..functions.receive import receive_text_data, receive_user_score, receive_watch_user
+from ..functions.receive import receive_text_data, receive_user_score, receive_warn_banned_user, receive_watch_user
 from ..functions.telegram import get_admins, get_user_bio, send_message
 from ..functions.timers import backup_files, send_count
 from ..functions.user import kick_user, terminate_user
@@ -175,7 +175,7 @@ def check(client: Client, message: Message) -> bool:
 
 
 @Client.on_message(Filters.incoming & Filters.group & Filters.new_chat_members
-                   & ~test_group & captcha_group & ~new_group
+                   & captcha_group & ~new_group
                    & from_user & ~class_e
                    & ~declared_message)
 def verify_ask(client: Client, message: Message) -> bool:
@@ -225,7 +225,7 @@ def verify_ask(client: Client, message: Message) -> bool:
 
 
 @Client.on_message(Filters.incoming & Filters.group & ~Filters.new_chat_members
-                   & ~test_group & captcha_group
+                   & captcha_group
                    & from_user)
 def verify_check(client: Client, message: Message) -> bool:
     # Check the messages sent from the CAPTCHA group
@@ -321,7 +321,7 @@ def exchange_emergency(client: Client, message: Message) -> bool:
 
 @Client.on_message(Filters.incoming & Filters.group
                    & (Filters.new_chat_members | Filters.group_chat_created | Filters.supergroup_chat_created)
-                   & ~test_group & new_group
+                   & ~captcha_group & ~test_group & new_group
                    & from_user)
 def init_group(client: Client, message: Message) -> bool:
     # Initiate new groups
@@ -553,19 +553,13 @@ def process_data(client: Client, message: Message) -> bool:
                     if action_type == "watch":
                         receive_watch_user(data)
 
-        # Temp
         elif "USER" in receivers:
 
             if sender == "WARN":
 
                 if action == "help":
                     if action_type == "delete":
-                        gid = data["group_id"]
-                        uid = data["user_id"]
-                        with glovar.locks["message"]:
-                            if glovar.user_ids.get(uid, {}):
-                                glovar.user_ids[uid]["wait"].pop(gid, 0)
-                                save("user_ids")
+                        receive_warn_banned_user(data)
 
         return True
     except Exception as e:

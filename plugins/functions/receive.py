@@ -498,6 +498,26 @@ def receive_user_score(project: str, data: dict) -> bool:
     return False
 
 
+def receive_warn_banned_user(data: dict) -> bool:
+    # Receive WARN banned user
+    glovar.locks["message"].acquire()
+    try:
+        # Basic data
+        gid = data["group_id"]
+        uid = data["user_id"]
+
+        # Clear wait status
+        if glovar.user_ids.get(uid, {}):
+            glovar.user_ids[uid]["wait"].pop(gid, 0)
+            save("user_ids")
+    except Exception as e:
+        logger.warning(f"Receive warn banned user error: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
+
+    return False
+
+
 def receive_watch_user(data: dict) -> bool:
     # Receive watch users that other bots shared
     try:
