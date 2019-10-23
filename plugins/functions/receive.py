@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 
 def receive_add_bad(sender: str, data: dict) -> bool:
-    # Receive bad objects
+    # Receive bad objects that other bots shared
     try:
         # Basic data
         the_id = data["id"]
