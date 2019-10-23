@@ -24,7 +24,8 @@ from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, User
 
 from .. import glovar
 from .channel import get_debug_text
-from .etc import button_data, code, get_full_name, get_now, lang, mention_name, mention_text, thread
+from .etc import button_data, code, general_link, get_full_name, get_now, lang, mention_name, mention_text
+from .etc import message_link, thread
 from .file import save
 from .group import delete_message
 from .user import restrict_user, terminate_user, unrestrict_user
@@ -74,16 +75,17 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
             glovar.message_ids[gid]["hint"] = (new_id, now)
             save("message_ids")
             old_id and delete_message(client, gid, old_id)
+
+            # Send debug message
+            debug_text = get_debug_text(client, gid)
+            debug_text += (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
+                           f"{lang('action')}{lang('colon')}{code(lang('action_wait'))}\n"
+                           f"{lang('triggered')}{lang('colon')}{general_link(new_id, message_link(result))}\n")
+            thread(send_message, (client, glovar.debug_channel_id, debug_text))
         else:
             glovar.user_ids[uid]["wait"].pop(gid, 0)
 
         save("user_ids")
-
-        # Send debug message
-        debug_text = get_debug_text(client, gid)
-        debug_text += (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
-                       f"{lang('action')}{lang('colon')}{code(lang('action_wait'))}\n")
-        thread(send_message, (client, glovar.debug_channel_id, debug_text))
     except Exception as e:
         logger.warning(f"Add wait error: {e}", exc_info=True)
 
