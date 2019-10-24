@@ -24,8 +24,8 @@ from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, User
 
 from .. import glovar
 from .channel import get_debug_text
-from .etc import button_data, code, general_link, get_full_name, get_now, lang, mention_name, mention_text
-from .etc import message_link, thread
+from .etc import button_data, code, general_link, get_channel_link, get_full_name, get_now, lang, mention_name
+from .etc import mention_text, message_link, thread
 from .file import save
 from .group import delete_message
 from .user import restrict_user, terminate_user, unrestrict_user
@@ -51,6 +51,15 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
         # Check hint config
         if not glovar.configs[gid].get("hint"):
             restrict_user(client, gid, uid)
+
+            # Send debug message
+            mid_link = f"{get_channel_link(gid)}/{mid}"
+            debug_text = get_debug_text(client, gid)
+            debug_text += (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
+                           f"{lang('action')}{lang('colon')}{code(lang('action_wait'))}\n"
+                           f"{lang('triggered_by')}{lang('colon')}{general_link(mid, mid_link)}\n")
+            thread(send_message, (client, glovar.debug_channel_id, debug_text))
+
             return True
 
         # Generate the hint text
