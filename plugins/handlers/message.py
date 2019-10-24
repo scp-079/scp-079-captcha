@@ -110,6 +110,7 @@ def hint(client: Client, message: Message) -> bool:
                     uid=uid,
                     gid=gid
                 )
+                continue
 
             # Work with NOSPAM
             if glovar.nospam_id in glovar.admin_ids[gid]:
