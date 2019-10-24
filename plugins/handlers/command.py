@@ -23,7 +23,7 @@ from copy import deepcopy
 from pyrogram import Client, Filters, Message
 
 from .. import glovar
-from ..functions.captcha import get_captcha_markup
+from ..functions.captcha import send_static
 from ..functions.channel import get_debug_text, share_data
 from ..functions.etc import bold, code, delay, get_command_context, get_command_type, get_int, get_now, get_text, lang
 from ..functions.etc import mention_id, thread
@@ -393,17 +393,10 @@ def static(client: Client, message: Message) -> bool:
 
         # Proceed
         hint_text = f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n"
-        markup = get_captcha_markup("hint")
-        result = send_message(client, gid, hint_text, None, markup)
-        if result:
-            new_id = result.message_id
-            old_id = glovar.message_ids[gid]["static"]
-            old_id and delete_message(client, gid, old_id)
-            glovar.message_ids[gid]["static"] = new_id
-            save("message_ids")
+        thread(send_static, (client, gid, hint_text))
 
-            # Send the report message
-            thread(send_report_message, (15, client, gid, text, new_id))
+        # Send the report message
+        thread(send_report_message, (15, client, gid, text))
 
         return True
     except Exception as e:

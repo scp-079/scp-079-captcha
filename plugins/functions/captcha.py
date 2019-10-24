@@ -58,8 +58,13 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
         count_text = f"{len(wait_user_list)} {lang('members')}"
         text = f"{lang('wait_user')}{lang('colon')}{code(count_text)}\n"
 
-        if len(wait_user_list) > 40:
-            wait_user_list = sample(wait_user_list, 40)
+        if len(wait_user_list) > glovar.limit_static:
+            hint_text = (f"{lang('message_type')}{lang('colon')}{code(lang('flood_static'))}\n"
+                         f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n")
+            thread(send_static, (client, gid, hint_text, True))
+
+        if len(wait_user_list) > glovar.limit_mention:
+            wait_user_list = sample(wait_user_list, glovar.limit_mention)
 
         for wid in wait_user_list:
             text += mention_text("\U00002060", wid)
@@ -247,3 +252,21 @@ def get_captcha_markup(the_type: str, captcha: dict = None) -> Optional[InlineKe
         logger.warning(f"Get captcha markup error: {e}", exc_info=True)
 
     return result
+
+
+def send_static(client: Client, gid: int, text: str, flood: bool = False) -> bool:
+    # Send static message
+    try:
+        markup = get_captcha_markup("hint")
+        result = send_message(client, gid, text, None, markup)
+        if result:
+            new_id = result.message_id
+            old_type = (lambda x: "flood" if x else "static")(flood)
+            old_id = glovar.message_ids[gid].get(old_type, 0)
+            old_id and delete_message(client, gid, old_id)
+            glovar.message_ids[gid][old_type] = new_id
+            save("message_ids")
+    except Exception as e:
+        logger.warning(f"Send static error: {e}", exc_info=True)
+
+    return False

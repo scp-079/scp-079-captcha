@@ -75,6 +75,8 @@ backup: Union[bool, str] = ""
 captcha_link: str = ""
 date_reset: str = ""
 default_group_link: str = ""
+limit_mention: int = 0
+limit_static: int = 0
 limit_track: int = 0
 limit_try: int = 0
 project_link: str = ""
@@ -135,6 +137,8 @@ try:
     captcha_link = config["custom"].get("captcha_link", captcha_link)
     date_reset = config["custom"].get("date_reset", date_reset)
     default_group_link = config["custom"].get("default_group_link", default_group_link)
+    limit_mention = int(config["custom"].get("limit_mention", limit_mention))
+    limit_static = int(config["custom"].get("limit_static", limit_static))
     limit_track = int(config["custom"].get("limit_track", limit_track))
     limit_try = int(config["custom"].get("limit_try", limit_try))
     project_link = config["custom"].get("project_link", project_link)
@@ -190,6 +194,8 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or captcha_link in {"", "[DATA EXPUNGED]"}
         or date_reset in {"", "[DATA EXPUNGED]"}
         or default_group_link in {"", "[DATA EXPUNGED]"}
+        or limit_mention == 0
+        or limit_static == 0
         or limit_track == 0
         or limit_try == 0
         or project_link in {"", "[DATA EXPUNGED]"}
@@ -336,6 +342,7 @@ lang: Dict[str, str] = {
                             or "The verification is successful and you can speak in corresponding groups"),
     "description_timeout": (zh_cn and "验证超时") or "Verification Timeout",
     "description_wrong": (zh_cn and "验证失败，回答错误") or "Verification failed. Wrong answer",
+    "flood_static": (zh_cn and "自动静态提示") or "Auto Static Hint",
     "invite_button": (zh_cn and "加入验证群组") or "Join CAPTCHA Group",
     "invite_text": (zh_cn and "请在专用群组中进行验证") or "Please verify in a private group",
     "question": (zh_cn and "问题") or "Question",
@@ -392,6 +399,7 @@ default_config: Dict[str, Union[bool, int]] = {
 }
 
 default_message_data: Dict[str, Union[int, Tuple[int, int]]] = {
+    "flood": 0,
     "hint": (0, 0),
     "static": 0
 }
@@ -472,7 +480,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.0.7"
+version: str = "0.0.8"
 
 # Load data from pickle
 
@@ -508,6 +516,7 @@ left_group_ids: Set[int] = set()
 message_ids: Dict[int, Dict[str, Union[int, Tuple[int, int]]]] = {}
 # message_ids = {
 #     -10012345678: {
+#         "flood": 120,
 #         "hint": (123, 12345678),
 #         "static": 124
 #     }
