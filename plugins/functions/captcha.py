@@ -155,8 +155,8 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
         # Generate the question text
         question_text = captcha["question"]
         text = (f"{lang('user_name')}{lang('colon')}{mention_name(user)}\n"
-                f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
-                f"{lang('description')}{lang('colon')}{code(lang('description_ask'))}\n"
+                f"{lang('user_id')}{lang('colon')}{code(uid)}\n\n"
+                f"{lang('description')}{lang('colon')}{code(lang('description_ask'))}\n\n"
                 f"{lang('question')}{lang('colon')}{code(question_text)}\n")
 
         # Generate the markup
