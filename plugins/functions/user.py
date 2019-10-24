@@ -18,7 +18,7 @@
 
 import logging
 from time import sleep
-from typing import Union
+from typing import List, Union
 
 from pyrogram import ChatPermissions, Client
 
@@ -102,6 +102,56 @@ def restrict_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Restrict user error: {e}", exc_info=True)
+
+    return False
+
+
+def terminate_evidence_timeout(client: Client, level: str, gid: int, uid: int) -> bool:
+    # Timeout evidence
+    try:
+        result = forward_evidence(
+            client=client,
+            uid=uid,
+            level=lang(f"auto_{level}"),
+            rule=lang("rule_custom"),
+            gid=gid,
+            more=lang("description_timeout")
+        )
+        if result:
+            send_debug(
+                client=client,
+                gids=[gid],
+                action=lang(f"auto_{level}"),
+                uid=uid,
+                em=result
+            )
+    except Exception as e:
+        logger.warning(f"Terminate evidence timeout error: {e}", exc_info=True)
+
+    return False
+
+
+def terminate_evidence_wrong(client: Client, gid: int, gids: List[int], uid: int) -> bool:
+    # Timeout evidence
+    try:
+        result = forward_evidence(
+            client=client,
+            uid=uid,
+            level=lang(f"auto_kick"),
+            rule=lang("rule_global"),
+            gid=gid,
+            more=lang("description_wrong")
+        )
+        if result:
+            send_debug(
+                client=client,
+                gids=gids,
+                action=lang(f"auto_kick"),
+                uid=uid,
+                em=result
+            )
+    except Exception as e:
+        logger.warning(f"Terminate evidence wrong error: {e}", exc_info=True)
 
     return False
 
@@ -194,53 +244,40 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
         # Verification timeout
         elif the_type == "timeout":
+            # Decide level
             failed_time = glovar.user_ids[uid]["failed"].get(gid, 0)
             if failed_time:
                 level = "ban"
             else:
                 level = get_level(gid)
 
-            result = forward_evidence(
-                client=client,
-                uid=uid,
-                level=lang(f"auto_{level}"),
-                rule=lang("rule_custom"),
-                gid=gid,
-                more=lang("description_timeout")
-            )
-            if result:
-                # Limit the user
-                change_member_status(client, level, gid, uid)
-                ask_for_help(client, "delete", gid, uid)
+            # Send evidence
+            thread(terminate_evidence_timeout, (client, level, gid, uid))
 
-                # Modify the status
-                glovar.user_ids[uid]["answer"] = ""
-                glovar.user_ids[uid]["try"] = 0
-                glovar.user_ids[uid]["wait"].pop(gid, 0)
-                glovar.user_ids[uid]["failed"][gid] = now
+            # Limit the user
+            change_member_status(client, level, gid, uid)
+            ask_for_help(client, "delete", gid, uid)
 
-                # Edit the message
-                name = glovar.user_ids[uid]["name"]
-                mid = glovar.user_ids[uid]["mid"]
-                captcha_text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
-                                f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
-                                f"{lang('description')}{lang('colon')}{code(lang('description_timeout'))}\n")
-                mid and thread(edit_message_text, (client, glovar.captcha_group_id, mid, captcha_text))
+            # Modify the status
+            glovar.user_ids[uid]["answer"] = ""
+            glovar.user_ids[uid]["try"] = 0
+            glovar.user_ids[uid]["wait"].pop(gid, 0)
+            glovar.user_ids[uid]["failed"][gid] = now
 
-                # Reset message id
-                glovar.user_ids[uid]["mid"] = 0
-                save("user_ids")
+            # Edit the message
+            name = glovar.user_ids[uid]["name"]
+            mid = glovar.user_ids[uid]["mid"]
+            captcha_text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
+                            f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
+                            f"{lang('description')}{lang('colon')}{code(lang('description_timeout'))}\n")
+            mid and thread(edit_message_text, (client, glovar.captcha_group_id, mid, captcha_text))
 
-                # Update the score
-                update_score(client, uid)
+            # Reset message id
+            glovar.user_ids[uid]["mid"] = 0
+            save("user_ids")
 
-                send_debug(
-                    client=client,
-                    gids=[gid],
-                    action=lang(f"auto_{level}"),
-                    uid=uid,
-                    em=result
-                )
+            # Update the score
+            update_score(client, uid)
 
         # Pass in group
         elif the_type == "undo_pass":
@@ -257,53 +294,39 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
         # Verification Wrong
         elif the_type == "wrong":
-            result = forward_evidence(
-                client=client,
-                uid=uid,
-                level=lang(f"auto_kick"),
-                rule=lang("rule_global"),
-                gid=gid,
-                more=lang("description_wrong")
-            )
-            if result:
-                # Get the group list
-                wait_group_list = list(glovar.user_ids[uid]["wait"])
+            # Get the group list
+            wait_group_list = list(glovar.user_ids[uid]["wait"])
 
-                # Kick the user
-                for gid in wait_group_list:
-                    kick_user(client, gid, uid)
+            # Send evidence
+            thread(terminate_evidence_wrong, (client, gid, wait_group_list, uid))
 
-                # Modify the status
-                glovar.user_ids[uid]["answer"] = ""
-                glovar.user_ids[uid]["try"] = 0
-                glovar.user_ids[uid]["wait"] = {}
-                for gid in wait_group_list:
-                    glovar.user_ids[uid]["failed"][gid] = now
-                    glovar.user_ids[uid]["restricted"].discard(gid)
-                    glovar.user_ids[uid]["banned"].discard(gid)
+            # Kick the user
+            for gid in wait_group_list:
+                kick_user(client, gid, uid)
 
-                # Edit the message
-                name = glovar.user_ids[uid]["name"]
-                mid = glovar.user_ids[uid]["mid"]
-                captcha_text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
-                                f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
-                                f"{lang('description')}{lang('colon')}{code(lang('description_wrong'))}\n")
-                thread(edit_message_text, (client, glovar.captcha_group_id, mid, captcha_text))
+            # Modify the status
+            glovar.user_ids[uid]["answer"] = ""
+            glovar.user_ids[uid]["try"] = 0
+            glovar.user_ids[uid]["wait"] = {}
+            for gid in wait_group_list:
+                glovar.user_ids[uid]["failed"][gid] = now
+                glovar.user_ids[uid]["restricted"].discard(gid)
+                glovar.user_ids[uid]["banned"].discard(gid)
 
-                # Reset message id
-                glovar.user_ids[uid]["mid"] = 0
-                save("user_ids")
+            # Edit the message
+            name = glovar.user_ids[uid]["name"]
+            mid = glovar.user_ids[uid]["mid"]
+            captcha_text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
+                            f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
+                            f"{lang('description')}{lang('colon')}{code(lang('description_wrong'))}\n")
+            thread(edit_message_text, (client, glovar.captcha_group_id, mid, captcha_text))
 
-                # Update the score
-                update_score(client, uid)
+            # Reset message id
+            glovar.user_ids[uid]["mid"] = 0
+            save("user_ids")
 
-                send_debug(
-                    client=client,
-                    gids=wait_group_list,
-                    action=lang(f"auto_kick"),
-                    uid=uid,
-                    em=result
-                )
+            # Update the score
+            update_score(client, uid)
 
         return True
     except Exception as e:
