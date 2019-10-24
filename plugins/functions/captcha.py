@@ -85,11 +85,19 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
         # Send the message
         result = send_message(client, gid, text, mid, markup)
         if result:
+            # Update hint message id
             new_id = result.message_id
             old_id, _ = glovar.message_ids[gid]["hint"]
             glovar.message_ids[gid]["hint"] = (new_id, now)
-            save("message_ids")
             old_id and delete_message(client, gid, old_id)
+
+            # Update auto static message id
+            old_id = glovar.message_ids[gid]["flood"]
+            glovar.message_ids[gid]["flood"] = 0
+            old_id and delete_message(client, gid, old_id)
+
+            # Save message ids
+            save("message_ids")
 
             # Send debug message
             debug_text = get_debug_text(client, gid)
@@ -270,7 +278,7 @@ def send_static(client: Client, gid: int, text: str, flood: bool = False) -> boo
         if result:
             new_id = result.message_id
             old_type = (lambda x: "flood" if x else "static")(flood)
-            old_id = glovar.message_ids[gid].get(old_type, 0)
+            old_id = glovar.message_ids[gid][old_type]
             old_id and delete_message(client, gid, old_id)
             glovar.message_ids[gid][old_type] = new_id
             save("message_ids")
