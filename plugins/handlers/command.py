@@ -244,31 +244,33 @@ def pass_captcha(client: Client, message: Message) -> bool:
         aid = message.from_user.id
         mid = message.message_id
 
-        # Generate the report message's text
-        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
-                f"{lang('action')}{lang('colon')}{code(lang('action_pass'))}\n")
-
         # Proceed
-        if message.reply_to_message and message.reply_to_message.from_user.is_self:
+        if not message.reply_to_message:
+            return True
+
+        if not message.reply_to_message.from_user:
+            return True
+
+        user = message.reply_to_message.from_user
+        uid = user.id
+
+        if user.is_self:
             message_text = get_text(message.reply_to_message)
             uid = get_int(message_text.split("\n")[1].split(lang("colon"))[1])
-            if uid:
-                terminate_user(
-                    client=client,
-                    the_type="succeed",
-                    uid=uid
-                )
-                text += (f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
-                         f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
-            else:
-                text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                         f"{lang('reason')}{lang('colon')}{code(lang('command_origin'))}\n")
-        else:
-            text += (f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
 
-        # Send the report message
-        thread(send_message, (client, cid, text, mid))
+        if uid and uid != aid and glovar.user_ids.get(uid, {}) and glovar.user_ids[uid]["wait"]:
+            terminate_user(
+                client=client,
+                the_type="succeed",
+                uid=uid
+            )
+            text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+                    f"{lang('action')}{lang('colon')}{code(lang('action_pass'))}\n"
+                    f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
+                    f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
+            thread(send_message, (client, cid, text, mid))
+        else:
+            delete_message(client, cid, mid)
 
         return True
     except Exception as e:
@@ -304,7 +306,10 @@ def pass_group(client: Client, message: Message) -> bool:
 
         # Proceed
         if message.reply_to_message and message.reply_to_message.from_user:
-            uid = message.reply_to_message.from_user.id
+            if message.new_chat_members:
+                uid = message.new_chat_members[0].id
+            else:
+                uid = message.reply_to_message.from_user.id
         else:
             uid = 0
             id_text, reason = get_command_context(message)
@@ -316,8 +321,8 @@ def pass_group(client: Client, message: Message) -> bool:
                 if peer_type == "user":
                     uid = peer_id
 
-        if uid and glovar.user_ids.get(uid, {}):
-            if glovar.user_ids[uid]["wait"].get(gid, 0):
+        if uid:
+            if glovar.user_ids.get(uid, {}) and glovar.user_ids[uid]["wait"].get(gid, 0):
                 terminate_user(
                     client=client,
                     the_type="pass",
