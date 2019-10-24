@@ -239,7 +239,7 @@ def get_full_name(user: User, normal: bool = False) -> str:
             if user.last_name:
                 text += f" {user.last_name}"
 
-        if text:
+        if text and normal:
             text = t2t(text, normal)
     except Exception as e:
         logger.warning(f"Get full name error: {e}", exc_info=True)
