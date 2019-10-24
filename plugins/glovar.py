@@ -327,7 +327,7 @@ lang: Dict[str, str] = {
                             f"and incorrect answers will cause the verification to fail. "
                             f"Any message you send in this group will be considered as an answer to the question, "
                             f"please send carefully")),
-    "description_hint": (zh_cn and (f"新入群的用户，请您点击下方右侧按钮进行验证，"
+    "description_hint": (zh_cn and (f"新入群用户，请您点击下方右侧按钮进行验证，"
                                     f"请在 {time_captcha} 秒内完成验证，否则您将被移出本群")
                          or (f"For new joined users, please click the button below to verify. "
                              f"Please complete verification within {time_captcha} seconds, "
