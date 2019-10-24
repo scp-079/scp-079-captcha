@@ -47,11 +47,10 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
         glovar.user_ids[uid]["name"] = name
         glovar.user_ids[uid]["wait"][gid] = now
         save("user_ids")
+        restrict_user(client, gid, uid)
 
         # Check hint config
         if not glovar.configs[gid].get("hint"):
-            restrict_user(client, gid, uid)
-
             # Send debug message
             mid_link = f"{get_channel_link(gid)}/{mid}"
             debug_text = get_debug_text(client, gid)
@@ -87,7 +86,6 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
         # Send the message
         result = send_message(client, gid, text, mid, markup)
         if result:
-            restrict_user(client, gid, uid)
             new_id = result.message_id
             old_id, _ = glovar.message_ids[gid]["hint"]
             glovar.message_ids[gid]["hint"] = (new_id, now)
@@ -101,6 +99,7 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
                            f"{lang('triggered_by')}{lang('colon')}{general_link(new_id, message_link(result))}\n")
             thread(send_message, (client, glovar.debug_channel_id, debug_text))
         else:
+            unrestrict_user(client, gid, uid)
             glovar.user_ids[uid]["wait"].pop(gid, 0)
 
         save("user_ids")
