@@ -25,8 +25,9 @@ from .. import glovar
 from .channel import share_data, share_regex_count
 from .etc import code, general_link, get_now, lang, thread
 from .file import save
+from .filters import is_class_e_user
 from .group import delete_message, leave_group
-from .telegram import edit_message_text, export_chat_invite_link, get_admins, get_group_info, send_message
+from .telegram import edit_message_text, export_chat_invite_link, get_admins, get_group_info, get_members, send_message
 from .user import kick_user, terminate_user, unrestrict_user
 
 # Enable logging
@@ -109,11 +110,38 @@ def interval_min_01(client: Client) -> bool:
     return False
 
 
-def interval_min_10() -> bool:
+def interval_min_10(client: Client) -> bool:
     # Execute every 10 minutes
     glovar.locks["message"].acquire()
     try:
-        #
+        # Basic data
+        now = get_now()
+
+        # Clear CAPTCHA group members
+        members = get_members(client, glovar.captcha_group_id, "all")
+        if not members:
+            return True
+
+        for member in members:
+            user = member.user
+            if is_class_e_user(user):
+                continue
+
+            uid = user.id
+            user_data = glovar.user_ids.get(uid, {})
+            if user_data:
+                if user_data["wait"]:
+                    continue
+
+                ask_time = user_data["time"]
+                if ask_time and now - ask_time < glovar.time_remove:
+                    continue
+
+                if ask_time:
+                    glovar.user_ids[uid]["time"] = 0
+                    save("user_ids")
+
+            kick_user(client, glovar.captcha_group_id, uid)
 
         return True
     except Exception as e:
