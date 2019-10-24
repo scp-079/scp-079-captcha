@@ -445,11 +445,6 @@ receivers: Dict[str, List[str]] = {
               "MANAGE", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "WATCH"]
 }
 
-recorded_ids: Dict[int, Set[int]] = {}
-# recorded_ids = {
-#     -10012345678: {12345678}
-# }
-
 regex: Dict[str, bool] = {
     "ad": False,
     "ban": False,

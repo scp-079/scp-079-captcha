@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from typing import Iterable, List, Optional, Union
+from typing import Generator, Iterable, List, Optional, Union
 
 from pyrogram import Chat, ChatMember, ChatPermissions, ChatPreview, Client, InlineKeyboardMarkup, Message
 from pyrogram.api.functions.users import GetFullUser
@@ -212,6 +212,24 @@ def get_group_info(client: Client, chat: Union[int, Chat], cache: bool = True) -
         logger.info(f"Get group {chat} info error: {e}", exc_info=True)
 
     return group_name, group_link
+
+
+def get_members(client: Client, cid: int, query: str = "all") -> Optional[Generator[ChatMember, None, None]]:
+    # Get a members generator of a chat
+    result = None
+    try:
+        flood_wait = True
+        while flood_wait:
+            flood_wait = False
+            try:
+                result = client.iter_chat_members(chat_id=cid, filter=query)
+            except FloodWait as e:
+                flood_wait = True
+                wait_flood(e)
+    except Exception as e:
+        logger.warning(f"Get members in {cid} error: {e}", exc_info=True)
+
+    return result
 
 
 def get_user_bio(client: Client, uid: int, normal: bool = False) -> Optional[str]:

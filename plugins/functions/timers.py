@@ -113,9 +113,7 @@ def interval_min_10() -> bool:
     # Execute every 10 minutes
     glovar.locks["message"].acquire()
     try:
-        # Clear recorded users
-        for gid in list(glovar.recorded_ids):
-            glovar.recorded_ids[gid] = set()
+        #
 
         return True
     except Exception as e:
