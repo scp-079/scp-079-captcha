@@ -83,7 +83,7 @@ def get_level(gid: int) -> str:
 def kick_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
     # Kick a user
     try:
-        thread(kick_user, (client, gid, uid))
+        thread(kick_user_thread, (client, gid, uid))
 
         return True
     except Exception as e:
