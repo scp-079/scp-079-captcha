@@ -66,7 +66,7 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
         text = f"{lang('wait_user')}{lang('colon')}{code(count_text)}\n"
 
         if len(wait_user_list) > glovar.limit_static:
-            hint_text = (f"{lang('message_type')}{lang('colon')}{code(lang('flood_static'))}\n"
+            hint_text = (f"{lang('message_type')}{lang('colon')}{code(lang('auto_static'))}\n"
                          f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n")
             thread(send_static, (client, gid, hint_text, True))
             return True
