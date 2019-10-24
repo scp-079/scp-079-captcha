@@ -424,9 +424,6 @@ default_user_status: Dict[str, Union[int, str, Dict[Union[int, str], Union[float
 
 emoji_set: Set[str] = set(UNICODE_EMOJI)
 
-left_group_ids: Set[int] = set()
-# left_group_ids = {-10012345678}
-
 locks: Dict[str, Lock] = {
     "admin": Lock(),
     "invite": Lock(),
@@ -509,6 +506,9 @@ bad_ids: Dict[str, Set[Union[int, str]]] = {
 #     "channels": {-10012345678},
 #     "users": {12345678}
 # }
+
+left_group_ids: Set[int] = set()
+# left_group_ids = {-10012345678}
 
 message_ids: Dict[int, Dict[str, Union[int, Tuple[int, int]]]] = {}
 # message_ids = {
@@ -601,7 +601,8 @@ for word_type in regex:
 # }
 
 # Load data
-file_list: List[str] = ["admin_ids", "bad_ids", "message_ids", "user_ids", "watch_ids", "configs", "invite"]
+file_list: List[str] = ["admin_ids", "bad_ids", "left_group_ids", "message_ids", "user_ids", "watch_ids",
+                        "configs", "invite"]
 file_list += [f"{f}_words" for f in regex]
 for file in file_list:
     try:

@@ -186,6 +186,9 @@ def reset_data(client: Client) -> bool:
         }
         save("bad_ids")
 
+        glovar.left_group_ids = set()
+        save("left_group_ids")
+
         # Pass all waiting users
         for uid in list(glovar.user_ids):
             for gid in list(glovar.user_ids[uid]["wait"]):
