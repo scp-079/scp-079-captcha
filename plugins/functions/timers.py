@@ -186,9 +186,17 @@ def reset_data(client: Client) -> bool:
         }
         save("bad_ids")
 
+        # Pass all waiting users
         for uid in list(glovar.user_ids):
             for gid in list(glovar.user_ids[uid]["wait"]):
                 unrestrict_user(client, gid, uid)
+
+        # Remove users from CAPTCHA group
+        for uid in list(glovar.user_ids):
+            time = glovar.user_ids[uid]["time"]
+            time and kick_user(client, glovar.captcha_group_id, uid)
+            mid = glovar.user_ids[uid]["mid"]
+            mid and delete_message(client, glovar.captcha_group_id, mid)
 
         glovar.user_ids = {}
         save("user_ids")
