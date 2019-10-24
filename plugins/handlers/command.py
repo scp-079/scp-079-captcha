@@ -258,7 +258,12 @@ def pass_captcha(client: Client, message: Message) -> bool:
             message_text = get_text(message.reply_to_message)
             uid = get_int(message_text.split("\n")[1].split(lang("colon"))[1])
 
-        if uid and uid != aid and glovar.user_ids.get(uid, {}) and glovar.user_ids[uid]["wait"]:
+        if (uid and uid != aid
+                and glovar.user_ids.get(uid, {})
+                and (glovar.user_ids[uid]["wait"]
+                     or glovar.user_ids[uid]["failed"]
+                     or glovar.user_ids[uid]["restricted"]
+                     or glovar.user_ids[uid]["banned"])):
             terminate_user(
                 client=client,
                 the_type="succeed",
