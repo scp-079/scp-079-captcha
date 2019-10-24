@@ -58,7 +58,6 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
                            f"{lang('action')}{lang('colon')}{code(lang('action_wait'))}\n"
                            f"{lang('triggered_by')}{lang('colon')}{general_link(mid, mid_link)}\n")
             thread(send_message, (client, glovar.debug_channel_id, debug_text))
-
             return True
 
         # Generate the hint text
