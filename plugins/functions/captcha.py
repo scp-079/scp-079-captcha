@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from random import choice, randint, shuffle
+from random import choice, randint, sample, shuffle
 from typing import Optional
 
 from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, User
@@ -57,6 +57,9 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
         wait_user_list = [wid for wid in glovar.user_ids if glovar.user_ids[wid]["wait"].get(gid, 0)]
         count_text = f"{len(wait_user_list)} {lang('members')}"
         text = f"{lang('wait_user')}{lang('colon')}{code(count_text)}\n"
+
+        if len(wait_user_list) > 40:
+            wait_user_list = sample(wait_user_list, 40)
 
         for wid in wait_user_list:
             text += mention_text("\U00002060", wid)

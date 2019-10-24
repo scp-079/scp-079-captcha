@@ -33,6 +33,26 @@ from .ids import init_group_id
 logger = logging.getLogger(__name__)
 
 
+def is_authorized_group(_, update: Union[CallbackQuery, Message]) -> bool:
+    # Check if the message is send from the authorized group
+    try:
+        if isinstance(update, CallbackQuery):
+            message = update.message
+        else:
+            message = update
+
+        if not message.chat:
+            return False
+
+        cid = message.chat.id
+        if init_group_id(cid):
+            return True
+    except Exception as e:
+        logger.warning(f"Is authorized group error: {e}", exc_info=True)
+
+    return False
+
+
 def is_captcha_group(_, update: Union[CallbackQuery, Message]) -> bool:
     # Check if the message is sent from the captcha group
     try:
@@ -41,10 +61,12 @@ def is_captcha_group(_, update: Union[CallbackQuery, Message]) -> bool:
         else:
             message = update
 
-        if message.chat:
-            cid = message.chat.id
-            if cid == glovar.captcha_group_id:
-                return True
+        if not message.chat:
+            return False
+
+        cid = message.chat.id
+        if cid == glovar.captcha_group_id:
+            return True
     except Exception as e:
         logger.warning(f"Is captcha group error: {e}", exc_info=True)
 
@@ -52,20 +74,22 @@ def is_captcha_group(_, update: Union[CallbackQuery, Message]) -> bool:
 
 
 def is_class_c(_, message: Message) -> bool:
-    # Check if the message is Class C object
+    # Check if the message is Class C personnel
     try:
-        if message.from_user:
-            # Basic data
-            uid = message.from_user.id
-            gid = message.chat.id
+        if not message.from_user:
+            return False
 
-            # Init the group
-            if not init_group_id(gid):
-                return False
+        # Basic data
+        uid = message.from_user.id
+        gid = message.chat.id
 
-            # Check permission
-            if uid in glovar.admin_ids[gid] or uid in glovar.bot_ids or message.from_user.is_self:
-                return True
+        # Init the group
+        if not init_group_id(gid):
+            return False
+
+        # Check permission
+        if uid in glovar.admin_ids[gid] or uid in glovar.bot_ids or message.from_user.is_self:
+            return True
     except Exception as e:
         logger.warning(f"Is class c error: {e}", exc_info=True)
 
@@ -87,8 +111,8 @@ def is_class_d(_, message: Message) -> bool:
 def is_class_e(_, message: Message, test: bool = False) -> bool:
     # Check if the message is Class E object
     try:
-        if message.from_user and not test:
-            if is_class_e_user(message.from_user):
+        if message.from_user:
+            if not test and is_class_e_user(message.from_user):
                 return True
     except Exception as e:
         logger.warning(f"Is class e error: {e}", exc_info=True)
@@ -99,10 +123,12 @@ def is_class_e(_, message: Message, test: bool = False) -> bool:
 def is_declared_message(_, message: Message) -> bool:
     # Check if the message is declared by other bots
     try:
-        if message.chat:
-            gid = message.chat.id
-            mid = message.message_id
-            return is_declared_message_id(gid, mid)
+        if not message.chat:
+            return False
+
+        gid = message.chat.id
+        mid = message.message_id
+        return is_declared_message_id(gid, mid)
     except Exception as e:
         logger.warning(f"Is declared message error: {e}", exc_info=True)
 
@@ -112,13 +138,14 @@ def is_declared_message(_, message: Message) -> bool:
 def is_exchange_channel(_, message: Message) -> bool:
     # Check if the message is sent from the exchange channel
     try:
-        if message.chat:
-            cid = message.chat.id
-            if glovar.should_hide:
-                if cid == glovar.hide_channel_id:
-                    return True
-            elif cid == glovar.exchange_channel_id:
-                return True
+        if not message.chat:
+            return False
+
+        cid = message.chat.id
+        if glovar.should_hide:
+            return cid == glovar.hide_channel_id
+        else:
+            return cid == glovar.exchange_channel_id
     except Exception as e:
         logger.warning(f"Is exchange channel error: {e}", exc_info=True)
 
@@ -139,10 +166,12 @@ def is_from_user(_, message: Message) -> bool:
 def is_hide_channel(_, message: Message) -> bool:
     # Check if the message is sent from the hide channel
     try:
-        if message.chat:
-            cid = message.chat.id
-            if cid == glovar.hide_channel_id:
-                return True
+        if not message.chat:
+            return False
+
+        cid = message.chat.id
+        if cid == glovar.hide_channel_id:
+            return True
     except Exception as e:
         logger.warning(f"Is hide channel error: {e}", exc_info=True)
 
@@ -154,9 +183,7 @@ def is_new_group(_, message: Message) -> bool:
     try:
         new_users = message.new_chat_members
         if new_users:
-            for user in new_users:
-                if user.is_self:
-                    return True
+            return any(user.is_self for user in new_users)
         elif message.group_chat_created or message.supergroup_chat_created:
             return True
     except Exception as e:
@@ -168,15 +195,22 @@ def is_new_group(_, message: Message) -> bool:
 def is_test_group(_, message: Message) -> bool:
     # Check if the message is sent from the test group
     try:
-        if message.chat:
-            cid = message.chat.id
-            if cid == glovar.test_group_id:
-                return True
+        if not message.chat:
+            return False
+
+        cid = message.chat.id
+        if cid == glovar.test_group_id:
+            return True
     except Exception as e:
         logger.warning(f"Is test group error: {e}", exc_info=True)
 
     return False
 
+
+authorized_group = Filters.create(
+    func=is_authorized_group,
+    name="Authorized Group"
+)
 
 captcha_group = Filters.create(
     func=is_captcha_group,
@@ -503,12 +537,14 @@ def is_regex_text(word_type: str, text: str, again: bool = False) -> Optional[Ma
 def is_watch_user(message: Message, the_type: str) -> bool:
     # Check if the message is sent by a watch user
     try:
-        if message.from_user:
-            uid = message.from_user.id
-            now = message.date or get_now()
-            until = glovar.watch_ids[the_type].get(uid, 0)
-            if now < until:
-                return True
+        if not message.from_user:
+            return False
+
+        uid = message.from_user.id
+        now = message.date or get_now()
+        until = glovar.watch_ids[the_type].get(uid, 0)
+        if now < until:
+            return True
     except Exception as e:
         logger.warning(f"Is watch user error: {e}", exc_info=True)
 

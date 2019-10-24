@@ -271,12 +271,13 @@ def receive_leave_approve(client: Client, data: dict) -> bool:
         # Basic data
         admin_id = data["admin_id"]
         the_id = data["group_id"]
+        force = data["force"]
         reason = data["reason"]
 
         if reason in {"permissions", "user"}:
             reason = lang(f"reason_{reason}")
 
-        if not glovar.admin_ids.get(the_id):
+        if not glovar.admin_ids.get(the_id) and not force:
             return True
 
         text = get_debug_text(client, the_id)

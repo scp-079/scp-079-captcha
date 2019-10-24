@@ -24,14 +24,14 @@ from pyrogram import Client, CallbackQuery
 from .. import glovar
 from ..functions.captcha import answer_question
 from ..functions.etc import lang, thread
-from ..functions.filters import captcha_group
+from ..functions.filters import authorized_group, captcha_group
 from ..functions.telegram import answer_callback
 
 # Enable logging
 logger = logging.getLogger(__name__)
 
 
-@Client.on_callback_query(~captcha_group)
+@Client.on_callback_query(authorized_group & ~captcha_group)
 def check_wait(client: Client, callback_query: CallbackQuery) -> bool:
     # Answer the check query
     glovar.locks["message"].acquire()

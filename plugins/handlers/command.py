@@ -28,7 +28,7 @@ from ..functions.channel import get_debug_text, share_data
 from ..functions.etc import bold, code, delay, get_command_context, get_command_type, get_int, get_now, get_text, lang
 from ..functions.etc import mention_id, thread
 from ..functions.file import save
-from ..functions.filters import captcha_group, class_e, from_user, is_class_c, test_group
+from ..functions.filters import authorized_group, captcha_group, class_e, from_user, is_class_c, test_group
 from ..functions.group import delete_message, get_config_text
 from ..functions.telegram import get_group_info, resolve_username, send_message, send_report_message
 from ..functions.timers import new_invite_link
@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 
 @Client.on_message(Filters.incoming & Filters.group & Filters.command(["config"], glovar.prefix)
-                   & ~test_group & ~captcha_group
+                   & authorized_group & ~captcha_group & ~test_group
                    & from_user)
 def config(client: Client, message: Message) -> bool:
     # Request CONFIG session
@@ -110,7 +110,7 @@ def config(client: Client, message: Message) -> bool:
 
 @Client.on_message(Filters.incoming & Filters.group
                    & Filters.command([f"config_{glovar.sender.lower()}"], glovar.prefix)
-                   & ~test_group & ~captcha_group
+                   & authorized_group & ~captcha_group & ~test_group
                    & from_user)
 def config_directly(client: Client, message: Message) -> bool:
     # Config the bot directly
@@ -204,7 +204,7 @@ def config_directly(client: Client, message: Message) -> bool:
 
 
 @Client.on_message(Filters.incoming & Filters.group & Filters.command(["invite"], glovar.prefix)
-                   & ~test_group & captcha_group
+                   & captcha_group & ~test_group
                    & from_user & class_e)
 def invite(client: Client, message: Message) -> bool:
     # Send a new invite link to CAPTCHA channel
@@ -233,7 +233,7 @@ def invite(client: Client, message: Message) -> bool:
 
 
 @Client.on_message(Filters.incoming & Filters.group & Filters.command(["pass"], glovar.prefix)
-                   & ~test_group & captcha_group
+                   & captcha_group & ~test_group
                    & from_user & class_e)
 def pass_captcha(client: Client, message: Message) -> bool:
     # Pass in CAPTCHA
@@ -282,7 +282,7 @@ def pass_captcha(client: Client, message: Message) -> bool:
 
 
 @Client.on_message(Filters.incoming & Filters.group & Filters.command(["pass"], glovar.prefix)
-                   & ~test_group & ~captcha_group
+                   & authorized_group & ~captcha_group & ~test_group
                    & from_user)
 def pass_group(client: Client, message: Message) -> bool:
     # Pass in group
@@ -367,7 +367,7 @@ def pass_group(client: Client, message: Message) -> bool:
 
 
 @Client.on_message(Filters.incoming & Filters.group & Filters.command(["static"], glovar.prefix)
-                   & ~test_group & ~captcha_group
+                   & authorized_group & ~captcha_group & ~test_group
                    & from_user)
 def static(client: Client, message: Message) -> bool:
     # Send a new static hint message

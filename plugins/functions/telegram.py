@@ -22,7 +22,7 @@ from typing import Iterable, List, Optional, Union
 from pyrogram import Chat, ChatMember, ChatPermissions, ChatPreview, Client, InlineKeyboardMarkup, Message
 from pyrogram.api.functions.users import GetFullUser
 from pyrogram.api.types import InputPeerUser, InputPeerChannel, UserFull
-from pyrogram.errors import ChannelInvalid, ChannelPrivate, FloodWait, PeerIdInvalid
+from pyrogram.errors import ChannelInvalid, ChannelPrivate, FloodWait, PeerIdInvalid, QueryIdInvalid
 from pyrogram.errors import UsernameInvalid, UsernameNotOccupied
 
 from .. import glovar
@@ -48,6 +48,8 @@ def answer_callback(client: Client, callback_query_id: str, text: str, show_aler
             except FloodWait as e:
                 flood_wait = True
                 wait_flood(e)
+            except QueryIdInvalid:
+                return False
     except Exception as e:
         logger.warning(f"Answer query to {callback_query_id} error: {e}", exc_info=True)
 
