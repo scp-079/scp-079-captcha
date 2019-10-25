@@ -45,7 +45,7 @@ def check_wait(client: Client, callback_query: CallbackQuery) -> bool:
         # Answer
         if action == "hint":
             if action_type == "check":
-                if glovar.user_ids.get(uid) and glovar.user_ids[uid]["wait"].get(gid, 0):
+                if glovar.user_ids.get(uid, {}) and glovar.user_ids[uid]["wait"].get(gid, 0):
                     thread(answer_callback, (client, callback_query.id, lang("check_yes"), True))
                 else:
                     thread(answer_callback, (client, callback_query.id, lang("check_no"), True))
@@ -75,7 +75,7 @@ def verify_answer(client: Client, callback_query: CallbackQuery) -> bool:
 
         # Answer
         if action == "answer":
-            if glovar.user_ids.get(uid) and glovar.user_ids[uid]["answer"]:
+            if glovar.user_ids.get(uid, {}) and glovar.user_ids[uid]["answer"]:
                 text = action_type
                 answer_question(client, uid, text)
 

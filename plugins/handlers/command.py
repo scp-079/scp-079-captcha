@@ -132,6 +132,7 @@ def config_directly(client: Client, message: Message) -> bool:
         reason = lang("config_updated")
         new_config = deepcopy(glovar.configs[gid])
         text = f"{lang('admin_group')}{lang('colon')}{code(aid)}\n"
+
         # Check command format
         command_type, command_context = get_command_context(message)
         if command_type:
@@ -142,6 +143,7 @@ def config_directly(client: Client, message: Message) -> bool:
                 return True
 
             now = get_now()
+
             # Check the config lock
             if now - new_config["lock"] > 310:
                 if command_type == "default":

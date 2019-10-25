@@ -185,6 +185,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             unrestrict_user(client, gid, uid)
             glovar.user_ids[uid]["failed"].pop(gid, 0)
             glovar.user_ids[uid]["restricted"].discard(gid)
+
             if gid in glovar.user_ids[uid]["banned"]:
                 glovar.user_ids[uid]["banned"].discard(gid)
                 unban_user(client, gid, uid)
