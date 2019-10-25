@@ -120,7 +120,7 @@ def save(file: str) -> bool:
 
 
 def save_thread(file: str) -> bool:
-    # Save function's thread
+    # Save thread
     try:
         if not glovar:
             return True
@@ -132,6 +132,6 @@ def save_thread(file: str) -> bool:
 
         return True
     except Exception as e:
-        logger.error(f"Save data error: {e}", exc_info=True)
+        logger.error(f"Save thread error: {e}", exc_info=True)
 
     return False

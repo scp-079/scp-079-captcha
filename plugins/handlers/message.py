@@ -96,8 +96,8 @@ def hint(client: Client, message: Message) -> bool:
 
                 if glovar.configs[gid].get("pass"):
                     if (succeeded_time and now - succeeded_time < glovar.time_recheck
-                            and not is_watch_user(message, "ban")
-                            and not is_watch_user(message, "delete")
+                            and not is_watch_user(new, "ban", now)
+                            and not is_watch_user(new, "delete", now)
                             and not is_limited_user(gid, new, now)):
                         continue
 

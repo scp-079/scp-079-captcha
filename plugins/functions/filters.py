@@ -25,7 +25,7 @@ from typing import Match, Optional, Union
 from pyrogram import CallbackQuery, Filters, Message, User
 
 from .. import glovar
-from .etc import get_now, get_text
+from .etc import get_text
 from .file import save
 from .ids import init_group_id
 
@@ -446,6 +446,7 @@ def is_limited_user(gid: int, user: User, now: int, short: bool = True) -> bool:
 
         track = [gid for gid in glovar.user_ids[uid]["join"]
                  if now - glovar.user_ids[uid]["join"][gid] < glovar.time_track]
+
         if len(track) >= glovar.limit_track:
             return True
     except Exception as e:
@@ -534,14 +535,13 @@ def is_regex_text(word_type: str, text: str, again: bool = False) -> Optional[Ma
     return result
 
 
-def is_watch_user(message: Message, the_type: str) -> bool:
+def is_watch_user(user: User, the_type: str, now: int) -> bool:
     # Check if the message is sent by a watch user
     try:
-        if not message.from_user:
+        if is_class_e_user(user):
             return False
 
-        uid = message.from_user.id
-        now = message.date or get_now()
+        uid = user.id
         until = glovar.watch_ids[the_type].get(uid, 0)
         if now < until:
             return True

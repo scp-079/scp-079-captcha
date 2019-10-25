@@ -28,11 +28,11 @@ from .. import glovar
 from .channel import get_debug_text, share_data
 from .etc import code, crypt_str, general_link, get_int, get_text, lang, thread, mention_id
 from .file import crypt_file, data_to_file, delete_file, get_new_path, get_downloaded_path, save
-from .group import get_config_text, leave_group
+from .group import delete_message, get_config_text, leave_group
 from .ids import init_group_id, init_user_id
 from .telegram import send_message, send_report_message
 from .timers import update_admins
-from .user import unrestrict_user
+from .user import kick_user, unrestrict_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -87,6 +87,18 @@ def receive_clear_data(client: Client, data_type: str, data: dict) -> bool:
         # Clear user data
         if data_type == "user":
             if the_type == "all":
+                # Pass all waiting users
+                for uid in list(glovar.user_ids):
+                    for gid in list(glovar.user_ids[uid]["wait"]):
+                        unrestrict_user(client, gid, uid)
+
+                # Remove users from CAPTCHA group
+                for uid in list(glovar.user_ids):
+                    time = glovar.user_ids[uid]["time"]
+                    time and kick_user(client, glovar.captcha_group_id, uid)
+                    mid = glovar.user_ids[uid]["mid"]
+                    mid and delete_message(client, glovar.captcha_group_id, mid)
+
                 glovar.user_ids = {}
             elif the_type == "new":
                 for uid in list(glovar.user_ids):
@@ -408,8 +420,15 @@ def receive_remove_score(client: Client, data: int) -> bool:
         if not glovar.user_ids.get(uid):
             return True
 
+        # Pass all waiting users
         for gid in list(glovar.user_ids[uid]["wait"]):
             unrestrict_user(client, gid, uid)
+
+        # Remove users from CAPTCHA group
+        time = glovar.user_ids[uid]["time"]
+        time and kick_user(client, glovar.captcha_group_id, uid)
+        mid = glovar.user_ids[uid]["mid"]
+        mid and delete_message(client, glovar.captcha_group_id, mid)
 
         glovar.user_ids[uid] = deepcopy(glovar.default_user_status)
         save("user_ids")
@@ -472,8 +491,11 @@ def receive_text_data(message: Message) -> dict:
     data = {}
     try:
         text = get_text(message)
-        if text:
-            data = loads(text)
+
+        if not text:
+            return {}
+
+        data = loads(text)
     except Exception as e:
         logger.warning(f"Receive text data error: {e}")
 
@@ -487,10 +509,12 @@ def receive_user_score(project: str, data: dict) -> bool:
         project = project.lower()
         uid = data["id"]
 
-        if init_user_id(uid):
-            score = data["score"]
-            glovar.user_ids[uid][project] = score
-            save("user_ids")
+        if not init_user_id(uid):
+            return True
+
+        score = data["score"]
+        glovar.user_ids[uid][project] = score
+        save("user_ids")
 
         return True
     except Exception as e:
@@ -508,9 +532,11 @@ def receive_warn_banned_user(data: dict) -> bool:
         uid = data["user_id"]
 
         # Clear wait status
-        if glovar.user_ids.get(uid, {}):
-            glovar.user_ids[uid]["wait"].pop(gid, 0)
-            save("user_ids")
+        if not glovar.user_ids.get(uid, {}):
+            return True
+
+        glovar.user_ids[uid]["wait"].pop(gid, 0)
+        save("user_ids")
     except Exception as e:
         logger.warning(f"Receive warn banned user error: {e}", exc_info=True)
     finally:
