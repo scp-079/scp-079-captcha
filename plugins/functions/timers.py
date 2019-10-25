@@ -27,7 +27,8 @@ from .etc import code, general_link, get_now, lang, thread
 from .file import save
 from .filters import is_class_e_user
 from .group import delete_message, leave_group
-from .telegram import edit_message_text, export_chat_invite_link, get_admins, get_group_info, get_members, send_message
+from .telegram import delete_messages, edit_message_text, export_chat_invite_link, get_admins, get_group_info
+from .telegram import get_members, send_message
 from .user import kick_user, terminate_user, unrestrict_user
 
 # Enable logging
@@ -94,10 +95,17 @@ def interval_min_01(client: Client) -> bool:
         # Delete hint messages
         wait_group_list = {gid for uid in list(glovar.user_ids) for gid in list(glovar.user_ids[uid]["wait"])}
         for gid in list(glovar.message_ids):
+            # Regular hint
             mid = glovar.message_ids[gid]["hint"]
             if mid and gid not in wait_group_list:
                 glovar.message_ids[gid]["hint"] = 0
                 delete_message(client, gid, mid)
+
+            # Flood static hint
+            mids = glovar.message_ids[gid]["flood"]
+            if mids and gid not in wait_group_list:
+                glovar.message_ids[gid]["flood"] = set()
+                thread(delete_messages, (client, gid, mids))
 
         save("message_ids")
 

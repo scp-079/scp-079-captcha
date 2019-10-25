@@ -30,7 +30,7 @@ from .file import save
 from .filters import is_bio_text, is_nm_text
 from .group import delete_message
 from .user import restrict_user, terminate_user, unrestrict_user
-from .telegram import get_user_bio, send_message
+from .telegram import delete_messages, get_user_bio, send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -94,6 +94,12 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
                      f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n")
             thread(send_static, (client, gid, text, True))
 
+            # Delete old hint
+            old_id = glovar.message_ids[gid]["hint"]
+            glovar.message_ids[gid]["hint"] = 0
+            old_id and delete_message(client, gid, old_id)
+            save("message_ids")
+
             # Delete joined message
             delete_message(client, gid, mid)
 
@@ -129,6 +135,10 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
             old_id = glovar.message_ids[gid]["hint"]
             glovar.message_ids[gid]["hint"] = new_id
             old_id and delete_message(client, gid, old_id)
+
+            # Update auto static message id
+            old_ids = glovar.message_ids[gid]["flood"]
+            old_ids and thread(delete_messages, (client, gid, old_ids))
 
             # Save message ids
             save("message_ids")
@@ -311,10 +321,16 @@ def send_static(client: Client, gid: int, text: str, flood: bool = False) -> boo
         result = send_message(client, gid, text, None, markup)
         if result:
             new_id = result.message_id
-            old_type = (lambda x: "hint" if x else "static")(flood)
-            old_id = glovar.message_ids[gid][old_type]
-            old_id and delete_message(client, gid, old_id)
-            glovar.message_ids[gid][old_type] = new_id
+
+            if flood:
+                old_ids = glovar.message_ids[gid]["flood"]
+                old_ids and delete_messages(client, gid, old_ids)
+                glovar.message_ids[gid]["flood"].add(new_id)
+            else:
+                old_id = glovar.message_ids[gid]["static"]
+                old_id and delete_message(client, gid, old_id)
+                glovar.message_ids[gid]["static"] = new_id
+
             save("message_ids")
     except Exception as e:
         logger.warning(f"Send static error: {e}", exc_info=True)

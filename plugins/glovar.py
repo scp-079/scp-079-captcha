@@ -398,7 +398,8 @@ default_config: Dict[str, Union[bool, int]] = {
     "pass": True
 }
 
-default_message_data: Dict[str, int] = {
+default_message_data: Dict[str, Union[int, Set[int]]] = {
+    "flood": set(),
     "hint": 0,
     "static": 0
 }
@@ -512,9 +513,10 @@ bad_ids: Dict[str, Set[Union[int, str]]] = {
 left_group_ids: Set[int] = set()
 # left_group_ids = {-10012345678}
 
-message_ids: Dict[int, Dict[str, int]] = {}
+message_ids: Dict[int, Dict[str, Union[int, Set[int]]]] = {}
 # message_ids = {
 #     -10012345678: {
+#         "flood": {120, 121, 122},
 #         "hint": 123,
 #         "static": 124
 #     }
