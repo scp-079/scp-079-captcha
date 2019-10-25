@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 
 @Client.on_message(Filters.incoming & Filters.group & Filters.command(["config"], glovar.prefix)
-                   & authorized_group & ~captcha_group & ~test_group
+                   & ~captcha_group & ~test_group & authorized_group
                    & from_user)
 def config(client: Client, message: Message) -> bool:
     # Request CONFIG session
@@ -110,7 +110,7 @@ def config(client: Client, message: Message) -> bool:
 
 @Client.on_message(Filters.incoming & Filters.group
                    & Filters.command([f"config_{glovar.sender.lower()}"], glovar.prefix)
-                   & authorized_group & ~captcha_group & ~test_group
+                   & ~captcha_group & ~test_group & authorized_group
                    & from_user)
 def config_directly(client: Client, message: Message) -> bool:
     # Config the bot directly
@@ -287,7 +287,7 @@ def pass_captcha(client: Client, message: Message) -> bool:
 
 
 @Client.on_message(Filters.incoming & Filters.group & Filters.command(["pass"], glovar.prefix)
-                   & authorized_group & ~captcha_group & ~test_group
+                   & ~captcha_group & ~test_group & authorized_group
                    & from_user)
 def pass_group(client: Client, message: Message) -> bool:
     # Pass in group
@@ -372,7 +372,7 @@ def pass_group(client: Client, message: Message) -> bool:
 
 
 @Client.on_message(Filters.incoming & Filters.group & Filters.command(["static"], glovar.prefix)
-                   & authorized_group & ~captcha_group & ~test_group
+                   & ~captcha_group & ~test_group & authorized_group
                    & from_user)
 def static(client: Client, message: Message) -> bool:
     # Send a new static hint message

@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 
 
 @Client.on_message(Filters.incoming & Filters.group & Filters.new_chat_members
-                   & authorized_group & ~captcha_group & ~new_group & ~test_group
+                   & ~captcha_group & ~test_group & ~new_group & authorized_group
                    & from_user & ~class_c & ~class_e
                    & ~declared_message)
 def hint(client: Client, message: Message) -> bool:
@@ -146,7 +146,7 @@ def hint(client: Client, message: Message) -> bool:
 
 
 @Client.on_message(Filters.incoming & Filters.group & ~Filters.new_chat_members
-                   & authorized_group & ~captcha_group & ~test_group
+                   & ~captcha_group & ~test_group & authorized_group
                    & from_user & ~class_c & ~class_d & ~class_e
                    & ~declared_message)
 def check(client: Client, message: Message) -> bool:
