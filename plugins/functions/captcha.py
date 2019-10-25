@@ -94,11 +94,6 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
                      f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n")
             thread(send_static, (client, gid, text, True))
 
-            # Delete old hint
-            old_id, _ = glovar.message_ids[gid]["hint"]
-            glovar.message_ids[gid]["hint"] = (0, 0)
-            old_id and delete_message(client, gid, old_id) and save("message_ids")
-
             # Delete joined message
             delete_message(client, gid, mid)
 
@@ -131,13 +126,8 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
         if result:
             # Update hint message id
             new_id = result.message_id
-            old_id, _ = glovar.message_ids[gid]["hint"]
-            glovar.message_ids[gid]["hint"] = (new_id, now)
-            old_id and delete_message(client, gid, old_id)
-
-            # Update auto static message id
-            old_id = glovar.message_ids[gid]["flood"]
-            glovar.message_ids[gid]["flood"] = 0
+            old_id = glovar.message_ids[gid]["hint"]
+            glovar.message_ids[gid]["hint"] = new_id
             old_id and delete_message(client, gid, old_id)
 
             # Save message ids
@@ -321,7 +311,7 @@ def send_static(client: Client, gid: int, text: str, flood: bool = False) -> boo
         result = send_message(client, gid, text, None, markup)
         if result:
             new_id = result.message_id
-            old_type = (lambda x: "flood" if x else "static")(flood)
+            old_type = (lambda x: "hint" if x else "static")(flood)
             old_id = glovar.message_ids[gid][old_type]
             old_id and delete_message(client, gid, old_id)
             glovar.message_ids[gid][old_type] = new_id

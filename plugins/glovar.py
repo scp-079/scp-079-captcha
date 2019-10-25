@@ -25,7 +25,7 @@ from os.path import exists
 from shutil import rmtree
 from string import ascii_lowercase
 from threading import Lock
-from typing import Dict, List, Set, Tuple, Union
+from typing import Dict, List, Set, Union
 
 from emoji import UNICODE_EMOJI
 from pyrogram import Chat
@@ -398,9 +398,8 @@ default_config: Dict[str, Union[bool, int]] = {
     "pass": True
 }
 
-default_message_data: Dict[str, Union[int, Tuple[int, int]]] = {
-    "flood": 0,
-    "hint": (0, 0),
+default_message_data: Dict[str, int] = {
+    "hint": 0,
     "static": 0
 }
 
@@ -480,7 +479,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.1.0"
+version: str = "0.1.1"
 
 # Load data from pickle
 
@@ -513,11 +512,10 @@ bad_ids: Dict[str, Set[Union[int, str]]] = {
 left_group_ids: Set[int] = set()
 # left_group_ids = {-10012345678}
 
-message_ids: Dict[int, Dict[str, Union[int, Tuple[int, int]]]] = {}
+message_ids: Dict[int, Dict[str, int]] = {}
 # message_ids = {
 #     -10012345678: {
-#         "flood": 120,
-#         "hint": (123, 12345678),
+#         "hint": 123,
 #         "static": 124
 #     }
 # }
