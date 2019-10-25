@@ -81,8 +81,8 @@ def get_config_text(config: dict) -> str:
 def leave_group(client: Client, gid: int) -> bool:
     # Leave a group, clear it's data
     try:
-        # glovar.left_group_ids.add(gid)
-        # thread(leave_chat, (client, gid))
+        glovar.left_group_ids.add(gid)
+        thread(leave_chat, (client, gid))
 
         glovar.admin_ids.pop(gid, None)
         save("admin_ids")
