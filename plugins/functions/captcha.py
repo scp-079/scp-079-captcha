@@ -74,7 +74,15 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
             # Delete old hint
             old_id, _ = glovar.message_ids[gid]["hint"]
             glovar.message_ids[gid]["hint"] = (0, 0)
-            old_id and delete_message(client, gid, old_id)
+            old_id and delete_message(client, gid, old_id) and save("message_ids")
+
+            # Send debug message
+            mid_link = f"{get_channel_link(gid)}/{mid}"
+            debug_text = get_debug_text(client, gid)
+            debug_text += (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
+                           f"{lang('action')}{lang('colon')}{code(lang('action_wait'))}\n"
+                           f"{lang('triggered_by')}{lang('colon')}{general_link(mid, mid_link)}\n")
+            thread(send_message, (client, glovar.debug_channel_id, debug_text))
 
             return True
 
