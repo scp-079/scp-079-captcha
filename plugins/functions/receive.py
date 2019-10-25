@@ -417,7 +417,7 @@ def receive_remove_score(client: Client, data: int) -> bool:
         # Basic data
         uid = data
 
-        if not glovar.user_ids.get(uid):
+        if not glovar.user_ids.get(uid, {}):
             return True
 
         # Pass all waiting users
