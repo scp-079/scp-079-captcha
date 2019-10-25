@@ -145,12 +145,11 @@ def check(client: Client, message: Message) -> bool:
         gid = message.chat.id
         uid = message.from_user.id
         mid = message.message_id
-        now = message.date or get_now()
 
         # Check wait list
         if (glovar.user_ids.get(uid, {})
                 and (glovar.user_ids[uid]["wait"].get(gid, 0)
-                     or now - glovar.user_ids[uid]["failed"].get(gid, 0) < glovar.time_punish)):
+                     or glovar.user_ids[uid]["failed"].get(gid, 0))):
             terminate_user(
                 client=client,
                 the_type="delete",
