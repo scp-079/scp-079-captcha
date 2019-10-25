@@ -27,9 +27,10 @@ from .channel import get_debug_text
 from .etc import button_data, code, general_link, get_channel_link, get_full_name, get_now, lang, mention_name
 from .etc import mention_text, message_link, thread
 from .file import save
+from .filters import is_bio_text, is_nm_text
 from .group import delete_message
 from .user import restrict_user, terminate_user, unrestrict_user
-from .telegram import send_message
+from .telegram import get_user_bio, send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -47,6 +48,24 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
         glovar.user_ids[uid]["name"] = name
         glovar.user_ids[uid]["wait"][gid] = now
         save("user_ids")
+
+        # Get group's waiting user list
+        wait_user_list = [wid for wid in glovar.user_ids if glovar.user_ids[wid]["wait"].get(gid, 0)]
+
+        # Work with NOSPAM
+        if len(wait_user_list) < glovar.limit_mention:
+            if glovar.nospam_id in glovar.admin_ids[gid]:
+                # Check name
+                name = get_full_name(user, True)
+                if name and is_nm_text(name):
+                    return True
+
+                # Check bio
+                bio = get_user_bio(client, user.username or user.id, True)
+                if bio and is_bio_text(bio):
+                    return True
+
+        # Restrict the user
         restrict_user(client, gid, uid)
 
         # Check hint config
@@ -60,11 +79,11 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
             thread(send_message, (client, glovar.debug_channel_id, debug_text))
             return True
 
-        # Generate the hint text
-        wait_user_list = [wid for wid in glovar.user_ids if glovar.user_ids[wid]["wait"].get(gid, 0)]
+        # Generate the hint text prefix
         count_text = f"{len(wait_user_list)} {lang('members')}"
         text = f"{lang('wait_user')}{lang('colon')}{code(count_text)}\n"
 
+        # Flood situation
         if len(wait_user_list) > glovar.limit_static:
             # Send static hint
             text += (f"{lang('message_type')}{lang('colon')}{code(lang('flood_static'))}\n"
@@ -76,6 +95,9 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
             glovar.message_ids[gid]["hint"] = (0, 0)
             old_id and delete_message(client, gid, old_id) and save("message_ids")
 
+            # Delete joined message
+            delete_message(client, gid, mid)
+
             # Send debug message
             mid_link = f"{get_channel_link(gid)}/{mid}"
             debug_text = get_debug_text(client, gid)
@@ -86,12 +108,15 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
 
             return True
 
+        # Too joined much users
         if len(wait_user_list) > glovar.limit_mention:
             wait_user_list = sample(wait_user_list, glovar.limit_mention)
 
+        # Mention previous users
         for wid in wait_user_list:
             text += mention_text("\U00002060", wid)
 
+        # Generate the hint text
         text += f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n"
 
         # Generate the markup

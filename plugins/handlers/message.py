@@ -23,11 +23,11 @@ from pyrogram import Client, Filters, Message
 from .. import glovar
 from ..functions.captcha import add_wait, answer_question, ask_question
 from ..functions.channel import get_debug_text
-from ..functions.etc import code, general_link, get_full_name, get_now, get_text, lang, thread, mention_id
+from ..functions.etc import code, general_link, get_now, get_text, lang, thread, mention_id
 from ..functions.file import save
 from ..functions.filters import authorized_group, captcha_group, class_c, class_d, class_e, declared_message
-from ..functions.filters import exchange_channel, from_user, hide_channel, is_bio_text, is_class_d_user
-from ..functions.filters import is_class_e_user, is_declared_message, is_limited_user, is_nm_text, is_watch_user
+from ..functions.filters import exchange_channel, from_user, hide_channel, is_class_d_user, is_class_e_user
+from ..functions.filters import is_declared_message, is_limited_user, is_watch_user
 from ..functions.filters import new_group, test_group
 from ..functions.group import delete_message, leave_group
 from ..functions.ids import init_group_id, init_user_id
@@ -36,7 +36,7 @@ from ..functions.receive import receive_config_reply, receive_config_show, recei
 from ..functions.receive import receive_leave_approve, receive_regex, receive_refresh, receive_remove_bad
 from ..functions.receive import receive_remove_score, receive_remove_watch, receive_rollback
 from ..functions.receive import receive_text_data, receive_user_score, receive_warn_banned_user, receive_watch_user
-from ..functions.telegram import get_admins, get_user_bio, send_message
+from ..functions.telegram import get_admins, send_message
 from ..functions.timers import backup_files, send_count
 from ..functions.user import kick_user, terminate_user
 
@@ -112,18 +112,6 @@ def hint(client: Client, message: Message) -> bool:
                 )
                 delete_message(client, gid, mid)
                 continue
-
-            # Work with NOSPAM
-            if glovar.nospam_id in glovar.admin_ids[gid]:
-                # Check name
-                name = get_full_name(new, True)
-                if name and is_nm_text(name):
-                    continue
-
-                # Check bio
-                bio = get_user_bio(client, new.username or new.id, True)
-                if bio and is_bio_text(bio):
-                    continue
 
             # Check declare status
             if is_declared_message(None, message):
