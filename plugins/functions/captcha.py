@@ -44,11 +44,6 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
         name = get_full_name(user)
         now = get_now()
 
-        # Add the user
-        glovar.user_ids[uid]["name"] = name
-        glovar.user_ids[uid]["wait"][gid] = now
-        save("user_ids")
-
         # Get group's waiting user list
         wait_user_list = [wid for wid in glovar.user_ids if glovar.user_ids[wid]["wait"].get(gid, 0)]
 
@@ -65,7 +60,10 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
                 if bio and is_bio_text(bio):
                     return True
 
-        # Restrict the user
+        # Add the user to wait list
+        glovar.user_ids[uid]["name"] = name
+        glovar.user_ids[uid]["wait"][gid] = now
+        save("user_ids")
         restrict_user(client, gid, uid)
 
         # Check hint config
