@@ -132,11 +132,13 @@ def interval_min_10(client: Client) -> bool:
 
         for member in members:
             user = member.user
+
             if is_class_e_user(user):
                 continue
 
             uid = user.id
             user_data = glovar.user_ids.get(uid, {})
+
             if user_data:
                 if user_data["wait"]:
                     continue
