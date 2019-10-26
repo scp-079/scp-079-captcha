@@ -58,13 +58,7 @@ def receive_add_bad(client: Client, sender: str, data: dict) -> bool:
             if glovar.user_ids.get(the_id, {}):
                 for gid in list(glovar.user_ids[the_id]["wait"]):
                     level = get_level(gid)
-
-                    if level == "restrict":
-                        glovar.user_ids[the_id]["restricted"].add(gid)
-                    else:
-                        glovar.user_ids[the_id]["banned"].add(gid)
-
-                    change_member_status(client, level, gid, the_id)
+                    change_member_status(client, level, gid, the_id, True)
 
                 glovar.user_ids[the_id]["wait"] = {}
                 save("user_ids")

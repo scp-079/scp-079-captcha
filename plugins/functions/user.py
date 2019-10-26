@@ -45,7 +45,7 @@ def ban_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
     return False
 
 
-def change_member_status(client: Client, level: str, gid: int, uid: int) -> bool:
+def change_member_status(client: Client, level: str, gid: int, uid: int, record: bool = False) -> bool:
     # Chat member's status in the group
     try:
         if level == "ban":
@@ -58,6 +58,7 @@ def change_member_status(client: Client, level: str, gid: int, uid: int) -> bool
             restrict_user(client, gid, uid)
         elif level == "kick":
             ban_user(client, gid, uid)
+            record and glovar.user_ids[uid]["banned"].add(gid) and save("user_ids")
 
         return True
     except Exception as e:
