@@ -38,17 +38,13 @@ from .user import change_member_status, get_level, kick_user, unban_user, unrest
 logger = logging.getLogger(__name__)
 
 
-def receive_add_bad(client: Client, sender: str, data: dict) -> bool:
+def receive_add_bad(client: Client, data: dict) -> bool:
     # Receive bad objects that other bots shared
     glovar.locks["message"].acquire()
     try:
         # Basic data
         the_id = data["id"]
         the_type = data["type"]
-
-        # Receive bad channel
-        if sender == "MANAGE" and the_type == "channel":
-            glovar.bad_ids["channels"].add(the_id)
 
         # Receive bad user
         if the_type == "user":
@@ -85,9 +81,7 @@ def receive_clear_data(client: Client, data_type: str, data: dict) -> bool:
 
         # Clear bad data
         if data_type == "bad":
-            if the_type == "channels":
-                glovar.bad_ids["channels"] = set()
-            elif the_type == "users":
+            if the_type == "users":
                 glovar.bad_ids["users"] = set()
 
             save("bad_ids")
@@ -393,16 +387,12 @@ def receive_regex(client: Client, message: Message, data: str) -> bool:
     return False
 
 
-def receive_remove_bad(sender: str, data: dict) -> bool:
+def receive_remove_bad(data: dict) -> bool:
     # Receive removed bad objects
     try:
         # Basic data
         the_id = data["id"]
         the_type = data["type"]
-
-        # Remove bad channel
-        if sender == "MANAGE" and the_type == "channel":
-            glovar.bad_ids["channels"].discard(the_id)
 
         # Remove bad user
         if the_type == "user":

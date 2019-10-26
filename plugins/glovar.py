@@ -502,11 +502,9 @@ admin_ids: Dict[int, Set[int]] = {}
 # }
 
 bad_ids: Dict[str, Set[Union[int, str]]] = {
-    "channels": set(),
     "users": set()
 }
 # bad_ids = {
-#     "channels": {-10012345678},
 #     "users": {12345678}
 # }
 

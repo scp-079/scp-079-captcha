@@ -223,7 +223,6 @@ def reset_data(client: Client) -> bool:
     glovar.locks["message"].acquire()
     try:
         glovar.bad_ids = {
-            "channels": set(),
             "users": set()
         }
         save("bad_ids")

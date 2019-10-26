@@ -389,7 +389,7 @@ def process_data(client: Client, message: Message) -> bool:
 
                 if action == "add":
                     if action_type == "bad":
-                        receive_add_bad(client, sender, data)
+                        receive_add_bad(client, data)
                     elif action_type == "watch":
                         receive_watch_user(data)
 
@@ -405,7 +405,7 @@ def process_data(client: Client, message: Message) -> bool:
 
                 if action == "add":
                     if action_type == "bad":
-                        receive_add_bad(client, sender, data)
+                        receive_add_bad(client, data)
                     elif action_type == "watch":
                         receive_watch_user(data)
 
@@ -419,7 +419,7 @@ def process_data(client: Client, message: Message) -> bool:
 
                 if action == "add":
                     if action_type == "bad":
-                        receive_add_bad(client, sender, data)
+                        receive_add_bad(client, data)
                     elif action_type == "watch":
                         receive_watch_user(data)
 
@@ -433,7 +433,7 @@ def process_data(client: Client, message: Message) -> bool:
 
                 if action == "add":
                     if action_type == "bad":
-                        receive_add_bad(client, sender, data)
+                        receive_add_bad(client, data)
 
                 elif action == "backup":
                     if action_type == "now":
@@ -454,7 +454,7 @@ def process_data(client: Client, message: Message) -> bool:
 
                 elif action == "remove":
                     if action_type == "bad":
-                        receive_remove_bad(sender, data)
+                        receive_remove_bad(data)
                     elif action_type == "score":
                         receive_remove_score(client, data)
                     elif action_type == "watch":
@@ -468,7 +468,7 @@ def process_data(client: Client, message: Message) -> bool:
 
                 if action == "add":
                     if action_type == "bad":
-                        receive_add_bad(client, sender, data)
+                        receive_add_bad(client, data)
                     elif action_type == "watch":
                         receive_watch_user(data)
 
@@ -482,7 +482,7 @@ def process_data(client: Client, message: Message) -> bool:
 
                 if action == "add":
                     if action_type == "bad":
-                        receive_add_bad(client, sender, data)
+                        receive_add_bad(client, data)
                     elif action_type == "watch":
                         receive_watch_user(data)
 
@@ -496,7 +496,7 @@ def process_data(client: Client, message: Message) -> bool:
 
                 if action == "add":
                     if action_type == "bad":
-                        receive_add_bad(client, sender, data)
+                        receive_add_bad(client, data)
                     elif action_type == "watch":
                         receive_watch_user(data)
 
@@ -510,7 +510,7 @@ def process_data(client: Client, message: Message) -> bool:
 
                 if action == "add":
                     if action_type == "bad":
-                        receive_add_bad(client, sender, data)
+                        receive_add_bad(client, data)
                     elif action_type == "watch":
                         receive_watch_user(data)
 
@@ -533,7 +533,7 @@ def process_data(client: Client, message: Message) -> bool:
 
                 if action == "remove":
                     if action_type == "bad":
-                        receive_remove_bad(sender, data)
+                        receive_remove_bad(data)
 
             elif sender == "WARN":
 
