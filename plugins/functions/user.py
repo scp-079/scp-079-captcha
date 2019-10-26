@@ -109,6 +109,9 @@ def kick_user_thread(client: Client, gid: int, uid: Union[int, str]) -> bool:
 def restrict_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
     # Restrict a user
     try:
+        if uid in glovar.bad_ids["users"]:
+            return True
+
         thread(restrict_chat_member, (client, gid, uid, ChatPermissions()))
 
         return True
@@ -260,8 +263,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
         # Verification timeout
         elif the_type == "timeout":
             # Decide level
-            failed_time = glovar.user_ids[uid]["failed"].get(gid, 0)
-            if failed_time:
+            if glovar.user_ids[uid]["failed"].get(gid, 0):
                 level = "ban"
             else:
                 level = get_level(gid)
@@ -277,6 +279,8 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             glovar.user_ids[uid]["answer"] = ""
             glovar.user_ids[uid]["try"] = 0
             glovar.user_ids[uid]["wait"].pop(gid, 0)
+
+            # Decide the unban waiting
             if level == "ban":
                 glovar.user_ids[uid]["failed"] = 0
             else:
@@ -326,6 +330,8 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             glovar.user_ids[uid]["answer"] = ""
             glovar.user_ids[uid]["try"] = 0
             glovar.user_ids[uid]["wait"] = {}
+
+            # Give the user one more chance
             for gid in wait_group_list:
                 glovar.user_ids[uid]["failed"][gid] = now
                 glovar.user_ids[uid]["restricted"].discard(gid)

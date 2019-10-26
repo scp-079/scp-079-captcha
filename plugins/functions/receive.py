@@ -32,14 +32,15 @@ from .group import delete_message, get_config_text, leave_group
 from .ids import init_group_id, init_user_id
 from .telegram import send_message, send_report_message
 from .timers import update_admins
-from .user import kick_user, unban_user, unrestrict_user
+from .user import change_member_status, get_level, kick_user, unban_user, unrestrict_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
 
 
-def receive_add_bad(sender: str, data: dict) -> bool:
+def receive_add_bad(client: Client, sender: str, data: dict) -> bool:
     # Receive bad objects that other bots shared
+    glovar.locks["message"].acquire()
     try:
         # Basic data
         the_id = data["id"]
@@ -53,16 +54,28 @@ def receive_add_bad(sender: str, data: dict) -> bool:
         if the_type == "user":
             glovar.bad_ids["users"].add(the_id)
 
-            with glovar.locks["message"]:
-                if glovar.user_ids.get(the_id, {}):
-                    glovar.user_ids[the_id]["wait"] = {}
-                    save("user_ids")
+            # Clear the user's wait status
+            if glovar.user_ids.get(the_id, {}):
+                for gid in list(glovar.user_ids[the_id]["wait"]):
+                    level = get_level(gid)
+
+                    if level == "restrict":
+                        glovar.user_ids[the_id]["restricted"].add(gid)
+                    else:
+                        glovar.user_ids[the_id]["banned"].add(gid)
+
+                    change_member_status(client, level, gid, the_id)
+
+                glovar.user_ids[the_id]["wait"] = {}
+                save("user_ids")
 
         save("bad_ids")
 
         return True
     except Exception as e:
         logger.warning(f"Receive add bad error: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
 
     return False
 
