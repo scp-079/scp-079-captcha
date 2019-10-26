@@ -59,6 +59,7 @@ def receive_add_bad(client: Client, sender: str, data: dict) -> bool:
                 for gid in list(glovar.user_ids[the_id]["wait"]):
                     level = get_level(gid)
                     change_member_status(client, level, gid, the_id, True)
+                    glovar.user_ids[the_id]["failed"][gid] = 0
 
                 glovar.user_ids[the_id]["wait"] = {}
                 save("user_ids")
