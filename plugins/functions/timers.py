@@ -29,7 +29,7 @@ from .filters import is_class_e_user
 from .group import delete_message, leave_group
 from .telegram import delete_messages, edit_message_text, export_chat_invite_link, get_admins, get_group_info
 from .telegram import get_members, send_message
-from .user import kick_user, terminate_user, unrestrict_user
+from .user import kick_user, terminate_user, unban_user, unrestrict_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -68,29 +68,36 @@ def interval_min_01(client: Client) -> bool:
         # Basic data
         now = get_now()
 
-        # Remove users from CAPTCHA group
+        # Check user status
         for uid in list(glovar.user_ids):
+            # Remove users from CAPTCHA group
             time = glovar.user_ids[uid]["time"]
             if time and now - time > glovar.time_remove:
                 glovar.user_ids[uid]["time"] = 0
                 kick_user(client, glovar.captcha_group_id, uid)
 
-        save("user_ids")
-
-        # Check timeout
-        for uid in list(glovar.user_ids):
+            # Check timeout
             if not glovar.user_ids[uid]["wait"]:
                 continue
 
             for gid in list(glovar.user_ids[uid]["wait"]):
                 time = glovar.user_ids[uid]["wait"][gid]
-                if now - time > glovar.time_captcha:
+                if time and now - time > glovar.time_captcha:
                     terminate_user(
                         client=client,
                         the_type="timeout",
                         uid=uid,
                         gid=gid
                     )
+
+            # Undo punish
+            for gid in list(glovar.user_ids[uid]["failed"]):
+                time = glovar.user_ids[uid]["failed"][gid]
+                if time and now - time > glovar.time_punish:
+                    glovar.user_ids[uid]["failed"][gid] = 0
+                    unban_user(client, gid, uid)
+
+        save("user_ids")
 
         # Delete hint messages
         wait_group_list = {gid for uid in list(glovar.user_ids) for gid in list(glovar.user_ids[uid]["wait"])}
@@ -127,6 +134,7 @@ def interval_min_10(client: Client) -> bool:
 
         # Clear CAPTCHA group members
         members = get_members(client, glovar.captcha_group_id, "all")
+
         if not members:
             return True
 
@@ -225,13 +233,17 @@ def reset_data(client: Client) -> bool:
         glovar.left_group_ids = set()
         save("left_group_ids")
 
-        # Pass all waiting users
         for uid in list(glovar.user_ids):
+            # Pass all waiting users
             for gid in list(glovar.user_ids[uid]["wait"]):
                 unrestrict_user(client, gid, uid)
 
-        # Remove users from CAPTCHA group
-        for uid in list(glovar.user_ids):
+            # Unban all punished users
+            for gid in list(glovar.user_ids[uid]["failed"]):
+                if glovar.user_ids[uid]["failed"][gid]:
+                    unban_user(client, gid, uid)
+
+            # Remove users from CAPTCHA group
             time = glovar.user_ids[uid]["time"]
             time and kick_user(client, glovar.captcha_group_id, uid)
             mid = glovar.user_ids[uid]["mid"]

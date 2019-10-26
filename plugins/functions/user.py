@@ -57,7 +57,7 @@ def change_member_status(client: Client, level: str, gid: int, uid: int) -> bool
             save("user_ids")
             restrict_user(client, gid, uid)
         elif level == "kick":
-            kick_user(client, gid, uid)
+            ban_user(client, gid, uid)
 
         return True
     except Exception as e:
@@ -277,7 +277,10 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             glovar.user_ids[uid]["answer"] = ""
             glovar.user_ids[uid]["try"] = 0
             glovar.user_ids[uid]["wait"].pop(gid, 0)
-            glovar.user_ids[uid]["failed"][gid] = now
+            if level == "ban":
+                glovar.user_ids[uid]["failed"] = 0
+            else:
+                glovar.user_ids[uid]["failed"] = now
 
             # Edit the message
             name = glovar.user_ids[uid]["name"]
@@ -317,7 +320,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
             # Kick the user
             for gid in wait_group_list:
-                kick_user(client, gid, uid)
+                ban_user(client, gid, uid)
 
             # Modify the status
             glovar.user_ids[uid]["answer"] = ""

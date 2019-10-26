@@ -32,7 +32,7 @@ from .group import delete_message, get_config_text, leave_group
 from .ids import init_group_id, init_user_id
 from .telegram import send_message, send_report_message
 from .timers import update_admins
-from .user import kick_user, unrestrict_user
+from .user import kick_user, unban_user, unrestrict_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -87,13 +87,17 @@ def receive_clear_data(client: Client, data_type: str, data: dict) -> bool:
         # Clear user data
         if data_type == "user":
             if the_type == "all":
-                # Pass all waiting users
                 for uid in list(glovar.user_ids):
+                    # Pass all waiting users
                     for gid in list(glovar.user_ids[uid]["wait"]):
                         unrestrict_user(client, gid, uid)
 
-                # Remove users from CAPTCHA group
-                for uid in list(glovar.user_ids):
+                    # Unban all punished users
+                    for gid in list(glovar.user_ids[uid]["failed"]):
+                        if glovar.user_ids[uid]["failed"][gid]:
+                            unban_user(client, gid, uid)
+
+                    # Remove users from CAPTCHA group
                     time = glovar.user_ids[uid]["time"]
                     time and kick_user(client, glovar.captcha_group_id, uid)
                     mid = glovar.user_ids[uid]["mid"]
@@ -423,6 +427,11 @@ def receive_remove_score(client: Client, data: int) -> bool:
         # Pass all waiting users
         for gid in list(glovar.user_ids[uid]["wait"]):
             unrestrict_user(client, gid, uid)
+
+        # Unban all punished users
+        for gid in list(glovar.user_ids[uid]["failed"]):
+            if glovar.user_ids[uid]["failed"][gid]:
+                unban_user(client, gid, uid)
 
         # Remove users from CAPTCHA group
         time = glovar.user_ids[uid]["time"]
