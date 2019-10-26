@@ -282,9 +282,9 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
             # Decide the unban waiting
             if level == "ban":
-                glovar.user_ids[uid]["failed"] = 0
+                glovar.user_ids[uid]["failed"][gid] = 0
             else:
-                glovar.user_ids[uid]["failed"] = now
+                glovar.user_ids[uid]["failed"][gid] = now
 
             # Edit the message
             name = glovar.user_ids[uid]["name"]
