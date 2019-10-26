@@ -113,7 +113,7 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
 
             return True
 
-        # Too joined much users
+        # Mention users
         if len(wait_user_list) > glovar.limit_mention:
             wait_user_list = sample(wait_user_list, glovar.limit_mention)
 

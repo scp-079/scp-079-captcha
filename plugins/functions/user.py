@@ -264,7 +264,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
         # Verification timeout
         elif the_type == "timeout":
             # Decide level
-            if glovar.user_ids[uid]["failed"].get(gid, 0):
+            if glovar.user_ids[uid]["failed"].get(gid) is not None:
                 level = "ban"
             else:
                 level = get_level(gid)
