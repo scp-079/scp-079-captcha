@@ -454,7 +454,7 @@ def process_data(client: Client, message: Message) -> bool:
 
                 elif action == "remove":
                     if action_type == "bad":
-                        receive_remove_bad(data)
+                        receive_remove_bad(client, data)
                     elif action_type == "score":
                         receive_remove_score(client, data)
                     elif action_type == "watch":
@@ -533,7 +533,7 @@ def process_data(client: Client, message: Message) -> bool:
 
                 if action == "remove":
                     if action_type == "bad":
-                        receive_remove_bad(data)
+                        receive_remove_bad(client, data)
 
             elif sender == "WARN":
 
