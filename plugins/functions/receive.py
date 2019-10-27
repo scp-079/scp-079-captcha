@@ -40,7 +40,6 @@ logger = logging.getLogger(__name__)
 
 def receive_add_bad(client: Client, data: dict) -> bool:
     # Receive bad objects that other bots shared
-    glovar.locks["message"].acquire()
     try:
         # Basic data
         the_id = data["id"]
@@ -50,23 +49,23 @@ def receive_add_bad(client: Client, data: dict) -> bool:
         if the_type == "user":
             glovar.bad_ids["users"].add(the_id)
 
-            # Clear the user's wait status
-            if glovar.user_ids.get(the_id, {}):
-                for gid in list(glovar.user_ids[the_id]["wait"]):
-                    level = get_level(gid)
-                    change_member_status(client, level, gid, the_id, True)
-                    glovar.user_ids[the_id]["failed"][gid] = 0
+            with glovar.locks["message"]:
+                # Clear the user's wait status
+                if glovar.user_ids.get(the_id, {}):
+                    for gid in list(glovar.user_ids[the_id]["wait"]):
+                        level = get_level(gid)
+                        change_member_status(client, level, gid, the_id, True)
+                        glovar.user_ids[the_id]["failed"][gid] = 0
 
-                glovar.user_ids[the_id]["wait"] = {}
-                save("user_ids")
+                    glovar.user_ids[the_id]["wait"] = {}
+
+            save("user_ids")
 
         save("bad_ids")
 
         return True
     except Exception as e:
         logger.warning(f"Receive add bad error: {e}", exc_info=True)
-    finally:
-        glovar.locks["message"].release()
 
     return False
 
@@ -387,8 +386,9 @@ def receive_regex(client: Client, message: Message, data: str) -> bool:
     return False
 
 
-def receive_remove_bad(data: dict) -> bool:
+def receive_remove_bad(client: Client, data: dict) -> bool:
     # Receive removed bad objects
+    glovar.locks["message"].acquire()
     try:
         # Basic data
         the_id = data["id"]
@@ -400,6 +400,22 @@ def receive_remove_bad(data: dict) -> bool:
             glovar.watch_ids["ban"].pop(the_id, {})
             glovar.watch_ids["delete"].pop(the_id, {})
             save("watch_ids")
+
+            # Pass all waiting users
+            for gid in list(glovar.user_ids[the_id]["wait"]):
+                unrestrict_user(client, gid, the_id)
+
+            # Unban all punished users
+            for gid in list(glovar.user_ids[the_id]["failed"]):
+                if glovar.user_ids[the_id]["failed"][gid]:
+                    unban_user(client, gid, the_id)
+
+            # Remove users from CAPTCHA group
+            time = glovar.user_ids[the_id]["time"]
+            time and kick_user(client, glovar.captcha_group_id, the_id)
+            mid = glovar.user_ids[the_id]["mid"]
+            mid and delete_message(client, glovar.captcha_group_id, mid)
+            
             glovar.user_ids[the_id] = deepcopy(glovar.default_user_status)
             save("user_ids")
 
@@ -408,6 +424,8 @@ def receive_remove_bad(data: dict) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Receive remove bad error: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
 
     return False
 
