@@ -83,10 +83,6 @@ def is_class_c(_, message: Message) -> bool:
         uid = message.from_user.id
         gid = message.chat.id
 
-        # Init the group
-        if not init_group_id(gid):
-            return False
-
         # Check permission
         if uid in glovar.admin_ids[gid] or uid in glovar.bot_ids or message.from_user.is_self:
             return True
