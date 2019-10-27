@@ -390,15 +390,10 @@ def is_emoji(the_type: str, text: str, message: Message = None) -> bool:
     return False
 
 
-def is_high_score_user(message: Union[Message, User]) -> float:
+def is_high_score_user(user: User) -> float:
     # Check if the message is sent by a high score user
     try:
-        if isinstance(message, Message):
-            user = message.from_user
-        else:
-            user = message
-
-        if not user:
+        if is_class_e_user(user):
             return 0.0
 
         uid = user.id
