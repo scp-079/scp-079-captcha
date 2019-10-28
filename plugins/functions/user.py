@@ -253,7 +253,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                 if question_type == "image":
                     thread(
                         target=edit_message_photo,
-                        args=(client, glovar.captcha_group_id, mid, "assets/none.png", None, captcha_text)
+                        args=(client, glovar.captcha_group_id, mid, "assets/succeed.png", None, captcha_text)
                     )
                 elif question_type == "text":
                     thread(
@@ -315,7 +315,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                 if question_type == "image":
                     thread(
                         target=edit_message_photo,
-                        args=(client, glovar.captcha_group_id, mid, "assets/none.png", None, captcha_text)
+                        args=(client, glovar.captcha_group_id, mid, "assets/fail.png", None, captcha_text)
                     )
                 elif question_type == "text":
                     thread(
@@ -380,7 +380,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                 if question_type == "image":
                     thread(
                         target=edit_message_photo,
-                        args=(client, glovar.captcha_group_id, mid, "assets/none.png", None, captcha_text)
+                        args=(client, glovar.captcha_group_id, mid, "assets/fail.png", None, captcha_text)
                     )
                 elif question_type == "text":
                     thread(

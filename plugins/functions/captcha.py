@@ -200,12 +200,7 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
         now = get_now()
 
         # Get the question data
-        the_type = choice(["math"])
-
-        # Debug
-        if uid == 801303946:
-            the_type = "math_pic"
-
+        the_type = choice(["math", "math_pic"])
         captcha = eval(f"captcha_{the_type}")()
 
         if not captcha:
