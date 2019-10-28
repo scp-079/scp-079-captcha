@@ -37,6 +37,9 @@ logger = logging.getLogger(__name__)
 def crypt_file(operation: str, file_in: str, file_out: str) -> bool:
     # Encrypt or decrypt a file
     try:
+        if not file_in or not file_out:
+            return True
+
         buffer = 64 * 1024
         if operation == "decrypt":
             decryptFile(file_in, file_out, glovar.password, buffer)
