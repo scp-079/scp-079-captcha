@@ -23,7 +23,7 @@ from pyrogram import Client, CallbackQuery
 
 from .. import glovar
 from ..functions.captcha import answer_question
-from ..functions.etc import lang, thread
+from ..functions.etc import get_int, get_text, lang, thread
 from ..functions.filters import authorized_group, captcha_group, test_group
 from ..functions.telegram import answer_callback
 
@@ -42,13 +42,17 @@ def check_wait(client: Client, callback_query: CallbackQuery) -> bool:
         action = callback_data["a"]
         action_type = callback_data["t"]
 
-        # Answer
-        if action == "hint":
-            if action_type == "check":
-                if glovar.user_ids.get(uid, {}) and glovar.user_ids[uid]["wait"].get(gid, 0):
-                    thread(answer_callback, (client, callback_query.id, lang("check_yes"), True))
-                else:
-                    thread(answer_callback, (client, callback_query.id, lang("check_no"), True))
+        # Answer the callback
+        if action != "hint":
+            return True
+
+        if action_type != "check":
+            return True
+
+        if glovar.user_ids.get(uid, {}) and glovar.user_ids[uid]["wait"].get(gid, 0):
+            thread(answer_callback, (client, callback_query.id, lang("check_yes"), True))
+        else:
+            thread(answer_callback, (client, callback_query.id, lang("check_no"), True))
 
         return True
     except Exception as e:
@@ -66,19 +70,30 @@ def verify_answer(client: Client, callback_query: CallbackQuery) -> bool:
         uid = callback_query.from_user.id
         callback_data = loads(callback_query.data)
         action = callback_data["a"]
-        action_type = callback_data["t"]
         data = callback_data["d"]
 
-        # Check permission
-        if data and uid != data:
+        # Check type
+        if action != "answer":
             return True
 
-        # Answer
-        if action == "answer":
-            if glovar.user_ids.get(uid, {}) and glovar.user_ids[uid]["answer"]:
-                text = action_type
-                answer_question(client, uid, text)
+        # Get the user id
+        message = callback_query.message
+        message_text = get_text(message.reply_to_message)
+        oid = get_int(message_text.split("\n")[1].split(lang("colon"))[1])
 
+        # Check permission
+        if not oid or uid != oid:
+            return True
+
+        # Check user status
+        if not glovar.user_ids.get(uid, {}) or not glovar.user_ids[uid]["answer"]:
+            return True
+
+        # Answer the question
+        text = data
+        answer_question(client, uid, text)
+
+        # Answer the callback
         thread(answer_callback, (client, callback_query.id, ""))
 
         return True

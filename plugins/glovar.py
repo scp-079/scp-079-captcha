@@ -75,10 +75,14 @@ backup: Union[bool, str] = ""
 captcha_link: str = ""
 date_reset: str = ""
 default_group_link: str = ""
+font_chinese: str = ""
+font_english: str = ""
+font_number: str = ""
 limit_mention: int = 0
 limit_static: int = 0
 limit_track: int = 0
 limit_try: int = 0
+noise: float = 0.0
 project_link: str = ""
 project_name: str = ""
 time_captcha: int = 0
@@ -137,10 +141,14 @@ try:
     captcha_link = config["custom"].get("captcha_link", captcha_link)
     date_reset = config["custom"].get("date_reset", date_reset)
     default_group_link = config["custom"].get("default_group_link", default_group_link)
+    font_chinese = config["custom"].get("font_chinese", font_chinese)
+    font_english = config["custom"].get("font_english", font_english)
+    font_number = config["custom"].get("font_number", font_number)
     limit_mention = int(config["custom"].get("limit_mention", limit_mention))
     limit_static = int(config["custom"].get("limit_static", limit_static))
     limit_track = int(config["custom"].get("limit_track", limit_track))
     limit_try = int(config["custom"].get("limit_try", limit_try))
+    noise = float(config["custom"].get("noise", noise))
     project_link = config["custom"].get("project_link", project_link)
     project_name = config["custom"].get("project_name", project_name)
     time_captcha = int(config["custom"].get("time_captcha", time_captcha))
@@ -194,10 +202,14 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or captcha_link in {"", "[DATA EXPUNGED]"}
         or date_reset in {"", "[DATA EXPUNGED]"}
         or default_group_link in {"", "[DATA EXPUNGED]"}
+        or font_chinese in {"", "[DATA EXPUNGED]"}
+        or font_english in {"", "[DATA EXPUNGED]"}
+        or font_number in {"", "[DATA EXPUNGED]"}
         or limit_mention == 0
         or limit_static == 0
         or limit_track == 0
         or limit_try == 0
+        or noise == 0.0
         or project_link in {"", "[DATA EXPUNGED]"}
         or project_name in {"", "[DATA EXPUNGED]"}
         or time_captcha == 0
@@ -346,6 +358,9 @@ lang: Dict[str, str] = {
     "invite_button": (zh_cn and "加入验证群组") or "Join CAPTCHA Group",
     "invite_text": (zh_cn and "请在专用群组中进行验证") or "Please verify in a private group",
     "question": (zh_cn and "问题") or "Question",
+    "question_math_pic": ((zh_cn and "请选择或发送上图中所显示的加减法算术题的正确答案")
+                          or ("Please choose or reply the correct answer to "
+                              "the addition or subtraction arithmetic question shown in the figure above")),
     "wait_user": (zh_cn and "待验证用户") or "Users Need to Be Verified",
     # Terminate
     "auto_ban": (zh_cn and "自动封禁") or "Auto Ban",
@@ -539,6 +554,7 @@ user_ids: Dict[int, Dict[str, Union[int, str, Dict[Union[int, str], Union[float,
 # user_ids = {
 #     12345678: {
 #         "name": "name",
+#         "type": "text",
 #         "mid": 123,
 #         "time": 1512345678,
 #         "answer": "",

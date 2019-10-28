@@ -20,17 +20,19 @@ import logging
 from random import choice, randint, sample, shuffle
 from typing import Optional
 
+from captcha.image import ImageCaptcha
+from claptcha import Claptcha
 from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, User
 
 from .. import glovar
 from .channel import get_debug_text
 from .etc import button_data, code, general_link, get_channel_link, get_full_name, get_now, lang, mention_name
 from .etc import mention_text, message_link, thread
-from .file import save
+from .file import delete_file, get_new_path, save
 from .filters import is_bio_text, is_nm_text
 from .group import delete_message
 from .user import restrict_user, terminate_user, unrestrict_user
-from .telegram import delete_messages, get_user_bio, send_message
+from .telegram import delete_messages, get_user_bio, send_message, send_photo
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -199,7 +201,12 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
 
         # Get the question data
         the_type = choice(["math"])
-        captcha = eval(f"captcha_{the_type}")(uid)
+
+        # Debug
+        if uid == 801303946:
+            the_type = "math_pic"
+
+        captcha = eval(f"captcha_{the_type}")()
 
         if not captcha:
             return True
@@ -214,10 +221,35 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
         # Generate the markup
         markup = get_captcha_markup("ask", captcha)
 
-        # Send the message
-        result = send_message(client, glovar.captcha_group_id, text, mid, markup)
+        # Get the type
+        image_path = captcha.get("image")
+
+        # Send the question message
+        if image_path:
+            result = send_photo(
+                client=client,
+                cid=glovar.captcha_group_id,
+                photo=image_path,
+                caption=text,
+                mid=mid,
+                markup=markup
+            )
+        else:
+            result = send_message(
+                client=client,
+                cid=glovar.captcha_group_id,
+                text=text,
+                mid=mid,
+                markup=markup
+            )
+
+        # Delete the image
+        image_path and thread(delete_file, (image_path,))
+
+        # Save the data
         if result:
             captcha_message_id = result.message_id
+            glovar.user_ids[uid]["type"] = (image_path and "image") or "text"
             glovar.user_ids[uid]["mid"] = captcha_message_id
             glovar.user_ids[uid]["time"] = now
             glovar.user_ids[uid]["answer"] = captcha["answer"]
@@ -238,7 +270,7 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
     return False
 
 
-def captcha_math(uid: int) -> dict:
+def captcha_math() -> dict:
     # Math CAPTCHA
     result = {}
     try:
@@ -262,7 +294,6 @@ def captcha_math(uid: int) -> dict:
         shuffle(candidates)
 
         result = {
-            "user_id": uid,
             "question": question,
             "answer": answer,
             "candidates": candidates
@@ -273,17 +304,55 @@ def captcha_math(uid: int) -> dict:
     return result
 
 
+def captcha_math_pic() -> dict:
+    # Math picture CAPTCHA
+    result = {}
+    try:
+        operators = ["-", "+"]
+        operator = choice(operators)
+        num_1 = randint(1, 100)
+        num_2 = randint(1, 100)
+
+        question = f"{num_1} {operator} {num_2} = ?"
+        answer = str(eval(f"{num_1} {operator} {num_2}"))
+        candidates = [answer]
+
+        for _ in range(2):
+            candidate = str(randint(-99, 200))
+
+            while candidate in candidates:
+                candidate = str(randint(-99, 200))
+
+            candidates.append(candidate)
+
+        shuffle(candidates)
+
+        image = ImageCaptcha(width=300, height=150, fonts=[glovar.font_number])
+        image_path = f"{get_new_path()}.png"
+        image.write(question, image_path)
+
+        result = {
+            "image": image_path,
+            "question": lang("question_math_pic"),
+            "answer": answer,
+            "candidates": candidates
+        }
+    except Exception as e:
+        logger.warning(f"Captcha math pic error: {e}", exc_info=True)
+
+    return result
+
+
 def get_captcha_markup(the_type: str, captcha: dict = None) -> Optional[InlineKeyboardMarkup]:
     # Get the captcha message's markup
     result = None
     try:
         if the_type == "ask" and captcha:
-            uid = captcha["user_id"]
             candidates = captcha["candidates"]
             markup_list = [[]]
 
             for candidate in candidates:
-                button = button_data("answer", candidate, uid)
+                button = button_data("answer", None, candidate)
                 markup_list[0].append(
                     InlineKeyboardButton(
                         text=candidate,
