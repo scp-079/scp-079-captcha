@@ -530,12 +530,6 @@ def process_data(client: Client, message: Message) -> bool:
                         if data == "ask":
                             send_count(client)
 
-            elif sender == "USER":
-
-                if action == "remove":
-                    if action_type == "bad":
-                        receive_remove_bad(client, data)
-
             elif sender == "WARN":
 
                 if action == "update":
