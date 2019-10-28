@@ -18,12 +18,12 @@
 
 import logging
 from time import sleep
-from typing import List, Union
+from typing import Union
 
 from pyrogram import ChatPermissions, Client
 
 from .. import glovar
-from .channel import ask_for_help, declare_message, forward_evidence, send_debug, update_score
+from .channel import ask_for_help, declare_message, send_debug, update_score
 from .etc import code, get_now, lang, mention_text, thread
 from .file import save
 from .group import delete_message
@@ -118,56 +118,6 @@ def restrict_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Restrict user error: {e}", exc_info=True)
-
-    return False
-
-
-def terminate_evidence_timeout(client: Client, level: str, gid: int, uid: int) -> bool:
-    # Timeout evidence
-    try:
-        result = forward_evidence(
-            client=client,
-            uid=uid,
-            level=lang(f"auto_{level}"),
-            rule=lang("rule_custom"),
-            gid=gid,
-            more=lang("description_timeout")
-        )
-        if result:
-            send_debug(
-                client=client,
-                gids=[gid],
-                action=lang(f"auto_{level}"),
-                uid=uid,
-                em=result
-            )
-    except Exception as e:
-        logger.warning(f"Terminate evidence timeout error: {e}", exc_info=True)
-
-    return False
-
-
-def terminate_evidence_wrong(client: Client, gid: int, gids: List[int], uid: int) -> bool:
-    # Timeout evidence
-    try:
-        result = forward_evidence(
-            client=client,
-            uid=uid,
-            level=lang(f"auto_kick"),
-            rule=lang("rule_global"),
-            gid=gid,
-            more=lang("description_wrong")
-        )
-        if result:
-            send_debug(
-                client=client,
-                gids=gids,
-                action=lang(f"auto_kick"),
-                uid=uid,
-                em=result
-            )
-    except Exception as e:
-        logger.warning(f"Terminate evidence wrong error: {e}", exc_info=True)
 
     return False
 
@@ -283,9 +233,6 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             else:
                 level = get_level(gid)
 
-            # Send evidence
-            thread(terminate_evidence_timeout, (client, level, gid, uid))
-
             # Limit the user
             change_member_status(client, level, gid, uid)
             ask_for_help(client, "delete", gid, uid)
@@ -330,6 +277,15 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             # Update the score
             update_score(client, uid)
 
+            # Send debug message
+            send_debug(
+                client=client,
+                gids=[gid],
+                action=lang(f"auto_{level}"),
+                uid=uid,
+                more=lang("description_timeout")
+            )
+
         # Pass in group
         elif the_type == "undo_pass":
             glovar.user_ids[uid]["pass"].pop(gid, 0)
@@ -347,9 +303,6 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
         elif the_type == "wrong":
             # Get the group list
             wait_group_list = list(glovar.user_ids[uid]["wait"])
-
-            # Send evidence
-            thread(terminate_evidence_wrong, (client, gid, wait_group_list, uid))
 
             # Kick the user
             for gid in wait_group_list:
@@ -395,6 +348,15 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
             # Update the score
             update_score(client, uid)
+
+            # Send debug message
+            send_debug(
+                client=client,
+                gids=wait_group_list,
+                action=lang(f"auto_kick"),
+                uid=uid,
+                more=lang("description_wrong")
+            )
 
         return True
     except Exception as e:

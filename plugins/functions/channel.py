@@ -191,7 +191,8 @@ def get_debug_text(client: Client, context: Union[int, Chat, List[int]]) -> str:
     return text
 
 
-def send_debug(client: Client, gids: List[int], action: str, uid: int, aid: int = 0, em: Message = None) -> bool:
+def send_debug(client: Client, gids: List[int], action: str, uid: int, aid: int = 0, em: Message = None,
+               more: str = "") -> bool:
     # Send the debug message
     try:
         text = get_debug_text(client, gids)
@@ -204,6 +205,9 @@ def send_debug(client: Client, gids: List[int], action: str, uid: int, aid: int 
         if em:
             mid = em.message_id
             text += f"{lang('evidence')}{lang('colon')}{general_link(mid, message_link(em))}\n"
+
+        if more:
+            text += f"{lang('more')}{lang('colon')}{code(more)}\n"
 
         thread(send_message, (client, glovar.debug_channel_id, text))
 
