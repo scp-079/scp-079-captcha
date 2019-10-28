@@ -202,13 +202,13 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
 
         # Get the question data
         if glovar.zh_cn:
-            the_type = choice(["chengyu", "math", "math_pic"])
+            the_type = choice(["chengyu", "math", "math_pic", "number"])
 
             if uid == 801303946:
                 the_type = "number"
 
         else:
-            the_type = choice(["math", "math_pic"])
+            the_type = choice(["math", "math_pic", "number"])
 
         captcha = eval(f"captcha_{the_type}")()
 
