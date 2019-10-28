@@ -14,7 +14,7 @@ See [this article](https://scp-079.org/captcha/).
 
 - Python 3.6 or higher
 - Debian 10: `sudo apt update && sudo apt install opencc -y`
-- pip: `pip install -r requirements.txt` or `pip install -U APScheduler emoji OpenCC pyAesCrypt pyrogram[fast]`
+- pip: `pip install -r requirements.txt` or `pip install -U APScheduler captcha claptcha emoji OpenCC pyAesCrypt pyrogram[fast]`
 
 ## Files
 

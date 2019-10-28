@@ -1,8 +1,11 @@
 APScheduler==3.6.1
+captcha==0.3
 cffi==1.13.0
+claptcha==0.3.3
 cryptography==2.8
 emoji==0.5.4
 OpenCC==0.2
+Pillow==6.2.1
 pyaes==1.6.1
 pyAesCrypt==0.4.3
 pycparser==2.19
