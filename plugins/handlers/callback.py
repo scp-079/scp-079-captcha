@@ -31,7 +31,7 @@ from ..functions.telegram import answer_callback
 logger = logging.getLogger(__name__)
 
 
-@Client.on_callback_query(~captcha_group & ~test_group & authorized_group)
+@Client.on_callback_query(~captcha_group & authorized_group)
 def check_wait(client: Client, callback_query: CallbackQuery) -> bool:
     # Answer the check query
     try:
