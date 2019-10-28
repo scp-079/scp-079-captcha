@@ -18,7 +18,7 @@
 
 import logging
 from random import choice, randint, sample, shuffle
-from string import ascii_lowercase
+from string import ascii_letters
 from typing import Optional
 
 from captcha.image import ImageCaptcha
@@ -343,7 +343,7 @@ def captcha_letter() -> dict:
         question = ""
 
         for _ in range(randint(3, 6)):
-            question += choice(ascii_lowercase)
+            question += choice(ascii_letters)
 
         answer = question
 
