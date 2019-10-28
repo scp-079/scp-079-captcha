@@ -188,9 +188,14 @@ def is_new_group(_, message: Message) -> bool:
     return False
 
 
-def is_test_group(_, message: Message) -> bool:
+def is_test_group(_, update: Union[CallbackQuery, Message]) -> bool:
     # Check if the message is sent from the test group
     try:
+        if isinstance(update, CallbackQuery):
+            message = update.message
+        else:
+            message = update
+
         if not message.chat:
             return False
 
