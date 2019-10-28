@@ -241,7 +241,6 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
             # Edit the message
             name = glovar.user_ids[uid]["name"]
-            question_type = glovar.user_ids[uid]["type"]
             mid = glovar.user_ids[uid]["mid"]
             if mid:
                 # Get the captcha status text
@@ -250,6 +249,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                                 f"{lang('description')}{lang('colon')}{code(lang('description_succeed'))}\n")
 
                 # Edit the message
+                question_type = glovar.user_ids[uid]["type"]
                 if question_type == "image":
                     thread(
                         target=edit_message_photo,
@@ -303,7 +303,6 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
             # Edit the message
             name = glovar.user_ids[uid]["name"]
-            question_type = glovar.user_ids[uid]["type"]
             mid = glovar.user_ids[uid]["mid"]
             if mid:
                 # Get the captcha status text
@@ -312,6 +311,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                                 f"{lang('description')}{lang('colon')}{code(lang('description_timeout'))}\n")
 
                 # Edit the message
+                question_type = glovar.user_ids[uid]["type"]
                 if question_type == "image":
                     thread(
                         target=edit_message_photo,
@@ -368,7 +368,6 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
             # Edit the message
             name = glovar.user_ids[uid]["name"]
-            question_type = glovar.user_ids[uid]["type"]
             mid = glovar.user_ids[uid]["mid"]
             if mid:
                 # Get the captcha status text
@@ -377,6 +376,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                                 f"{lang('description')}{lang('colon')}{code(lang('description_wrong'))}\n")
 
                 # Edit the message
+                question_type = glovar.user_ids[uid]["type"]
                 if question_type == "image":
                     thread(
                         target=edit_message_photo,
