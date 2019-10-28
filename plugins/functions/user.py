@@ -354,6 +354,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             # Kick the user
             for gid in wait_group_list:
                 ban_user(client, gid, uid)
+                ask_for_help(client, "delete", gid, uid)
 
             # Modify the status
             glovar.user_ids[uid]["answer"] = ""
