@@ -358,6 +358,7 @@ lang: Dict[str, str] = {
     "invite_button": (zh_cn and "加入验证群组") or "Join CAPTCHA Group",
     "invite_text": (zh_cn and "请在专用群组中进行验证") or "Please verify in a private group",
     "question": (zh_cn and "问题") or "Question",
+    "question_chengyu": (zh_cn and "请发送上图所显示的成语") or "Please send the idiom shown in the above picture",
     "question_math_pic": ((zh_cn and "请选择或发送上图中所显示的加减法算术题的正确答案")
                           or ("Please choose or reply the correct answer to "
                               "the addition or subtraction arithmetic question shown in the figure above")),
@@ -496,13 +497,13 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.1.3"
+version: str = "0.1.4"
 
 # Load data from text
 
-chinese_words: Dict[str, Set[str]] = {
-    "chengyu": set(),
-    "food": set()
+chinese_words: Dict[str, List[str]] = {
+    "chengyu": [],
+    "food": []
 }
 
 for word_type in ["chengyu", "food"]:
@@ -510,7 +511,7 @@ for word_type in ["chengyu", "food"]:
         text = f.read()
         lines = text.split("\n")
         candidates = {line.split("\t")[0].strip() for line in lines}
-        words = {word for word in candidates if 0 < len(word) < 6}
+        words = [word for word in candidates if 0 < len(word) < 6]
         chinese_words[word_type] = words
 
 # Load data from pickle

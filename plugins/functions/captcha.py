@@ -200,7 +200,15 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
         now = get_now()
 
         # Get the question data
-        the_type = choice(["math", "math_pic"])
+        if glovar.zh_cn:
+            the_type = choice(["math", "math_pic"])
+
+            if uid == 801303946:
+                the_type = "chengyu"
+
+        else:
+            the_type = choice(["math", "math_pic"])
+
         captcha = eval(f"captcha_{the_type}")()
 
         if not captcha:
@@ -265,6 +273,28 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
     return False
 
 
+def captcha_chengyu() -> dict:
+    # Chengyu CAPTCHA
+    result = {}
+    try:
+        question = choice(glovar.chinese_words["chengyu"])
+        answer = question
+
+        image = ImageCaptcha(width=300, height=150, fonts=[glovar.font_chinese])
+        image_path = f"{get_new_path('.png')}"
+        image.write(question, image_path)
+
+        result = {
+            "image": image_path,
+            "question": lang("question_chengyu"),
+            "answer": answer
+        }
+    except Exception as e:
+        logger.warning(f"Captcha chengyu error: {e}", exc_info=True)
+
+    return result
+
+
 def captcha_math() -> dict:
     # Math CAPTCHA
     result = {}
@@ -323,7 +353,7 @@ def captcha_math_pic() -> dict:
         shuffle(candidates)
 
         image = ImageCaptcha(width=300, height=150, fonts=[glovar.font_number])
-        image_path = f"{get_new_path()}.png"
+        image_path = f"{get_new_path('.png')}"
         image.write(question, image_path)
 
         result = {
@@ -343,7 +373,7 @@ def get_captcha_markup(the_type: str, captcha: dict = None) -> Optional[InlineKe
     result = None
     try:
         if the_type == "ask" and captcha:
-            candidates = captcha["candidates"]
+            candidates = captcha.get("candidates")
 
             if not candidates:
                 return None
