@@ -172,7 +172,7 @@ def answer_question(client: Client, uid: int, text: str) -> bool:
         answer = glovar.user_ids[uid].get("answer")
 
         if answer:
-            answer = text.lower()
+            answer = answer.lower()
 
         if text and answer and text == answer:
             terminate_user(
