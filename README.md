@@ -18,6 +18,10 @@ See [this article](https://scp-079.org/captcha/).
 
 ## Files
 
+- assets
+    - `chengyu.txt` : From [THUOCL](http://thuocl.thunlp.org)
+    - `food.txt` : From [THUOCL](http://thuocl.thunlp.org)
+    - `none.png` : Blank image
 - plugins
     - functions
         - `captcha.py` : Functions about CAPTCHA
