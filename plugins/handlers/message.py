@@ -23,7 +23,7 @@ from pyrogram import Client, Filters, Message
 from .. import glovar
 from ..functions.captcha import add_wait, answer_question, ask_question
 from ..functions.channel import get_debug_text
-from ..functions.etc import code, general_link, get_now, get_text, lang, thread, mention_id
+from ..functions.etc import code, general_link, get_now, lang, thread, mention_id
 from ..functions.file import save
 from ..functions.filters import authorized_group, captcha_group, class_c, class_d, class_e, declared_message
 from ..functions.filters import exchange_channel, from_user, hide_channel, is_class_d_user, is_class_e_user
