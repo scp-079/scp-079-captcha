@@ -18,6 +18,7 @@
 
 import logging
 from random import choice, randint, sample, shuffle
+from string import ascii_letters
 from typing import Optional
 
 from captcha.image import ImageCaptcha
@@ -204,13 +205,13 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
 
         # Get the question data
         if glovar.zh_cn:
-            the_type = choice(["chengyu", "math", "math_pic", "number"])
+            the_type = choice(["chengyu", "food", "math", "math_pic", "number"])
 
             if uid == 801303946:
-                the_type = "food"
+                the_type = "letter"
 
         else:
-            the_type = choice(["math", "math_pic", "number"])
+            the_type = choice(["letter", "math", "math_pic", "number"])
 
         captcha = eval(f"captcha_{the_type}")()
 
@@ -328,6 +329,32 @@ def captcha_food() -> dict:
         }
     except Exception as e:
         logger.warning(f"Captcha food error: {e}", exc_info=True)
+
+    return result
+
+
+def captcha_letter() -> dict:
+    # Letter CAPTCHA
+    result = {}
+    try:
+        question = ""
+
+        for _ in range(randint(3, 6)):
+            question += choice(ascii_letters)
+
+        answer = question
+
+        image = Claptcha(source=question, font=glovar.font_english, size=(300, 150), noise=glovar.noise)
+        image_path = f"{get_new_path('.png')}"
+        image.write(image_path)
+
+        result = {
+            "image": image_path,
+            "question": lang("question_letter"),
+            "answer": answer
+        }
+    except Exception as e:
+        logger.warning(f"Captcha letter error: {e}", exc_info=True)
 
     return result
 
