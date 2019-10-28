@@ -24,7 +24,7 @@ from pyrogram import Client, CallbackQuery
 from .. import glovar
 from ..functions.captcha import answer_question
 from ..functions.etc import get_int, get_text, lang, thread
-from ..functions.filters import authorized_group, captcha_group, test_group
+from ..functions.filters import authorized_group, captcha_group
 from ..functions.telegram import answer_callback
 
 # Enable logging
