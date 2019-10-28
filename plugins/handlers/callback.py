@@ -78,7 +78,7 @@ def verify_answer(client: Client, callback_query: CallbackQuery) -> bool:
 
         # Get the user id
         message = callback_query.message
-        message_text = get_text(message.reply_to_message)
+        message_text = get_text(message)
         oid = get_int(message_text.split("\n")[1].split(lang("colon"))[1])
 
         # Check permission
