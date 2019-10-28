@@ -20,8 +20,9 @@ See [this article](https://scp-079.org/captcha/).
 
 - assets
     - `chengyu.txt` : From [THUOCL](http://thuocl.thunlp.org)
+    - `fail.png` : Image for failure
     - `food.txt` : From [THUOCL](http://thuocl.thunlp.org)
-    - `none.png` : Blank image
+    - `success.png` : Image for success
 - plugins
     - functions
         - `captcha.py` : Functions about CAPTCHA
