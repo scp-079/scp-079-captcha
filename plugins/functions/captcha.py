@@ -349,6 +349,10 @@ def get_captcha_markup(the_type: str, captcha: dict = None) -> Optional[InlineKe
     try:
         if the_type == "ask" and captcha:
             candidates = captcha["candidates"]
+
+            if not candidates:
+                return None
+
             markup_list = [[]]
 
             for candidate in candidates:
