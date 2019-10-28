@@ -166,7 +166,9 @@ def answer_question(client: Client, uid: int, text: str) -> bool:
     # Answer question
     try:
         answer = glovar.user_ids[uid].get("answer")
-        text = text.lower()
+
+        if text:
+            text = text.lower()
 
         if text and answer and text == answer:
             terminate_user(
@@ -205,7 +207,7 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
             the_type = choice(["chengyu", "math", "math_pic", "number"])
 
             if uid == 801303946:
-                the_type = "number"
+                the_type = "food"
 
         else:
             the_type = choice(["math", "math_pic", "number"])
@@ -292,6 +294,40 @@ def captcha_chengyu() -> dict:
         }
     except Exception as e:
         logger.warning(f"Captcha chengyu error: {e}", exc_info=True)
+
+    return result
+
+
+def captcha_food() -> dict:
+    # Food CAPTCHA
+    result = {}
+    try:
+        question = choice(glovar.chinese_words["food"])
+        answer = question
+        candidates = [answer]
+
+        for _ in range(2):
+            candidate = choice(glovar.chinese_words["food"])
+
+            while candidate in candidates:
+                candidate = choice(glovar.chinese_words["food"])
+
+            candidates.append(candidate)
+
+        shuffle(candidates)
+
+        image = ImageCaptcha(width=300, height=150, fonts=[glovar.font_chinese])
+        image_path = f"{get_new_path('.png')}"
+        image.write(question, image_path)
+
+        result = {
+            "image": image_path,
+            "question": lang("question_food"),
+            "answer": answer,
+            "candidates": candidates
+        }
+    except Exception as e:
+        logger.warning(f"Captcha food error: {e}", exc_info=True)
 
     return result
 

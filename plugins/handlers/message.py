@@ -257,7 +257,7 @@ def verify_check(client: Client, message: Message) -> bool:
             return True
 
         # Answer the question
-        answer_question(client, uid, get_text(message))
+        answer_question(client, uid, message.text or message.caption)
 
         return True
     except Exception as e:
