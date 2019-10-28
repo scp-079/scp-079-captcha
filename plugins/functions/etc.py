@@ -95,6 +95,7 @@ def crypt_str(operation: str, text: str, key: str) -> str:
     try:
         f = Fernet(key)
         text = text.encode("utf-8")
+
         if operation == "decrypt":
             result = f.decrypt(text)
         else:
