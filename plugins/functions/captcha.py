@@ -165,7 +165,8 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
 def answer_question(client: Client, uid: int, text: str) -> bool:
     # Answer question
     try:
-        answer = glovar.user_ids[uid]["answer"]
+        answer = glovar.user_ids[uid].get("answer")
+        text = text.lower()
 
         if text and answer and text == answer:
             terminate_user(
@@ -202,6 +203,10 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
         # Get the question data
         if glovar.zh_cn:
             the_type = choice(["chengyu", "math", "math_pic"])
+
+            if uid == 801303946:
+                the_type = "number"
+
         else:
             the_type = choice(["math", "math_pic"])
 
@@ -360,6 +365,32 @@ def captcha_math_pic() -> dict:
         }
     except Exception as e:
         logger.warning(f"Captcha math pic error: {e}", exc_info=True)
+
+    return result
+
+
+def captcha_number() -> dict:
+    # Number CAPTCHA
+    result = {}
+    try:
+        question = ""
+
+        for _ in range(randint(3, 6)):
+            question += str(randint(0, 9))
+
+        answer = question
+
+        image = Claptcha(source=question, font=glovar.font_number, size=(300, 150), noise=glovar.noise)
+        image_path = f"{get_new_path('.png')}"
+        image.write(image_path)
+
+        result = {
+            "image": image_path,
+            "question": lang("question_number"),
+            "answer": answer
+        }
+    except Exception as e:
+        logger.warning(f"Captcha number error: {e}", exc_info=True)
 
     return result
 

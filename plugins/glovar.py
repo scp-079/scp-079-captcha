@@ -362,6 +362,7 @@ lang: Dict[str, str] = {
     "question_math_pic": ((zh_cn and "请选择或发送上图中所显示的加减法算术题的正确答案")
                           or ("Please choose or reply the correct answer to "
                               "the addition or subtraction arithmetic question shown in the figure above")),
+    "question_number": (zh_cn and "请发送上图所显示的一串数字") or "Please send a string of numbers as shown above",
     "wait_user": (zh_cn and "待验证用户") or "Users Need to Be Verified",
     # Terminate
     "auto_ban": (zh_cn and "自动封禁") or "Auto Ban",
@@ -497,7 +498,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.1.4"
+version: str = "0.1.5"
 
 # Load data from text
 
