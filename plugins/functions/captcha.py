@@ -208,11 +208,7 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
 
         # Get the question data
         if glovar.zh_cn:
-            the_type = choice(["chengyu", "food", "math", "math_pic", "number"])
-
-            if uid == 801303946:
-                the_type = "letter"
-
+            the_type = choice(["chengyu", "food", "letter", "math", "math_pic", "number"])
         else:
             the_type = choice(["letter", "math", "math_pic", "number"])
 
