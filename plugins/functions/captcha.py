@@ -166,10 +166,13 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
 def answer_question(client: Client, uid: int, text: str) -> bool:
     # Answer question
     try:
-        answer = glovar.user_ids[uid].get("answer")
-
         if text:
             text = text.lower()
+
+        answer = glovar.user_ids[uid].get("answer")
+
+        if answer:
+            answer = text.lower()
 
         if text and answer and text == answer:
             terminate_user(
