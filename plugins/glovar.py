@@ -482,6 +482,21 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 
 version: str = "0.1.3"
 
+# Load data from text
+
+chinese_words: Dict[str, Set[str]] = {
+    "chengyu": set(),
+    "food": set()
+}
+
+for word_type in ["chengyu", "food"]:
+    with open(f"{word_type}.txt", "r") as f:
+        text = f.read()
+        lines = text.split("\n")
+        candidates = {line.split("\t")[0].strip() for line in lines}
+        words = {word for word in candidates if 0 < len(word) < 6}
+        chinese_words[word_type] = words
+
 # Load data from pickle
 
 # Init dir
