@@ -359,8 +359,8 @@ lang: Dict[str, str] = {
     "invite_text": (zh_cn and "请在专用群组中进行验证") or "Please verify in a private group",
     "question": (zh_cn and "问题") or "Question",
     "question_chengyu": (zh_cn and "请发送上图所显示的成语") or "Please send the idiom shown in the above picture",
-    "question_food": ((zh_cn and "请选择或发送上图所显示的与食物有关的名称")
-                      or "Please select or send the food-related name shown in the above image"),
+    "question_food": ((zh_cn and "请选择或发送上图所显示的名称")
+                      or "Please select or send the name shown in the above image"),
     "question_math_pic": ((zh_cn and "请选择或发送上图中所显示的加减法算术题的正确答案")
                           or ("Please select or send the correct answer to "
                               "the addition or subtraction arithmetic question shown in the figure above")),
