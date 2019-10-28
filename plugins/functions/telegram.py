@@ -19,7 +19,8 @@
 import logging
 from typing import Generator, Iterable, List, Optional, Union
 
-from pyrogram import Chat, ChatMember, ChatPermissions, ChatPreview, Client, InlineKeyboardMarkup, Message
+from pyrogram import Chat, ChatMember, ChatPermissions, ChatPreview, Client
+from pyrogram import InputMediaPhoto, InlineKeyboardMarkup, Message
 from pyrogram.api.functions.users import GetFullUser
 from pyrogram.api.types import InputPeerUser, InputPeerChannel, UserFull
 from pyrogram.errors import ChannelInvalid, ChannelPrivate, FloodWait, PeerIdInvalid, QueryIdInvalid
@@ -94,6 +95,36 @@ def download_media(client: Client, file_id: str, file_ref: str, file_path: str):
                 wait_flood(e)
     except Exception as e:
         logger.warning(f"Download media {file_id} to {file_path} error: {e}", exc_info=True)
+
+    return result
+
+
+def edit_message_photo(client: Client, cid: int, mid: int, photo: str, file_ref: str = None, caption: str = "",
+                       markup: InlineKeyboardMarkup = None) -> Optional[Message]:
+    # Edit the message's photo
+    result = None
+    try:
+        media = InputMediaPhoto(
+            media=photo,
+            file_ref=file_ref,
+            caption=caption,
+            parse_mode="html"
+        )
+        flood_wait = True
+        while flood_wait:
+            flood_wait = False
+            try:
+                result = client.edit_message_media(
+                    chat_id=cid,
+                    message_id=mid,
+                    media=media,
+                    reply_markup=markup
+                )
+            except FloodWait as e:
+                flood_wait = True
+                wait_flood(e)
+    except Exception as e:
+        logger.warning(f"Edit message photo error: {e}", exc_info=True)
 
     return result
 
