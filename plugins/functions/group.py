@@ -84,14 +84,14 @@ def leave_group(client: Client, gid: int) -> bool:
         glovar.left_group_ids.add(gid)
         thread(leave_chat, (client, gid))
 
-        glovar.admin_ids.pop(gid, None)
+        glovar.admin_ids.pop(gid, set())
         save("admin_ids")
-
-        glovar.configs.pop(gid, None)
-        save("configs")
 
         glovar.message_ids.pop(gid, {})
         save("message_ids")
+
+        glovar.configs.pop(gid, {})
+        save("configs")
 
         return True
     except Exception as e:
