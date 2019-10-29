@@ -168,6 +168,8 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             failed_group_list = list(glovar.user_ids[uid]["failed"])
             for gid in failed_group_list:
                 glovar.user_ids[uid]["failed"][gid] = 0
+                if glovar.user_ids[uid]["failed"][gid]:
+                    unban_user(client, gid, uid)
 
             restricted_group_list = list(glovar.user_ids[uid]["restricted"])
             for gid in restricted_group_list:
