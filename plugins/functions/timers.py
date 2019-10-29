@@ -344,7 +344,11 @@ def update_admins(client: Client) -> bool:
                         receivers=["MANAGE"],
                         action="leave",
                         action_type="info",
-                        data=gid
+                        data={
+                            "group_id": gid,
+                            "group_name": group_name,
+                            "group_link": group_link
+                        }
                     )
                     project_text = general_link(glovar.project_name, glovar.project_link)
                     debug_text = (f"{lang('project')}{lang('colon')}{project_text}\n"
