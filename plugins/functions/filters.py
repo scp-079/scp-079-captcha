@@ -315,10 +315,14 @@ def is_bio_text(text: str) -> bool:
     return False
 
 
-def is_class_d_user(user: User) -> bool:
+def is_class_d_user(user: Union[int, User]) -> bool:
     # Check if the user is a Class D personnel
     try:
-        uid = user.id
+        if isinstance(user, int):
+            uid = user
+        else:
+            uid = user.id
+
         if uid in glovar.bad_ids["users"]:
             return True
     except Exception as e:
@@ -327,10 +331,14 @@ def is_class_d_user(user: User) -> bool:
     return False
 
 
-def is_class_e_user(user: User) -> bool:
+def is_class_e_user(user: Union[int, User]) -> bool:
     # Check if the user is a Class E personnel
     try:
-        uid = user.id
+        if isinstance(user, int):
+            uid = user
+        else:
+            uid = user.id
+
         group_list = list(glovar.admin_ids)
         for gid in group_list:
             if uid in glovar.admin_ids.get(gid, set()):
