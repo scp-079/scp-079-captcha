@@ -313,6 +313,9 @@ def pass_group(client: Client, message: Message) -> bool:
 
         # Proceed
         if message.reply_to_message and message.reply_to_message.from_user:
+            if message.reply_to_message.from_user.is_self:
+                return True
+
             if message.new_chat_members:
                 uid = message.new_chat_members[0].id
             else:
