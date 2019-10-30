@@ -251,7 +251,7 @@ lang: Dict[str, str] = {
     "rollback": (zh_cn and "数据回滚") or "Rollback",
     "score": (zh_cn and "评分") or "Score",
     "status_failed": (zh_cn and "未执行") or "Failed",
-    "status_succeeded": (zh_cn and "成功执行") or "Succeed",
+    "status_succeeded": (zh_cn and "成功执行") or "Succeeded",
     "version": (zh_cn and "版本") or "Version",
     # Config
     "config": (zh_cn and "设置") or "Settings",
