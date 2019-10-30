@@ -169,7 +169,7 @@ def check(client: Client, message: Message) -> bool:
 
 @Client.on_message(Filters.incoming & Filters.group & Filters.new_chat_members
                    & captcha_group & ~new_group
-                   & from_user & ~class_e
+                   & from_user
                    & ~declared_message)
 def verify_ask(client: Client, message: Message) -> bool:
     # Check the messages sent from groups
@@ -186,6 +186,11 @@ def verify_ask(client: Client, message: Message) -> bool:
             # Check if the user is Class D personnel
             if is_class_d_user(new):
                 kick_user(client, gid, uid)
+                delete_message(client, gid, mid)
+                continue
+
+            # Check if the user is Class E personnel
+            if is_class_e_user(new):
                 delete_message(client, gid, mid)
                 continue
 
