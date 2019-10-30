@@ -67,7 +67,6 @@ critical_channel_id: int = 0
 debug_channel_id: int = 0
 exchange_channel_id: int = 0
 hide_channel_id: int = 0
-logging_channel_id: int = 0
 test_group_id: int = 0
 
 # [custom]
@@ -133,7 +132,6 @@ try:
     debug_channel_id = int(config["channels"].get("debug_channel_id", debug_channel_id))
     exchange_channel_id = int(config["channels"].get("exchange_channel_id", exchange_channel_id))
     hide_channel_id = int(config["channels"].get("hide_channel_id", hide_channel_id))
-    logging_channel_id = int(config["channels"].get("logging_channel_id", logging_channel_id))
     test_group_id = int(config["channels"].get("test_group_id", test_group_id))
     # [custom]
     backup = config["custom"].get("backup", backup)
@@ -196,7 +194,6 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or debug_channel_id == 0
         or exchange_channel_id == 0
         or hide_channel_id == 0
-        or logging_channel_id == 0
         or test_group_id == 0
         or backup not in {False, True}
         or captcha_link in {"", "[DATA EXPUNGED]"}
