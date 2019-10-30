@@ -465,6 +465,11 @@ locks: Dict[str, Lock] = {
 media_group_ids: Set[int] = set()
 # media_group_ids = {12556677123456789}
 
+question_types: Dict[str, Set[str]] = {
+    "image": {"chengyu", "food", "letter", "math_pic", "number"},
+    "text": {"math"}
+}
+
 receivers: Dict[str, List[str]] = {
     "bad": ["ANALYZE", "APPLY", "APPEAL", "AVATAR", "CAPTCHA", "CLEAN", "LANG", "LONG",
             "MANAGE", "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WATCH"],

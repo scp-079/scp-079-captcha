@@ -203,12 +203,12 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
                 # Edit the message
                 question_type = glovar.user_ids[uid]["type"]
-                if question_type == "image":
+                if question_type in glovar.question_types["image"]:
                     thread(
                         target=edit_message_photo,
                         args=(client, glovar.captcha_group_id, mid, "assets/succeed.png", None, captcha_text)
                     )
-                elif question_type == "text":
+                elif question_type in glovar.question_types["text"]:
                     thread(
                         target=edit_message_text,
                         args=(client, glovar.captcha_group_id, mid, captcha_text)
@@ -263,12 +263,12 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
                 # Edit the message
                 question_type = glovar.user_ids[uid]["type"]
-                if question_type == "image":
+                if question_type in glovar.question_types["image"]:
                     thread(
                         target=edit_message_photo,
                         args=(client, glovar.captcha_group_id, mid, "assets/fail.png", None, captcha_text)
                     )
-                elif question_type == "text":
+                elif question_type in glovar.question_types["text"]:
                     thread(
                         target=edit_message_text,
                         args=(client, glovar.captcha_group_id, mid, captcha_text)
@@ -336,12 +336,12 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
                 # Edit the message
                 question_type = glovar.user_ids[uid]["type"]
-                if question_type == "image":
+                if question_type in glovar.question_types["image"]:
                     thread(
                         target=edit_message_photo,
                         args=(client, glovar.captcha_group_id, mid, "assets/fail.png", None, captcha_text)
                     )
-                elif question_type == "text":
+                elif question_type in glovar.question_types["text"]:
                     thread(
                         target=edit_message_text,
                         args=(client, glovar.captcha_group_id, mid, captcha_text)

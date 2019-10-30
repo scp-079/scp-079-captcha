@@ -260,7 +260,7 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
         # Save the data
         if result:
             captcha_message_id = result.message_id
-            glovar.user_ids[uid]["type"] = (image_path and "image") or "text"
+            glovar.user_ids[uid]["type"] = the_type
             glovar.user_ids[uid]["mid"] = captcha_message_id
             glovar.user_ids[uid]["time"] = now
             glovar.user_ids[uid]["answer"] = captcha["answer"]
