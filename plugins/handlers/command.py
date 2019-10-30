@@ -322,7 +322,7 @@ def pass_group(client: Client, message: Message) -> bool:
                 uid = message.reply_to_message.from_user.id
         else:
             uid = 0
-            id_text, reason = get_command_context(message)
+            id_text, _ = get_command_context(message)
             if id_text:
                 uid = get_int(id_text)
 
