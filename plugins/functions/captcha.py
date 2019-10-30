@@ -170,6 +170,7 @@ def answer_question(client: Client, uid: int, text: str) -> bool:
             text = text.lower()
 
         answer = glovar.user_ids[uid].get("answer")
+        limit = glovar.user_ids[uid].get("limit")
 
         if answer:
             answer = answer.lower()
@@ -183,7 +184,7 @@ def answer_question(client: Client, uid: int, text: str) -> bool:
         else:
             glovar.user_ids[uid]["try"] += 1
             save("user_ids")
-            if glovar.user_ids[uid]["try"] == glovar.limit_try:
+            if glovar.user_ids[uid]["try"] == limit:
                 gid = min(glovar.user_ids[uid]["wait"], key=glovar.user_ids[uid]["wait"].get)
                 terminate_user(
                     client=client,
@@ -217,11 +218,15 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
         if not captcha:
             return True
 
+        # Get limit
+        limit = captcha["limit"]
+        limit = limit or 1
+
         # Generate the question text
         question_text = captcha["question"]
         text = (f"{lang('user_name')}{lang('colon')}{mention_name(user)}\n"
                 f"{lang('user_id')}{lang('colon')}{code(uid)}\n\n"
-                f"{lang('description')}{lang('colon')}{code(lang('description_ask'))}\n\n"
+                f"{lang('description')}{lang('colon')}{code(lang('description_ask').format(limit))}\n\n"
                 f"{lang('question')}{lang('colon')}{code(question_text)}\n")
 
         # Generate the markup
@@ -259,6 +264,7 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
             glovar.user_ids[uid]["mid"] = captcha_message_id
             glovar.user_ids[uid]["time"] = now
             glovar.user_ids[uid]["answer"] = captcha["answer"]
+            glovar.user_ids[uid]["limit"] = limit
         else:
             wait_group_list = list(glovar.user_ids[uid]["wait"])
 
@@ -290,7 +296,8 @@ def captcha_chengyu() -> dict:
         result = {
             "image": image_path,
             "question": lang("question_chengyu"),
-            "answer": answer
+            "answer": answer,
+            "limit": glovar.limit_try
         }
     except Exception as e:
         logger.warning(f"Captcha chengyu error: {e}", exc_info=True)
@@ -324,7 +331,8 @@ def captcha_food() -> dict:
             "image": image_path,
             "question": lang("question_food"),
             "answer": answer,
-            "candidates": candidates
+            "candidates": candidates,
+            "limit": glovar.limit_try - 1
         }
     except Exception as e:
         logger.warning(f"Captcha food error: {e}", exc_info=True)
@@ -350,7 +358,8 @@ def captcha_letter() -> dict:
         result = {
             "image": image_path,
             "question": lang("question_letter"),
-            "answer": answer
+            "answer": answer,
+            "limit": glovar.limit_try + 1
         }
     except Exception as e:
         logger.warning(f"Captcha letter error: {e}", exc_info=True)
@@ -384,7 +393,8 @@ def captcha_math() -> dict:
         result = {
             "question": question,
             "answer": answer,
-            "candidates": candidates
+            "candidates": candidates,
+            "limit": glovar.limit_try
         }
     except Exception as e:
         logger.warning(f"Captcha math error: {e}", exc_info=True)
@@ -423,7 +433,8 @@ def captcha_math_pic() -> dict:
             "image": image_path,
             "question": lang("question_math_pic"),
             "answer": answer,
-            "candidates": candidates
+            "candidates": candidates,
+            "limit": glovar.limit_try
         }
     except Exception as e:
         logger.warning(f"Captcha math pic error: {e}", exc_info=True)
@@ -449,7 +460,8 @@ def captcha_number() -> dict:
         result = {
             "image": image_path,
             "question": lang("question_number"),
-            "answer": answer
+            "answer": answer,
+            "limit": glovar.limit_try + 1
         }
     except Exception as e:
         logger.warning(f"Captcha number error: {e}", exc_info=True)

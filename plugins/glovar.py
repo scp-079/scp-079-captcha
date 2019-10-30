@@ -336,11 +336,11 @@ lang: Dict[str, str] = {
     "captcha_go": (zh_cn and "前往验证") or "Go to Verify",
     "description_ask": (zh_cn and (f"请您尽快回答下方的问题以完成验证，"
                                    f"您可以点击相应按钮或直接发送正确答案。"
-                                   f"注意，您共有 {limit_try} 次机会回答问题，答错将导致验证失败。"
+                                   f"注意，您共有 {{}} 次机会回答问题，答错将导致验证失败。"
                                    f"您在本群的任何发言均将视为对问题的回答，请谨慎发言")
                         or (f"Please answer the question below to complete the verification as soon as possible. "
                             f"You can click the button or send the right answer directly. "
-                            f"Note that you have {limit_try} chances to answer the question, "
+                            f"Note that you have {{}} chances to answer the question, "
                             f"and incorrect answers will cause the verification to fail. "
                             f"Any message you send in this group will be considered as an answer to the question, "
                             f"please send carefully")),
@@ -430,6 +430,7 @@ default_user_status: Dict[str, Union[int, str, Dict[Union[int, str], Union[float
     "mid": 0,
     "time": 0,
     "answer": "",
+    "limit": 0,
     "try": 0,
     "join": {},
     "pass": {},
@@ -503,7 +504,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.1.8"
+version: str = "0.1.9"
 
 # Load data from text
 
@@ -566,6 +567,7 @@ user_ids: Dict[int, Dict[str, Union[int, str, Dict[Union[int, str], Union[float,
 #         "mid": 123,
 #         "time": 1512345678,
 #         "answer": "",
+#         "limit": 5,
 #         "try": 0,
 #         "join": {
 #               -10012345678: 1512345678

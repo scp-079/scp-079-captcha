@@ -185,6 +185,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
             # Modify the status
             glovar.user_ids[uid]["answer"] = ""
+            glovar.user_ids[uid]["limit"] = 0
             glovar.user_ids[uid]["try"] = 0
             if glovar.user_ids[uid]["wait"]:
                 gid = min(glovar.user_ids[uid]["wait"], key=glovar.user_ids[uid]["wait"].get)
@@ -241,6 +242,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
             # Modify the status
             glovar.user_ids[uid]["answer"] = ""
+            glovar.user_ids[uid]["limit"] = 0
             glovar.user_ids[uid]["try"] = 0
             glovar.user_ids[uid]["wait"].pop(gid, 0)
 
@@ -313,6 +315,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
             # Modify the status
             glovar.user_ids[uid]["answer"] = ""
+            glovar.user_ids[uid]["limit"] = 0
             glovar.user_ids[uid]["try"] = 0
             glovar.user_ids[uid]["wait"] = {}
 
