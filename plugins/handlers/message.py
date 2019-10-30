@@ -333,6 +333,7 @@ def init_group(client: Client, message: Message) -> bool:
             # Remove the left status
             if gid in glovar.left_group_ids:
                 glovar.left_group_ids.discard(gid)
+                save("left_group_ids")
 
             # Update group's admin list
             if not init_group_id(gid):
