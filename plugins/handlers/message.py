@@ -377,6 +377,7 @@ def process_data(client: Client, message: Message) -> bool:
     glovar.locks["receive"].acquire()
     try:
         data = receive_text_data(message)
+
         if not data:
             return True
 
