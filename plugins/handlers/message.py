@@ -386,6 +386,7 @@ def process_data(client: Client, message: Message) -> bool:
         action = data["action"]
         action_type = data["type"]
         data = data["data"]
+
         # This will look awkward,
         # seems like it can be simplified,
         # but this is to ensure that the permissions are clear,
