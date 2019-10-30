@@ -236,6 +236,10 @@ def verify_check(client: Client, message: Message) -> bool:
         # Basic data
         uid = message.from_user.id
 
+        # Check message
+        if message.service:
+            return True
+
         # Check if the user is Class D personnel
         if is_class_d_user(message.from_user):
             return True
