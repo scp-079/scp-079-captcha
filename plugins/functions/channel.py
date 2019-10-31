@@ -18,7 +18,7 @@
 
 import logging
 from json import dumps
-from typing import List, Optional, Union
+from typing import List, Union
 
 from pyrogram import Chat, Client, Message
 
@@ -125,38 +125,6 @@ def format_data(sender: str, receivers: List[str], action: str, action_type: str
         logger.warning(f"Format data error: {e}", exc_info=True)
 
     return text
-
-
-def forward_evidence(client: Client, uid: int, level: str, rule: str, gid: int,
-                     more: str = None) -> Optional[Union[bool, Message]]:
-    # Forward the message to the channel as evidence
-    result = None
-    try:
-        # Basic information
-        text = (f"{lang('project')}{lang('colon')}{code(glovar.sender)}\n"
-                f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
-                f"{lang('level')}{lang('colon')}{code(level)}\n"
-                f"{lang('rule')}{lang('colon')}{code(rule)}\n")
-
-        # Additional information
-        name = glovar.user_ids[uid]["name"]
-        if name:
-            text += f"{lang('user_name')}{lang('colon')}{code(name)}\n"
-
-        joined = glovar.user_ids[uid]["wait"].get(gid, 0)
-        if joined:
-            text += f"{lang('joined')}{lang('colon')}{code(joined)}\n"
-
-        # Extra information
-        if more:
-            text += f"{lang('more')}{lang('colon')}{code(more)}\n"
-
-        # Attach report message
-        result = send_message(client, glovar.logging_channel_id, text)
-    except Exception as e:
-        logger.warning(f"Forward evidence error: {e}", exc_info=True)
-
-    return result
 
 
 def get_debug_text(client: Client, context: Union[int, Chat, List[int]]) -> str:
