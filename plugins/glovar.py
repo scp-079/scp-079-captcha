@@ -354,6 +354,7 @@ lang: Dict[str, str] = {
     "invite_button": (zh_cn and "加入验证群组") or "Join CAPTCHA Group",
     "invite_text": (zh_cn and "请在专用群组中进行验证") or "Please verify in a private group",
     "question": (zh_cn and "问题") or "Question",
+    "question_change": (zh_cn and "更换问题") or "Change the Question",
     "question_chengyu": (zh_cn and "请发送上图所显示的成语") or "Please send the idiom shown in the above picture",
     "question_food": ((zh_cn and "请选择或发送上图所显示的名称")
                       or "Please select or send the name shown in the above image"),
