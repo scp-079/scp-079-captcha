@@ -465,9 +465,12 @@ locks: Dict[str, Lock] = {
 media_group_ids: Set[int] = set()
 # media_group_ids = {12556677123456789}
 
-question_types: Dict[str, Set[str]] = {
-    "image": {"chengyu", "food", "letter", "math_pic", "number"},
-    "text": {"math"}
+question_types: Dict[str, List[str]] = {
+    "changeable": ["chengyu", "letter", "number"],
+    "chinese": ["chengyu", "food", "letter", "math", "math_pic", "number"],
+    "english": ["letter", "math", "math_pic", "number"],
+    "image": ["chengyu", "food", "letter", "math_pic", "number"],
+    "text": ["math"]
 }
 
 receivers: Dict[str, List[str]] = {
@@ -509,7 +512,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.2.0"
+version: str = "0.2.1"
 
 # Load data from text
 

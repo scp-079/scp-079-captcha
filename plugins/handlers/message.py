@@ -21,7 +21,7 @@ import logging
 from pyrogram import Client, Filters, Message
 
 from .. import glovar
-from ..functions.captcha import add_wait, answer_question, ask_question
+from ..functions.captcha import add_wait, question_answer, question_ask
 from ..functions.channel import get_debug_text
 from ..functions.etc import code, general_link, get_now, lang, thread, mention_id
 from ..functions.file import save
@@ -212,7 +212,7 @@ def verify_ask(client: Client, message: Message) -> bool:
                 continue
 
             # Ask a new question
-            ask_question(client, new, mid)
+            question_ask(client, new, mid)
 
         return True
     except Exception as e:
@@ -266,7 +266,7 @@ def verify_check(client: Client, message: Message) -> bool:
             return True
 
         # Answer the question
-        answer_question(client, uid, message.text or message.caption)
+        question_answer(client, uid, message.text or message.caption)
 
         return True
     except Exception as e:

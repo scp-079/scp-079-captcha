@@ -33,7 +33,7 @@ from .file import delete_file, get_new_path, save
 from .filters import is_bio_text, is_nm_text
 from .group import delete_message
 from .user import restrict_user, terminate_user, unrestrict_user
-from .telegram import delete_messages, get_user_bio, send_message, send_photo
+from .telegram import delete_messages, edit_message_photo, get_user_bio, send_message, send_photo
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -165,8 +165,8 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
     return False
 
 
-def answer_question(client: Client, uid: int, text: str) -> bool:
-    # Answer question
+def question_answer(client: Client, uid: int, text: str) -> bool:
+    # Answer the question
     try:
         if text:
             text = text.lower()
@@ -200,12 +200,12 @@ def answer_question(client: Client, uid: int, text: str) -> bool:
 
         return True
     except Exception as e:
-        logger.warning(f"Answer question error: {e}", exc_info=True)
+        logger.warning(f"Question answer error: {e}", exc_info=True)
 
     return False
 
 
-def ask_question(client: Client, user: User, mid: int) -> bool:
+def question_ask(client: Client, user: User, mid: int) -> bool:
     # Ask a new question
     try:
         # Basic data
@@ -214,14 +214,11 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
 
         # Get the question data
         if glovar.zh_cn:
-            the_type = choice(["chengyu", "food", "letter", "math", "math_pic", "number"])
+            question_type = choice(glovar.question_types["chinese"])
         else:
-            the_type = choice(["letter", "math", "math_pic", "number"])
+            question_type = choice(glovar.question_types["english"])
 
-        captcha = eval(f"captcha_{the_type}")()
-
-        if not captcha:
-            return True
+        captcha = eval(f"captcha_{question_type}")()
 
         # Get limit
         limit = captcha["limit"]
@@ -235,9 +232,9 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
                 f"{lang('question')}{lang('colon')}{code(question_text)}\n")
 
         # Generate the markup
-        markup = get_captcha_markup("ask", captcha)
+        markup = get_captcha_markup("ask", captcha, question_type)
 
-        # Get the type
+        # Get the image
         image_path = captcha.get("image")
 
         # Send the question message
@@ -263,7 +260,7 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
         # Check if the message was sent successfully
         if result:
             captcha_message_id = result.message_id
-            glovar.user_ids[uid]["type"] = the_type
+            glovar.user_ids[uid]["type"] = question_type
             glovar.user_ids[uid]["mid"] = captcha_message_id
             glovar.user_ids[uid]["time"] = now
             glovar.user_ids[uid]["answer"] = captcha["answer"]
@@ -281,6 +278,68 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Ask question error: {e}", exc_info=True)
+
+    return False
+
+
+def question_change(client: Client, uid: int, mid: int) -> bool:
+    # Change the question
+    try:
+        # Basic data
+        name = glovar.user_ids[uid]["name"]
+        limit = glovar.user_ids[uid]["limit"]
+        tried = glovar.user_ids[uid]["try"]
+
+        if tried >= limit:
+            return True
+
+        # Get the question data
+        if glovar.zh_cn:
+            question_type = choice(glovar.question_types["chinese"])
+        else:
+            question_type = choice(glovar.question_types["english"])
+
+        captcha = eval(f"captcha_{question_type}")()
+
+        # Get limit
+        limit = limit - tried
+
+        # Generate the question text
+        question_text = captcha["question"]
+        text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
+                f"{lang('user_id')}{lang('colon')}{code(uid)}\n\n"
+                f"{lang('description')}{lang('colon')}{code(lang('description_ask').format(limit))}\n\n"
+                f"{lang('question')}{lang('colon')}{code(question_text)}\n")
+
+        # Generate the markup
+        markup = get_captcha_markup("ask", captcha)
+
+        # Get the image
+        image_path = captcha.get("image") or "assets/none.png"
+
+        # Edit the question message
+        result = edit_message_photo(
+            client=client,
+            cid=glovar.captcha_group_id,
+            mid=mid,
+            photo=image_path,
+            caption=text,
+            markup=markup
+        )
+        thread(delete_file, (image_path,))
+
+        # Check if the message was edited successfully
+        if result:
+            glovar.user_ids[uid]["type"] = question_type
+            glovar.user_ids[uid]["answer"] = captcha["answer"]
+            glovar.user_ids[uid]["limit"] = limit
+            glovar.user_ids[uid]["try"] = 1
+
+        save("user_ids")
+
+        return True
+    except Exception as e:
+        logger.warning(f"Question change error: {e}", exc_info=True)
 
     return False
 
@@ -472,28 +531,45 @@ def captcha_number() -> dict:
     return result
 
 
-def get_captcha_markup(the_type: str, captcha: dict = None) -> Optional[InlineKeyboardMarkup]:
+def get_captcha_markup(the_type: str, captcha: dict = None, question_type: str = "") -> Optional[InlineKeyboardMarkup]:
     # Get the captcha message's markup
     result = None
     try:
+        # Question markup
         if the_type == "ask" and captcha:
+            markup_list = []
+
+            # Candidates buttons
             candidates = captcha.get("candidates")
-
-            if not candidates:
-                return None
-
-            markup_list = [[]]
-
-            for candidate in candidates:
-                button = button_data("answer", None, candidate)
-                markup_list[0].append(
-                    InlineKeyboardButton(
-                        text=candidate,
-                        callback_data=button
+            if candidates:
+                markup_list.append([])
+                for candidate in candidates:
+                    button = button_data("question", "answer", candidate)
+                    markup_list[0].append(
+                        InlineKeyboardButton(
+                            text=candidate,
+                            callback_data=button
+                        )
                     )
+
+            # Change button
+            if question_type and question_type in glovar.question_types["changeable"]:
+                button = button_data("question", "change", question_type)
+                markup_list.append(
+                    [
+                        InlineKeyboardButton(
+                            text=lang("question_change"),
+                            callback_data=button
+                        )
+                    ]
                 )
 
+            if not markup_list:
+                return None
+
             result = InlineKeyboardMarkup(markup_list)
+
+        # Hint markup
         elif the_type == "hint":
             query_data = button_data("hint", "check", None)
             result = InlineKeyboardMarkup(
