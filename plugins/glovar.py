@@ -364,6 +364,9 @@ lang: Dict[str, str] = {
                               "the addition or subtraction arithmetic question shown in the figure above")),
     "question_number": ((zh_cn and "请发送上图所显示的一串数字（无英文字母，全部为数字）")
                         or "Please send a string of numbers as shown above"),
+    "suggestion": (zh_cn and "建议") or "Suggestion",
+    "suggestion_wrong": ((zh_cn and f"请您等待 {time_punish} 秒后，再重新加入原群组进行验证")
+                         or f"Please wait {time_punish} seconds before re-joining the original group for verification"),
     "wait_user": (zh_cn and "待验证用户") or "Users Need to Be Verified",
     # Terminate
     "auto_ban": (zh_cn and "自动封禁") or "Auto Ban",

@@ -332,7 +332,8 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                 # Get the captcha status text
                 captcha_text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
                                 f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
-                                f"{lang('description')}{lang('colon')}{code(lang('description_wrong'))}\n")
+                                f"{lang('description')}{lang('colon')}{code(lang('description_wrong'))}\n"
+                                f"{lang('suggestion')}{lang('colon')}{code(lang('suggestion_wrong'))}\n")
 
                 # Edit the message
                 question_type = glovar.user_ids[uid]["type"]
