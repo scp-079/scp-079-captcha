@@ -23,7 +23,7 @@ from pyrogram import Chat, ChatMember, ChatPermissions, ChatPreview, Client
 from pyrogram import InputMediaPhoto, InlineKeyboardMarkup, Message
 from pyrogram.api.functions.users import GetFullUser
 from pyrogram.api.types import InputPeerUser, InputPeerChannel, UserFull
-from pyrogram.errors import ChannelInvalid, ChannelPrivate, FloodWait, PeerIdInvalid, QueryIdInvalid
+from pyrogram.errors import ButtonDataInvalid, ChannelInvalid, ChannelPrivate, FloodWait, PeerIdInvalid, QueryIdInvalid
 from pyrogram.errors import UsernameInvalid, UsernameNotOccupied
 
 from .. import glovar
@@ -123,6 +123,8 @@ def edit_message_photo(client: Client, cid: int, mid: int, photo: str, file_ref:
             except FloodWait as e:
                 flood_wait = True
                 wait_flood(e)
+            except ButtonDataInvalid:
+                logger.warning(f"Invalid markup: {markup}")
     except Exception as e:
         logger.warning(f"Edit message photo error: {e}", exc_info=True)
 
@@ -152,6 +154,8 @@ def edit_message_text(client: Client, cid: int, mid: int, text: str,
             except FloodWait as e:
                 flood_wait = True
                 wait_flood(e)
+            except ButtonDataInvalid:
+                logger.warning(f"Invalid markup: {markup}")
     except Exception as e:
         logger.warning(f"Edit message {mid} in {cid} error: {e}", exc_info=True)
 
@@ -424,6 +428,8 @@ def send_document(client: Client, cid: int, document: str, file_ref: str = None,
                 wait_flood(e)
             except (PeerIdInvalid, ChannelInvalid, ChannelPrivate):
                 return False
+            except ButtonDataInvalid:
+                logger.warning(f"Invalid markup: {markup}")
     except Exception as e:
         logger.warning(f"Send document {document} to {cid} error: {e}", exec_info=True)
 
@@ -455,6 +461,8 @@ def send_message(client: Client, cid: int, text: str, mid: int = None,
                 wait_flood(e)
             except (PeerIdInvalid, ChannelInvalid, ChannelPrivate):
                 return False
+            except ButtonDataInvalid:
+                logger.warning(f"Invalid markup: {markup}")
     except Exception as e:
         logger.warning(f"Send message to {cid} error: {e}", exc_info=True)
 
@@ -487,6 +495,8 @@ def send_photo(client: Client, cid: int, photo: str, file_ref: str = None, capti
                 wait_flood(e)
             except (PeerIdInvalid, ChannelInvalid, ChannelPrivate):
                 return False
+            except ButtonDataInvalid:
+                logger.warning(f"Invalid markup: {markup}")
     except Exception as e:
         logger.warning(f"Send photo {photo} to {cid} error: {e}", exc_info=True)
 
@@ -516,6 +526,8 @@ def send_report_message(secs: int, client: Client, cid: int, text: str, mid: int
             except FloodWait as e:
                 flood_wait = True
                 wait_flood(e)
+            except ButtonDataInvalid:
+                logger.warning(f"Invalid markup: {markup}")
 
         if not result:
             return None
