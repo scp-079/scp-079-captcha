@@ -57,6 +57,7 @@ def data_to_file(data: Any) -> str:
     # Save data to a file in tmp directory
     try:
         file_path = get_new_path()
+
         with open(file_path, "wb") as f:
             dump(data, f)
 
@@ -100,6 +101,7 @@ def get_new_path(extension: str = "") -> str:
     result = ""
     try:
         file_path = random_str(8)
+
         while exists(f"tmp/{file_path}{extension}"):
             file_path = random_str(8)
 

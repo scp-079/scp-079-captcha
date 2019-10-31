@@ -50,8 +50,8 @@ def receive_add_bad(client: Client, data: dict) -> bool:
             glovar.bad_ids["users"].add(the_id)
 
             with glovar.locks["message"]:
-                # Clear the user's wait status
                 if glovar.user_ids.get(the_id, {}):
+                    # Clear the user's wait status
                     for gid in list(glovar.user_ids[the_id]["wait"]):
                         level = get_level(gid)
                         change_member_status(client, level, gid, the_id, True)
@@ -388,7 +388,6 @@ def receive_regex(client: Client, message: Message, data: str) -> bool:
 
 def receive_remove_bad(client: Client, data: dict) -> bool:
     # Receive removed bad objects
-    glovar.locks["message"].acquire()
     try:
         # Basic data
         the_id = data["id"]
@@ -401,20 +400,22 @@ def receive_remove_bad(client: Client, data: dict) -> bool:
             glovar.watch_ids["delete"].pop(the_id, {})
             save("watch_ids")
 
-            # Pass all waiting users
-            for gid in list(glovar.user_ids[the_id]["wait"]):
-                unrestrict_user(client, gid, the_id)
+            with glovar.locks["message"]:
+                if glovar.user_ids.get(the_id, {}):
+                    # Pass all waiting users
+                    for gid in list(glovar.user_ids[the_id]["wait"]):
+                        unrestrict_user(client, gid, the_id)
 
-            # Unban all punished users
-            for gid in list(glovar.user_ids[the_id]["failed"]):
-                if glovar.user_ids[the_id]["failed"][gid]:
-                    unban_user(client, gid, the_id)
+                    # Unban all punished users
+                    for gid in list(glovar.user_ids[the_id]["failed"]):
+                        if glovar.user_ids[the_id]["failed"][gid]:
+                            unban_user(client, gid, the_id)
 
-            # Remove users from CAPTCHA group
-            time = glovar.user_ids[the_id]["time"]
-            time and kick_user(client, glovar.captcha_group_id, the_id)
-            mid = glovar.user_ids[the_id]["mid"]
-            mid and delete_message(client, glovar.captcha_group_id, mid)
+                    # Remove users from CAPTCHA group
+                    time = glovar.user_ids[the_id]["time"]
+                    time and kick_user(client, glovar.captcha_group_id, the_id)
+                    mid = glovar.user_ids[the_id]["mid"]
+                    mid and delete_message(client, glovar.captcha_group_id, mid)
             
             glovar.user_ids[the_id] = deepcopy(glovar.default_user_status)
             save("user_ids")
@@ -424,8 +425,6 @@ def receive_remove_bad(client: Client, data: dict) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Receive remove bad error: {e}", exc_info=True)
-    finally:
-        glovar.locks["message"].release()
 
     return False
 
@@ -495,9 +494,11 @@ def receive_rollback(client: Client, message: Message, data: dict) -> bool:
         the_type = data["type"]
         the_data = receive_file_data(client, message)
 
-        if the_data:
-            exec(f"glovar.{the_type} = the_data")
-            save(the_type)
+        if not the_data:
+            return True
+
+        exec(f"glovar.{the_type} = the_data")
+        save(the_type)
 
         # Send debug message
         text = (f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"

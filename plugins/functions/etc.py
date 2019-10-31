@@ -18,17 +18,17 @@
 
 import logging
 from html import escape
-from json import dumps, loads
+from json import dumps
 from random import choice, uniform
 from string import ascii_letters, digits
 from threading import Thread, Timer
 from time import sleep, time
-from typing import Any, Callable, List, Optional, Union
+from typing import Any, Callable, Optional, Union
 from unicodedata import normalize
 
 from cryptography.fernet import Fernet
 from opencc import convert
-from pyrogram import InlineKeyboardMarkup, Message, User
+from pyrogram import Message, User
 from pyrogram.errors import FloodWait
 
 from .. import glovar
@@ -155,27 +155,6 @@ def get_channel_link(message: Union[int, Message]) -> str:
     return text
 
 
-def get_callback_data(message: Message) -> List[dict]:
-    # Get a message's inline button's callback data
-    callback_data_list = []
-    try:
-        if message.reply_markup and isinstance(message.reply_markup, InlineKeyboardMarkup):
-            reply_markup = message.reply_markup
-            if reply_markup.inline_keyboard:
-                inline_keyboard = reply_markup.inline_keyboard
-                if inline_keyboard:
-                    for button_row in inline_keyboard:
-                        for button in button_row:
-                            if button.callback_data:
-                                callback_data = button.callback_data
-                                callback_data = loads(callback_data)
-                                callback_data_list.append(callback_data)
-    except Exception as e:
-        logger.warning(f"Get callback data error: {e}", exc_info=True)
-
-    return callback_data_list
-
-
 def get_command_context(message: Message) -> (str, str):
     # Get the type "a" and the context "b" in "/command a b"
     command_type = ""
@@ -183,14 +162,18 @@ def get_command_context(message: Message) -> (str, str):
     try:
         text = get_text(message)
         command_list = text.split(" ")
-        if len(list(filter(None, command_list))) > 1:
-            i = 1
-            command_type = command_list[i]
-            while command_type == "" and i < len(command_list):
-                i += 1
-                command_type = command_list[i]
 
-            command_context = text[1 + len(command_list[0]) + i + len(command_type):].strip()
+        if len(list(filter(None, command_list))) <= 1:
+            return "", ""
+
+        i = 1
+        command_type = command_list[i]
+
+        while command_type == "" and i < len(command_list):
+            i += 1
+            command_type = command_list[i]
+
+        command_context = text[1 + len(command_list[0]) + i + len(command_type):].strip()
     except Exception as e:
         logger.warning(f"Get command context error: {e}", exc_info=True)
 
@@ -235,10 +218,12 @@ def get_full_name(user: User, normal: bool = False) -> str:
     # Get user's full name
     text = ""
     try:
-        if user and not user.is_deleted:
-            text = user.first_name
-            if user.last_name:
-                text += f" {user.last_name}"
+        if not user or user.is_deleted:
+            return ""
+
+        text = user.first_name
+        if user.last_name:
+            text += f" {user.last_name}"
 
         if text and normal:
             text = t2t(text, normal)
@@ -315,9 +300,6 @@ def mention_name(user: User) -> str:
     # Get a name mention string
     result = ""
     try:
-        if not user:
-            return ""
-
         name = get_full_name(user)
         uid = user.id
         result = general_link(f"{name}", f"tg://user?id={uid}")

@@ -88,7 +88,7 @@ def interval_min_01(client: Client) -> bool:
                             gid=gid
                         )
 
-            # Undo punish
+            # Lift the ban on users
             for gid in list(glovar.user_ids[uid]["failed"]):
                 time = glovar.user_ids[uid]["failed"][gid]
                 if time and now - time > glovar.time_punish:
@@ -150,6 +150,7 @@ def interval_min_10(client: Client) -> bool:
                     continue
 
                 ask_time = user_data["time"]
+
                 if ask_time and now - ask_time < glovar.time_remove:
                     continue
 

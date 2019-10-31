@@ -132,14 +132,16 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
 
         # Send the message
         result = send_message(client, gid, text, mid, markup)
+
+        # Check if the message was sent successfully
         if result:
-            # Update hint message id
+            # Update hint message id, delete old message
             new_id = result.message_id
             old_id = glovar.message_ids[gid]["hint"]
             glovar.message_ids[gid]["hint"] = new_id
             old_id and delete_message(client, gid, old_id)
 
-            # Update auto static message id
+            # Delete static messages
             old_ids = glovar.message_ids[gid]["flood"]
             old_ids and thread(delete_messages, (client, gid, old_ids))
 
@@ -184,14 +186,17 @@ def answer_question(client: Client, uid: int, text: str) -> bool:
         else:
             glovar.user_ids[uid]["try"] += 1
             save("user_ids")
-            if glovar.user_ids[uid]["try"] == limit:
-                gid = min(glovar.user_ids[uid]["wait"], key=glovar.user_ids[uid]["wait"].get)
-                terminate_user(
-                    client=client,
-                    the_type="wrong",
-                    uid=uid,
-                    gid=gid
-                )
+
+            if glovar.user_ids[uid]["try"] != limit:
+                return True
+
+            gid = min(glovar.user_ids[uid]["wait"], key=glovar.user_ids[uid]["wait"].get)
+            terminate_user(
+                client=client,
+                the_type="wrong",
+                uid=uid,
+                gid=gid
+            )
 
         return True
     except Exception as e:
@@ -245,6 +250,7 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
                 mid=mid,
                 markup=markup
             )
+            thread(delete_file, (image_path,))
         else:
             result = send_message(
                 client=client,
@@ -254,10 +260,7 @@ def ask_question(client: Client, user: User, mid: int) -> bool:
                 markup=markup
             )
 
-        # Delete the image
-        image_path and thread(delete_file, (image_path,))
-
-        # Save the data
+        # Check if the message was sent successfully
         if result:
             captcha_message_id = result.message_id
             glovar.user_ids[uid]["type"] = the_type

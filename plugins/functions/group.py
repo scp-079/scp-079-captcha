@@ -57,21 +57,10 @@ def get_config_text(config: dict) -> str:
                    f"{lang('delete')}{lang('colon')}{code(delete_text)}\n"
                    f"{lang('restrict')}{lang('colon')}{code(restrict_text)}\n")
 
-        # Ban
-        ban_text = (lambda x: lang("enabled") if x else lang("disabled"))(config.get("ban"))
-        result += f"{lang('ban')}{lang('colon')}{code(ban_text)}\n"
-
-        # Forgive
-        forgive_text = (lambda x: lang("enabled") if x else lang("disabled"))(config.get("forgive"))
-        result += f"{lang('forgive')}{lang('colon')}{code(forgive_text)}\n"
-
-        # Hint
-        hint_text = (lambda x: lang("enabled") if x else lang("disabled"))(config.get("hint"))
-        result += f"{lang('hint')}{lang('colon')}{code(hint_text)}\n"
-        
-        # Pass
-        pass_text = (lambda x: lang("enabled") if x else lang("disabled"))(config.get("pass"))
-        result += f"{lang('pass')}{lang('colon')}{code(pass_text)}\n"
+        # Others
+        for the_type in ["ban", "forgive", "hint", "pass"]:
+            the_text = (lambda x: lang("enabled") if x else lang("disabled"))(config.get(the_type))
+            result += f"{lang(the_type)}{lang('colon')}{code(the_text)}\n"
     except Exception as e:
         logger.warning(f"Get config text error: {e}", exc_info=True)
 
