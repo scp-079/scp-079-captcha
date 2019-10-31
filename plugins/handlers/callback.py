@@ -74,7 +74,7 @@ def question(client: Client, callback_query: CallbackQuery) -> bool:
         data = callback_data["d"]
 
         # Check action
-        if action != "question":
+        if action != "q":
             return True
 
         # Get the user id
@@ -91,12 +91,12 @@ def question(client: Client, callback_query: CallbackQuery) -> bool:
             return True
 
         # Answer the question
-        if action_type == "answer":
+        if action_type == "a":
             text = data
             question_answer(client, uid, text)
 
         # Change the question
-        if action_type == "change":
+        if action_type == "c":
             mid = message.message_id
             question_change(client, uid, mid)
 
