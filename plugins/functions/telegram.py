@@ -124,7 +124,7 @@ def edit_message_photo(client: Client, cid: int, mid: int, photo: str, file_ref:
                 flood_wait = True
                 wait_flood(e)
             except ButtonDataInvalid:
-                logger.warning(f"Invalid markup: {markup}")
+                logger.warning(f"Edit message {mid} photo {photo} in {cid} - invalid markup: {markup}")
     except Exception as e:
         logger.warning(f"Edit message photo error: {e}", exc_info=True)
 
@@ -155,7 +155,7 @@ def edit_message_text(client: Client, cid: int, mid: int, text: str,
                 flood_wait = True
                 wait_flood(e)
             except ButtonDataInvalid:
-                logger.warning(f"Invalid markup: {markup}")
+                logger.warning(f"Edit message {mid} text in {cid} - invalid markup: {markup}")
     except Exception as e:
         logger.warning(f"Edit message {mid} in {cid} error: {e}", exc_info=True)
 
@@ -429,7 +429,7 @@ def send_document(client: Client, cid: int, document: str, file_ref: str = None,
             except (PeerIdInvalid, ChannelInvalid, ChannelPrivate):
                 return False
             except ButtonDataInvalid:
-                logger.warning(f"Invalid markup: {markup}")
+                logger.warning(f"Send document {document} to {cid} - invalid markup: {markup}")
     except Exception as e:
         logger.warning(f"Send document {document} to {cid} error: {e}", exec_info=True)
 
@@ -462,7 +462,7 @@ def send_message(client: Client, cid: int, text: str, mid: int = None,
             except (PeerIdInvalid, ChannelInvalid, ChannelPrivate):
                 return False
             except ButtonDataInvalid:
-                logger.warning(f"Invalid markup: {markup}")
+                logger.warning(f"Send message to {cid} - invalid markup: {markup}")
     except Exception as e:
         logger.warning(f"Send message to {cid} error: {e}", exc_info=True)
 
@@ -496,7 +496,7 @@ def send_photo(client: Client, cid: int, photo: str, file_ref: str = None, capti
             except (PeerIdInvalid, ChannelInvalid, ChannelPrivate):
                 return False
             except ButtonDataInvalid:
-                logger.warning(f"Invalid markup: {markup}")
+                logger.warning(f"Send photo {photo} to {cid} - invalid markup: {markup}")
     except Exception as e:
         logger.warning(f"Send photo {photo} to {cid} error: {e}", exc_info=True)
 
@@ -527,7 +527,7 @@ def send_report_message(secs: int, client: Client, cid: int, text: str, mid: int
                 flood_wait = True
                 wait_flood(e)
             except ButtonDataInvalid:
-                logger.warning(f"Invalid markup: {markup}")
+                logger.warning(f"Send report message to {cid} - invalid markup: {markup}")
 
         if not result:
             return None
