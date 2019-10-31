@@ -185,7 +185,8 @@ def new_invite_link(client: Client, the_type: str) -> bool:
         glovar.invite["link"] = link
 
         # Generate text and markup
-        text = f"{lang('description')}{lang('colon')}{code(lang('invite_text'))}\n"
+        text = (f"{lang('description')}{lang('colon')}{code(lang('invite_text'))}\n"
+                f"{lang('attention')}{lang('colon')}{code(lang('attention_invite'))}\n")
         markup = InlineKeyboardMarkup(
             [
                 [
