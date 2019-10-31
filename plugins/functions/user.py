@@ -247,7 +247,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             glovar.user_ids[uid]["wait"].pop(gid, 0)
 
             # Decide the unban pending
-            if level == "ban":
+            if level in {"ban", "restrict"}:
                 glovar.user_ids[uid]["failed"][gid] = 0
             else:
                 glovar.user_ids[uid]["failed"][gid] = now
