@@ -554,7 +554,7 @@ def get_captcha_markup(the_type: str, captcha: dict = None, question_type: str =
 
             # Change button
             if question_type and question_type in glovar.question_types["changeable"]:
-                button = button_data("question", "change", question_type)
+                button = button_data("question", "change", None)
                 markup_list.append(
                     [
                         InlineKeyboardButton(
