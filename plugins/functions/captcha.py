@@ -66,7 +66,7 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
                     return True
 
                 # Check bio
-                bio = get_user_bio(client, user.username or user.id, True)
+                bio = get_user_bio(client, uid, True)
                 if bio and is_bio_text(bio):
                     glovar.user_ids.pop(uid, {})
                     save("user_ids")
