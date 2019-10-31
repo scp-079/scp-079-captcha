@@ -187,7 +187,7 @@ def question_answer(client: Client, uid: int, text: str) -> bool:
             glovar.user_ids[uid]["try"] += 1
             save("user_ids")
 
-            if glovar.user_ids[uid]["try"] != limit:
+            if glovar.user_ids[uid]["try"] < limit:
                 return True
 
             gid = min(glovar.user_ids[uid]["wait"], key=glovar.user_ids[uid]["wait"].get)
@@ -302,7 +302,8 @@ def question_change(client: Client, uid: int, mid: int) -> bool:
         captcha = eval(f"captcha_{question_type}")()
 
         # Get limit
-        limit = limit - tried
+        limit = limit - tried - 1
+        limit = limit or 1
 
         # Generate the question text
         question_text = captcha["question"]
