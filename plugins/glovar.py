@@ -360,12 +360,13 @@ lang: Dict[str, str] = {
     "question": (zh_cn and "问题") or "Question",
     "question_change": (zh_cn and "更换问题") or "Change the Question",
     "question_chengyu": (zh_cn and "请发送上图所显示的成语") or "Please send the idiom shown in the above picture",
-    "question_food": ((zh_cn and "请选择或发送上图所显示的名称")
-                      or "Please select or send the name shown in the above image"),
+    "question_food": ((zh_cn and "正确答案在下方按钮中，请选择或发送上图所显示的名称")
+                      or "The correct answer is in the buttons below, "
+                         "please select or send the name shown in the above image"),
     "question_letter": ((zh_cn and "请发送上图所显示的一串英文字母（无数字，全部为英文字母），不区分大小写")
                         or "Please send a string of English letters (no numbers) as shown above, not case sensitive"),
-    "question_math_pic": ((zh_cn and "请选择或发送上图中所显示的加减法算术题的正确答案")
-                          or ("Please select or send the correct answer to "
+    "question_math_pic": ((zh_cn and "正确答案在下方按钮中，请选择或发送上图中所显示的加减法算术题的正确答案")
+                          or ("The correct answer is in the buttons below, please select or send the correct answer to "
                               "the addition or subtraction arithmetic question shown in the figure above")),
     "question_number": ((zh_cn and "请发送上图所显示的一串数字（无英文字母，全部为数字）")
                         or "Please send a string of numbers as shown above"),
