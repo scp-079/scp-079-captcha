@@ -539,7 +539,7 @@ def receive_user_score(project: str, data: dict) -> bool:
             return True
 
         score = data["score"]
-        glovar.user_ids[uid][project] = score
+        glovar.user_ids[uid]["score"][project] = score
         save("user_ids")
 
         return True
