@@ -309,14 +309,14 @@ def kick_chat_member(client: Client, cid: int, uid: Union[int, str]) -> Optional
     return result
 
 
-def leave_chat(client: Client, cid: int) -> bool:
+def leave_chat(client: Client, cid: int, delete: bool = False) -> bool:
     # Leave a channel
     try:
         flood_wait = True
         while flood_wait:
             flood_wait = False
             try:
-                client.leave_chat(chat_id=cid)
+                client.leave_chat(chat_id=cid, delete=delete)
             except FloodWait as e:
                 flood_wait = True
                 wait_flood(e)
