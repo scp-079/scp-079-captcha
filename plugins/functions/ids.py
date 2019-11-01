@@ -29,6 +29,12 @@ logger = logging.getLogger(__name__)
 def init_group_id(gid: int) -> bool:
     # Init group data
     try:
+        if gid == glovar.captcha_group_id:
+            return False
+
+        if gid == glovar.test_group_id:
+            return False
+
         if gid in glovar.left_group_ids:
             return False
 
