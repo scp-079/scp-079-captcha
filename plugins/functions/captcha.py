@@ -327,7 +327,7 @@ def question_change(client: Client, uid: int, mid: int) -> bool:
             caption=text,
             markup=markup
         )
-        "tmp" in image_path and thread(delete_file, (image_path,))
+        "tmp/" in image_path and thread(delete_file, (image_path,))
 
         # Check if the message was edited successfully
         if result:
