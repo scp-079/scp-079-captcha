@@ -285,6 +285,7 @@ def exchange_emergency(client: Client, message: Message) -> bool:
     try:
         # Read basic information
         data = receive_text_data(message)
+
         if not data:
             return True
 
