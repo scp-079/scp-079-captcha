@@ -35,8 +35,8 @@ def ask_for_help(client: Client, level: str, gid: int, uid: int, group: str = "s
     # Let USER help to delete all message from user, or ban user globally
     try:
         data = {
-                "group_id": gid,
-                "user_id": uid
+            "group_id": gid,
+            "user_id": uid
         }
 
         if level == "ban":
