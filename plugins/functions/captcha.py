@@ -30,10 +30,10 @@ from .channel import get_debug_text
 from .etc import button_data, code, general_link, get_channel_link, get_full_name, get_now, lang, mention_name
 from .etc import mention_text, message_link, thread
 from .file import delete_file, get_new_path, save
-from .filters import is_bio_text, is_nm_text
+from .filters import is_nm_text
 from .group import delete_message
 from .user import restrict_user, terminate_user, unrestrict_user
-from .telegram import delete_messages, edit_message_photo, get_user_bio, send_message, send_photo
+from .telegram import delete_messages, edit_message_photo, send_message, send_photo
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -61,13 +61,6 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
                 # Check name
                 name = get_full_name(user, True)
                 if name and is_nm_text(name):
-                    glovar.user_ids.pop(uid, {})
-                    save("user_ids")
-                    return True
-
-                # Check bio
-                bio = get_user_bio(client, uid, True)
-                if bio and is_bio_text(bio):
                     glovar.user_ids.pop(uid, {})
                     save("user_ids")
                     return True
