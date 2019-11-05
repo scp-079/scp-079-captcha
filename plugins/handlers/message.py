@@ -23,7 +23,7 @@ from pyrogram import Client, Filters, Message
 from .. import glovar
 from ..functions.captcha import add_wait, question_answer, question_ask
 from ..functions.channel import get_debug_text
-from ..functions.etc import code, general_link, get_now, lang, thread, mention_id
+from ..functions.etc import code, general_link, get_now, get_text, lang, thread, mention_id
 from ..functions.file import save
 from ..functions.filters import authorized_group, captcha_group, class_c, class_d, class_e, declared_message
 from ..functions.filters import exchange_channel, from_user, hide_channel, is_class_d_user, is_class_e_user
@@ -265,8 +265,13 @@ def verify_check(client: Client, message: Message) -> bool:
         if not glovar.user_ids[uid]["mid"]:
             return True
 
+        # Check the message
+        if not message.text and not message.caption:
+            return True
+
         # Answer the question
-        question_answer(client, uid, message.text or message.caption)
+        message_text = get_text(message, True)
+        question_answer(client, uid, message_text)
 
         return True
     except Exception as e:
