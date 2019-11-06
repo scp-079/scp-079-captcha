@@ -319,6 +319,7 @@ lang: Dict[str, str] = {
     "user_bio": (zh_cn and "用户简介") or "User Bio",
     "user_name": (zh_cn and "用户昵称") or "User Name",
     "from_name": (zh_cn and "来源名称") or "Forward Name",
+    "contact": (zh_cn and "联系方式") or "Contact Info",
     "more": (zh_cn and "附加信息") or "Extra Info",
     # Special
     "action_invite": (zh_cn and "重新生成邀请链接") or "Generate New Invite Link",
