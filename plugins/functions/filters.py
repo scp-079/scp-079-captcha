@@ -74,7 +74,7 @@ def is_captcha_group(_, update: Union[CallbackQuery, Message]) -> bool:
 
 
 def is_class_c(_, message: Message) -> bool:
-    # Check if the message is Class C personnel
+    # Check if the message is sent from Class C personnel
     try:
         if not message.from_user:
             return False
