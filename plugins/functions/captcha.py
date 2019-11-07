@@ -327,7 +327,7 @@ def question_change(client: Client, uid: int, mid: int) -> bool:
             glovar.user_ids[uid]["type"] = question_type
             glovar.user_ids[uid]["answer"] = captcha["answer"]
             glovar.user_ids[uid]["limit"] = limit
-            glovar.user_ids[uid]["try"] = 1
+            glovar.user_ids[uid]["try"] = 0
 
         save("user_ids")
 
