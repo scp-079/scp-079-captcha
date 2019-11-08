@@ -245,6 +245,8 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             glovar.user_ids[uid]["limit"] = 0
             glovar.user_ids[uid]["try"] = 0
             glovar.user_ids[uid]["wait"].pop(gid, 0)
+            if glovar.user_ids[uid]["succeeded"].get(gid, 0):
+                glovar.user_ids[uid]["succeeded"][gid] = 0
 
             # Decide the unban pending
             if level in {"ban", "restrict"}:
@@ -324,6 +326,8 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                 glovar.user_ids[uid]["failed"][gid] = now
                 glovar.user_ids[uid]["restricted"].discard(gid)
                 glovar.user_ids[uid]["banned"].discard(gid)
+                if glovar.user_ids[uid]["succeeded"].get(gid, 0):
+                    glovar.user_ids[uid]["succeeded"][gid] = 0
 
             # Edit the message
             name = glovar.user_ids[uid]["name"]

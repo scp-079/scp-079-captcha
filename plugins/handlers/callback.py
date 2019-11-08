@@ -51,6 +51,9 @@ def check_wait(client: Client, callback_query: CallbackQuery) -> bool:
 
         if glovar.user_ids.get(uid, {}) and glovar.user_ids[uid]["wait"].get(gid, 0):
             thread(answer_callback, (client, callback_query.id, lang("check_yes"), True))
+        elif (glovar.user_ids.get(uid, {})
+              and (glovar.user_ids[uid]["pass"].get(gid, 0) or glovar.user_ids[uid]["succeeded"].get(gid, 0))):
+            thread(answer_callback, (client, callback_query.id, lang("check_pass"), True))
         else:
             thread(answer_callback, (client, callback_query.id, lang("check_no"), True))
 

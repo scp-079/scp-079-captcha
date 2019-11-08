@@ -333,6 +333,7 @@ lang: Dict[str, str] = {
                          or ("If it prompts that the link is invalid, "
                              "it may be because the link is being updated, please try a few more times")),
     "check_no": (zh_cn and "您在本群中不需要验证即可发言") or "You can send messages without verification in this group",
+    "check_pass": (zh_cn and "您在本群中已通过验证") or "You have passed the verification in this group",
     "check_yes": (zh_cn and "您需要验证才能在本群发言") or "You need to verify to send messages in this group",
     "captcha_check": (zh_cn and "我需要验证吗") or "Should I Verify",
     "captcha_go": (zh_cn and "前往验证") or "Go to Verify",
@@ -519,7 +520,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.2.1"
+version: str = "0.2.2"
 
 # Load data from text
 
