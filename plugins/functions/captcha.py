@@ -28,7 +28,7 @@ from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, User
 from .. import glovar
 from .channel import get_debug_text
 from .etc import button_data, code, general_link, get_channel_link, get_full_name, get_now, lang, mention_name
-from .etc import mention_text, message_link, thread
+from .etc import mention_text, message_link, t2t, thread
 from .file import delete_file, get_new_path, save
 from .filters import is_nm_text
 from .group import delete_message
@@ -161,14 +161,16 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
 def question_answer(client: Client, uid: int, text: str) -> bool:
     # Answer the question
     try:
-        if text:
-            text = text.lower()
-
         answer = glovar.user_ids[uid].get("answer")
         limit = glovar.user_ids[uid].get("limit")
 
+        if text:
+            text = text.lower()
+            text = t2t(text, True)
+
         if answer:
             answer = answer.lower()
+            answer = t2t(answer, True)
 
         if text and answer and text == answer:
             terminate_user(
