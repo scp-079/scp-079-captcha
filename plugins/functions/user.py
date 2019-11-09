@@ -133,27 +133,27 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             glovar.user_ids[uid]["wait"].pop(gid, 0)
 
             # Edit the message
-            if not glovar.user_ids[uid]["wait"]:
+            if not glovar.user_ids[uid]["wait"] and glovar.user_ids[uid]["mid"]:
                 name = glovar.user_ids[uid]["name"]
                 mid = glovar.user_ids[uid]["mid"]
-                if mid:
-                    # Get the captcha status text
-                    captcha_text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
-                                    f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
-                                    f"{lang('description')}{lang('colon')}{code(lang('description_banned'))}\n")
 
-                    # Edit the message
-                    question_type = glovar.user_ids[uid]["type"]
-                    if question_type in glovar.question_types["image"]:
-                        thread(
-                            target=edit_message_photo,
-                            args=(client, glovar.captcha_group_id, mid, "assets/fail.png", None, captcha_text)
-                        )
-                    elif question_type in glovar.question_types["text"]:
-                        thread(
-                            target=edit_message_text,
-                            args=(client, glovar.captcha_group_id, mid, captcha_text)
-                        )
+                # Get the captcha status text
+                captcha_text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
+                                f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
+                                f"{lang('description')}{lang('colon')}{code(lang('description_banned'))}\n")
+
+                # Edit the message
+                question_type = glovar.user_ids[uid]["type"]
+                if question_type in glovar.question_types["image"]:
+                    thread(
+                        target=edit_message_photo,
+                        args=(client, glovar.captcha_group_id, mid, "assets/fail.png", None, captcha_text)
+                    )
+                elif question_type in glovar.question_types["text"]:
+                    thread(
+                        target=edit_message_text,
+                        args=(client, glovar.captcha_group_id, mid, captcha_text)
+                    )
 
                 # Reset message id
                 glovar.user_ids[uid]["mid"] = 0
@@ -178,27 +178,27 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                 unban_user(client, gid, uid)
 
             # Edit the message
-            if not glovar.user_ids[uid]["wait"]:
+            if not glovar.user_ids[uid]["wait"] and glovar.user_ids[uid]["mid"]:
                 name = glovar.user_ids[uid]["name"]
                 mid = glovar.user_ids[uid]["mid"]
-                if mid:
-                    # Get the captcha status text
-                    captcha_text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
-                                    f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
-                                    f"{lang('description')}{lang('colon')}{code(lang('description_pass'))}\n")
 
-                    # Edit the message
-                    question_type = glovar.user_ids[uid]["type"]
-                    if question_type in glovar.question_types["image"]:
-                        thread(
-                            target=edit_message_photo,
-                            args=(client, glovar.captcha_group_id, mid, "assets/succeed.png", None, captcha_text)
-                        )
-                    elif question_type in glovar.question_types["text"]:
-                        thread(
-                            target=edit_message_text,
-                            args=(client, glovar.captcha_group_id, mid, captcha_text)
-                        )
+                # Get the captcha status text
+                captcha_text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
+                                f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
+                                f"{lang('description')}{lang('colon')}{code(lang('description_pass'))}\n")
+
+                # Edit the message
+                question_type = glovar.user_ids[uid]["type"]
+                if question_type in glovar.question_types["image"]:
+                    thread(
+                        target=edit_message_photo,
+                        args=(client, glovar.captcha_group_id, mid, "assets/succeed.png", None, captcha_text)
+                    )
+                elif question_type in glovar.question_types["text"]:
+                    thread(
+                        target=edit_message_text,
+                        args=(client, glovar.captcha_group_id, mid, captcha_text)
+                    )
 
                 # Reset message id
                 glovar.user_ids[uid]["mid"] = 0
