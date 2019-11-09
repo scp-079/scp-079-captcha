@@ -32,7 +32,7 @@ from .group import delete_message, get_config_text, leave_group
 from .ids import init_group_id, init_user_id
 from .telegram import send_message, send_report_message
 from .timers import update_admins
-from .user import change_member_status, get_level, kick_user, unban_user, unrestrict_user
+from .user import change_member_status, get_level, kick_user, terminate_user, unban_user, unrestrict_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -549,7 +549,7 @@ def receive_user_score(project: str, data: dict) -> bool:
     return False
 
 
-def receive_warn_banned_user(data: dict) -> bool:
+def receive_warn_banned_user(client: Client, data: dict) -> bool:
     # Receive WARN banned user
     glovar.locks["message"].acquire()
     try:
@@ -561,8 +561,12 @@ def receive_warn_banned_user(data: dict) -> bool:
         if not glovar.user_ids.get(uid, {}):
             return True
 
-        glovar.user_ids[uid]["wait"].pop(gid, 0)
-        save("user_ids")
+        terminate_user(
+            client=client,
+            the_type="banned",
+            uid=uid,
+            gid=gid
+        )
     except Exception as e:
         logger.warning(f"Receive warn banned user error: {e}", exc_info=True)
     finally:

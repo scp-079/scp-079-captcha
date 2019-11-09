@@ -128,23 +128,85 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
         # Basic data
         now = get_now()
 
+        # Banned in group
+        if the_type == "banned":
+            glovar.user_ids[uid]["wait"].pop(gid, 0)
+
+            # Edit the message
+            if not glovar.user_ids[uid]["wait"]:
+                name = glovar.user_ids[uid]["name"]
+                mid = glovar.user_ids[uid]["mid"]
+                if mid:
+                    # Get the captcha status text
+                    captcha_text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
+                                    f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
+                                    f"{lang('description')}{lang('colon')}{code(lang('description_banned'))}\n")
+
+                    # Edit the message
+                    question_type = glovar.user_ids[uid]["type"]
+                    if question_type in glovar.question_types["image"]:
+                        thread(
+                            target=edit_message_photo,
+                            args=(client, glovar.captcha_group_id, mid, "assets/fail.png", None, captcha_text)
+                        )
+                    elif question_type in glovar.question_types["text"]:
+                        thread(
+                            target=edit_message_text,
+                            args=(client, glovar.captcha_group_id, mid, captcha_text)
+                        )
+
+                # Reset message id
+                glovar.user_ids[uid]["mid"] = 0
+
+            save("user_ids")
+
         # Delete the message
-        if the_type == "delete" and mid:
+        elif the_type == "delete" and mid:
             delete_message(client, gid, mid)
             declare_message(client, gid, mid)
 
         # Pass in group
         elif the_type == "pass":
+            # Modify the status
+            glovar.user_ids[uid]["pass"].add(gid)
             glovar.user_ids[uid]["wait"].pop(gid, 0)
             unrestrict_user(client, gid, uid)
             glovar.user_ids[uid]["failed"].pop(gid, 0)
             glovar.user_ids[uid]["restricted"].discard(gid)
-
             if gid in glovar.user_ids[uid]["banned"]:
                 glovar.user_ids[uid]["banned"].discard(gid)
                 unban_user(client, gid, uid)
 
+            # Edit the message
+            if not glovar.user_ids[uid]["wait"]:
+                name = glovar.user_ids[uid]["name"]
+                mid = glovar.user_ids[uid]["mid"]
+                if mid:
+                    # Get the captcha status text
+                    captcha_text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
+                                    f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
+                                    f"{lang('description')}{lang('colon')}{code(lang('description_pass'))}\n")
+
+                    # Edit the message
+                    question_type = glovar.user_ids[uid]["type"]
+                    if question_type in glovar.question_types["image"]:
+                        thread(
+                            target=edit_message_photo,
+                            args=(client, glovar.captcha_group_id, mid, "assets/succeed.png", None, captcha_text)
+                        )
+                    elif question_type in glovar.question_types["text"]:
+                        thread(
+                            target=edit_message_text,
+                            args=(client, glovar.captcha_group_id, mid, captcha_text)
+                        )
+
+                # Reset message id
+                glovar.user_ids[uid]["mid"] = 0
+
             save("user_ids")
+
+            # Update the score
+            update_score(client, uid)
 
             send_debug(
                 client=client,
@@ -296,6 +358,9 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
         elif the_type == "undo_pass":
             glovar.user_ids[uid]["pass"].pop(gid, 0)
             save("user_ids")
+
+            # Update the score
+            update_score(client, uid)
 
             send_debug(
                 client=client,

@@ -352,6 +352,8 @@ lang: Dict[str, str] = {
                          or (f"For new joined users, please click the button below to verify. "
                              f"Please complete verification within {time_captcha} seconds, "
                              f"or you will be removed from the group")),
+    "description_banned": (zh_cn and "群管理封禁") or "Group admin passed your verification",
+    "description_pass": (zh_cn and "群管理放行") or "Group admin banned you",
     "description_succeed": ((zh_cn and "验证成功，您可在相应群组中正常发言")
                             or "The verification is successful and you can speak in corresponding groups"),
     "description_timeout": (zh_cn and "验证超时") or "Verification Timeout",
@@ -520,7 +522,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.2.2"
+version: str = "0.2.3"
 
 # Load data from text
 

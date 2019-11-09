@@ -565,7 +565,7 @@ def process_data(client: Client, message: Message) -> bool:
 
                 if action == "help":
                     if action_type == "delete":
-                        receive_warn_banned_user(data)
+                        receive_warn_banned_user(client, data)
 
         return True
     except Exception as e:
