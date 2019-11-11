@@ -332,6 +332,8 @@ lang: Dict[str, str] = {
     "attention_invite": ((zh_cn and "如果提示链接无效，可能是因为链接正在更新，请多试几次")
                          or ("If it prompts that the link is invalid, "
                              "it may be because the link is being updated, please try a few more times")),
+    "check_admin": ((zh_cn and "您为管理员，您可自由加入验证群组中查看机器人运行情况")
+                    or "You are an admin, you are free to join the verification group to see how the bot works"),
     "check_no": (zh_cn and "您在本群中不需要验证即可发言") or "You can send messages without verification in this group",
     "check_pass": (zh_cn and "您在本群中已通过验证") or "You have passed the verification in this group",
     "check_yes": (zh_cn and "您需要验证才能在本群发言") or "You need to verify to send messages in this group",

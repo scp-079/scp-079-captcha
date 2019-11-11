@@ -24,7 +24,7 @@ from pyrogram import Client, CallbackQuery
 from .. import glovar
 from ..functions.captcha import question_answer, question_change
 from ..functions.etc import get_int, get_text, lang, thread
-from ..functions.filters import authorized_group, captcha_group, test_group
+from ..functions.filters import authorized_group, captcha_group, is_class_e_user, test_group
 from ..functions.telegram import answer_callback
 
 # Enable logging
@@ -54,6 +54,8 @@ def check_wait(client: Client, callback_query: CallbackQuery) -> bool:
         elif (glovar.user_ids.get(uid, {})
               and (glovar.user_ids[uid]["pass"].get(gid, 0) or glovar.user_ids[uid]["succeeded"].get(gid, 0))):
             thread(answer_callback, (client, callback_query.id, lang("check_pass"), True))
+        elif is_class_e_user(uid):
+            thread(answer_callback, (client, callback_query.id, lang("check_admin"), True))
         else:
             thread(answer_callback, (client, callback_query.id, lang("check_no"), True))
 
