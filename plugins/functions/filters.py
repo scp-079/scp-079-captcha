@@ -151,7 +151,7 @@ def is_exchange_channel(_, message: Message) -> bool:
 def is_from_user(_, message: Message) -> bool:
     # Check if the message is sent from a user
     try:
-        if message.from_user:
+        if message.from_user and message.from_user.id != 777000:
             return True
     except Exception as e:
         logger.warning(f"Is from user error: {e}", exc_info=True)
