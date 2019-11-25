@@ -89,10 +89,8 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
         else:
             mention_user_list = wait_user_list
 
-        # Mention previous users
-        mention_users_text = ""
-        for wid in mention_user_list:
-            mention_users_text += mention_text("\U00002060", wid)
+        # Mention previous users text
+        mention_users_text = "".join(mention_text("\U00002060", wid) for wid in mention_user_list)
 
         # Flood situation
         if len(wait_user_list) > glovar.limit_static:
