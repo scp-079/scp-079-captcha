@@ -83,11 +83,23 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
         count_text = f"{len(wait_user_list)} {lang('members')}"
         text = f"{lang('wait_user')}{lang('colon')}{code(count_text)}\n"
 
+        # Choose the users to mention
+        if len(wait_user_list) > glovar.limit_mention:
+            mention_user_list = sample(wait_user_list, glovar.limit_mention)
+        else:
+            mention_user_list = wait_user_list
+
+        # Mention previous users
+        mention_users_text = ""
+        for wid in mention_user_list:
+            mention_users_text += mention_text("\U00002060", wid)
+
         # Flood situation
         if len(wait_user_list) > glovar.limit_static:
             # Send static hint
-            text += (f"{lang('message_type')}{lang('colon')}{code(lang('flood_static'))}\n"
-                     f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n")
+            text += f"{lang('message_type')}{lang('colon')}{code(lang('flood_static'))}\n"
+            text += mention_users_text
+            text += f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n"
             thread(send_static, (client, gid, text, True))
 
             # Delete old hint
@@ -109,15 +121,8 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
 
             return True
 
-        # Choose the users to mention
-        if len(wait_user_list) > glovar.limit_mention:
-            wait_user_list = sample(wait_user_list, glovar.limit_mention)
-
-        # Mention previous users
-        for wid in wait_user_list:
-            text += mention_text("\U00002060", wid)
-
         # Generate the hint text
+        text += mention_users_text
         text += f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n"
 
         # Generate the markup
