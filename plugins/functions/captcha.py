@@ -61,7 +61,7 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
                 # Check name
                 name = get_full_name(user, True)
                 if name and is_nm_text(name):
-                    glovar.user_ids.pop(uid, {})
+                    glovar.user_ids[uid]["wait"] = {}
                     save("user_ids")
                     return True
 
