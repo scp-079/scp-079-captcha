@@ -327,6 +327,9 @@ def is_class_e_user(user: Union[int, User]) -> bool:
         else:
             uid = user.id
 
+        if uid in glovar.bot_ids:
+            return True
+
         group_list = list(glovar.admin_ids)
         for gid in group_list:
             if uid in glovar.admin_ids.get(gid, set()):
