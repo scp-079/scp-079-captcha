@@ -522,7 +522,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.2.5"
+version: str = "0.2.6"
 
 # Load data from text
 
@@ -650,7 +650,8 @@ configs: Dict[int, Dict[str, Union[bool, int]]] = {}
 
 invite: Dict[str, Union[int, str]] = {
     "id": 0,
-    "link": ""
+    "link": "",
+    "time": 0
 }
 
 # Init word variables

@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from copy import deepcopy
 from time import sleep
 
 from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup
@@ -57,6 +58,48 @@ def backup_files(client: Client) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Backup error: {e}", exc_info=True)
+
+    return False
+
+
+def clear_members(client: Client) -> bool:
+    # Clear CAPTCHA group members
+    try:
+        # Basic data
+        now = get_now()
+
+        members = get_members(client, glovar.captcha_group_id, "all")
+
+        if not members:
+            return True
+
+        for member in members:
+            user = member.user
+
+            if is_class_e_user(user):
+                continue
+
+            uid = user.id
+            user_data = glovar.user_ids.get(uid, {})
+
+            if user_data:
+                if user_data["wait"]:
+                    continue
+
+                ask_time = user_data["time"]
+
+                if ask_time and now - ask_time < glovar.time_remove:
+                    continue
+
+                if ask_time:
+                    glovar.user_ids[uid]["time"] = 0
+                    save("user_ids")
+
+            kick_user(client, glovar.captcha_group_id, uid)
+
+        return True
+    except Exception as e:
+        logger.warning(f"Clear members error: {e}", exc_info=True)
 
     return False
 
@@ -125,46 +168,16 @@ def interval_min_01(client: Client) -> bool:
 
 def interval_min_10(client: Client) -> bool:
     # Execute every 10 minutes
-    glovar.locks["message"].acquire()
     try:
-        # Basic data
-        now = get_now()
+        # Clear members
+        clear_members(client)
 
-        # Clear CAPTCHA group members
-        members = get_members(client, glovar.captcha_group_id, "all")
-
-        if not members:
-            return True
-
-        for member in members:
-            user = member.user
-
-            if is_class_e_user(user):
-                continue
-
-            uid = user.id
-            user_data = glovar.user_ids.get(uid, {})
-
-            if user_data:
-                if user_data["wait"]:
-                    continue
-
-                ask_time = user_data["time"]
-
-                if ask_time and now - ask_time < glovar.time_remove:
-                    continue
-
-                if ask_time:
-                    glovar.user_ids[uid]["time"] = 0
-                    save("user_ids")
-
-            kick_user(client, glovar.captcha_group_id, uid)
+        # New invite link
+        new_invite_link(client, "edit")
 
         return True
     except Exception as e:
         logger.warning(f"Interval min 10 error: {e}", exc_info=True)
-    finally:
-        glovar.locks["message"].release()
 
     return False
 
@@ -175,6 +188,19 @@ def new_invite_link(client: Client, the_type: str) -> bool:
     try:
         # Basic data
         mid = glovar.invite["id"]
+        now = get_now()
+
+        # Copy the data
+        with glovar.locks["message"]:
+            user_ids = deepcopy(glovar.user_ids)
+
+        # Check if there is a waiting
+        if any(user_ids[uid]["wait"] for uid in user_ids):
+            return True
+
+        # Check the link time
+        if now - glovar.invite.get("time", 0) < glovar.time_invite:
+            return True
 
         # Generate link
         link = export_chat_invite_link(client, glovar.captcha_group_id)
@@ -201,6 +227,7 @@ def new_invite_link(client: Client, the_type: str) -> bool:
         if the_type == "edit" and mid:
             result = edit_message_text(client, glovar.captcha_channel_id, mid, text, markup)
             if result:
+                glovar.invite["time"] = now
                 save("invite")
                 return True
 
@@ -208,6 +235,7 @@ def new_invite_link(client: Client, the_type: str) -> bool:
         if result:
             glovar.invite["id"] = result.message_id
             mid and delete_message(client, glovar.captcha_channel_id, mid)
+            glovar.invite["time"] = now
 
         save("invite")
 

@@ -572,6 +572,13 @@ def get_captcha_markup(the_type: str, captcha: dict = None, question_type: str =
         # Hint markup
         elif the_type == "hint":
             query_data = button_data("hint", "check", None)
+
+            if glovar.locks["invite"].acquire(blocking=False):
+                captcha_link = glovar.invite["link"]
+                glovar.locks["invite"].release()
+            else:
+                captcha_link = glovar.captcha_link
+
             result = InlineKeyboardMarkup(
                 [
                     [
@@ -581,7 +588,7 @@ def get_captcha_markup(the_type: str, captcha: dict = None, question_type: str =
                         ),
                         InlineKeyboardButton(
                             text=lang("captcha_go"),
-                            url=glovar.captcha_link
+                            url=captcha_link
                         )
                     ]
                 ]
