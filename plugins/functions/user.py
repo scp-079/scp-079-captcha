@@ -168,7 +168,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
         # Pass in group
         elif the_type == "pass":
             # Modify the status
-            glovar.user_ids[uid]["pass"].add(gid)
+            glovar.user_ids[uid]["pass"][gid] = now
             glovar.user_ids[uid]["wait"].pop(gid, 0)
             unrestrict_user(client, gid, uid)
             glovar.user_ids[uid]["failed"].pop(gid, 0)
