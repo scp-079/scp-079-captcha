@@ -29,7 +29,7 @@ from ..functions.etc import bold, code, delay, get_command_context, get_command_
 from ..functions.etc import mention_id, thread
 from ..functions.file import save
 from ..functions.filters import authorized_group, captcha_group, class_e, from_user
-from ..functions.filters import is_class_c, is_from_user, test_group
+from ..functions.filters import is_class_c, is_class_e, is_from_user, test_group
 from ..functions.group import delete_message, get_config_text
 from ..functions.telegram import get_group_info, resolve_username, send_message, send_report_message
 from ..functions.timers import new_invite_link
@@ -62,6 +62,10 @@ def captcha(client: Client, message: Message) -> bool:
         r_message = message.reply_to_message
 
         if not r_message or not is_from_user(None, r_message):
+            return True
+
+        # Check pass
+        if is_class_c(None, r_message) or is_class_e(None, r_message):
             return True
 
         if r_message.new_chat_members:
