@@ -67,14 +67,14 @@ def captcha(client: Client, message: Message) -> bool:
         if r_message.new_chat_members:
             user = r_message.new_chat_members[0]
         else:
-            user = message.from_user
+            user = r_message.from_user
 
         user_captcha(
             client=client,
             message=r_message,
             gid=gid,
             user=user,
-            mid=mid,
+            mid=r_message.message_id,
             now=now
         )
 
