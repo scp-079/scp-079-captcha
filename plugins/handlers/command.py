@@ -58,8 +58,10 @@ def captcha(client: Client, message: Message) -> bool:
         if not is_class_c(None, message):
             return True
 
+        # Basic data
         now = message.date or get_now()
         r_message = message.reply_to_message
+        aid = message.from_user.id
 
         if not r_message or not is_from_user(None, r_message):
             return True
@@ -79,7 +81,8 @@ def captcha(client: Client, message: Message) -> bool:
             gid=gid,
             user=user,
             mid=r_message.message_id,
-            now=now
+            now=now,
+            aid=aid
         )
 
         return True

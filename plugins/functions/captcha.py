@@ -40,7 +40,7 @@ from .telegram import delete_messages, edit_message_photo, send_message, send_ph
 logger = logging.getLogger(__name__)
 
 
-def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
+def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bool:
     # Add user to the wait list
     try:
         # Basic data
@@ -75,8 +75,12 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
             mid_link = f"{get_channel_link(gid)}/{mid}"
             debug_text = get_debug_text(client, gid)
             debug_text += (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
-                           f"{lang('action')}{lang('colon')}{code(lang('action_wait'))}\n"
-                           f"{lang('triggered_by')}{lang('colon')}{general_link(mid, mid_link)}\n")
+                           f"{lang('action')}{lang('colon')}{code(lang('action_wait'))}\n")
+
+            if aid:
+                debug_text += f"{lang('admin_group')}{lang('colon')}{code(aid)}\n"
+
+            debug_text += f"{lang('triggered_by')}{lang('colon')}{general_link(mid, mid_link)}\n"
             thread(send_message, (client, glovar.debug_channel_id, debug_text))
             return True
 
@@ -114,8 +118,12 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
             mid_link = f"{get_channel_link(gid)}/{mid}"
             debug_text = get_debug_text(client, gid)
             debug_text += (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
-                           f"{lang('action')}{lang('colon')}{code(lang('action_wait'))}\n"
-                           f"{lang('triggered_by')}{lang('colon')}{general_link(mid, mid_link)}\n")
+                           f"{lang('action')}{lang('colon')}{code(lang('action_wait'))}\n")
+
+            if aid:
+                debug_text += f"{lang('admin_group')}{lang('colon')}{code(aid)}\n"
+
+            debug_text += f"{lang('triggered_by')}{lang('colon')}{general_link(mid, mid_link)}\n"
             thread(send_message, (client, glovar.debug_channel_id, debug_text))
 
             return True
@@ -148,8 +156,12 @@ def add_wait(client: Client, gid: int, user: User, mid: int) -> bool:
             # Send debug message
             debug_text = get_debug_text(client, gid)
             debug_text += (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
-                           f"{lang('action')}{lang('colon')}{code(lang('action_wait'))}\n"
-                           f"{lang('triggered_by')}{lang('colon')}{general_link(new_id, message_link(result))}\n")
+                           f"{lang('action')}{lang('colon')}{code(lang('action_wait'))}\n")
+
+            if aid:
+                debug_text += f"{lang('admin_group')}{lang('colon')}{code(aid)}\n"
+
+            debug_text += f"{lang('triggered_by')}{lang('colon')}{general_link(new_id, message_link(result))}\n"
             thread(send_message, (client, glovar.debug_channel_id, debug_text))
         else:
             unrestrict_user(client, gid, uid)
@@ -623,7 +635,8 @@ def send_static(client: Client, gid: int, text: str, flood: bool = False) -> boo
     return False
 
 
-def user_captcha(client: Client, message: Message, gid: int, user: User, mid: int, now: int) -> bool:
+def user_captcha(client: Client, message: Message, gid: int, user: User, mid: int, now: int,
+                 aid: int = 0) -> bool:
     # User CAPTCHA
     try:
         # Basic data
@@ -686,7 +699,7 @@ def user_captcha(client: Client, message: Message, gid: int, user: User, mid: in
             return False
 
         # Add to wait list
-        add_wait(client, gid, user, mid)
+        add_wait(client, gid, user, mid, aid)
     except Exception as e:
         logger.warning(f"User captcha error: {e}", exc_info=True)
 
