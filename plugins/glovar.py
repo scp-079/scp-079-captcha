@@ -487,9 +487,9 @@ question_types: Dict[str, List[str]] = {
 
 receivers: Dict[str, List[str]] = {
     "declare": ["ANALYZE", "AVATAR", "CAPTCHA", "CLEAN", "LANG", "LONG",
-                "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "USER", "WATCH"],
+                "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "USER", "WARN", "WATCH"],
     "score": ["ANALYZE", "CAPTCHA", "CLEAN", "LANG", "LONG", "MANAGE",
-              "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TICKET"]
+              "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "WARN"]
 }
 
 regex: Dict[str, bool] = {
