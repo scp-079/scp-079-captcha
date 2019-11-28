@@ -23,12 +23,13 @@ from copy import deepcopy
 from pyrogram import Client, Filters, Message
 
 from .. import glovar
-from ..functions.captcha import send_static
+from ..functions.captcha import send_static, user_captcha
 from ..functions.channel import get_debug_text, share_data
 from ..functions.etc import bold, code, delay, get_command_context, get_command_type, get_int, get_now, get_text, lang
 from ..functions.etc import mention_id, thread
 from ..functions.file import save
-from ..functions.filters import authorized_group, captcha_group, class_e, from_user, is_class_c, test_group
+from ..functions.filters import authorized_group, captcha_group, class_e, from_user
+from ..functions.filters import is_class_c, is_from_user, test_group
 from ..functions.group import delete_message, get_config_text
 from ..functions.telegram import get_group_info, resolve_username, send_message, send_report_message
 from ..functions.timers import new_invite_link
@@ -36,6 +37,54 @@ from ..functions.user import terminate_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
+
+
+@Client.on_message(Filters.incoming & Filters.group
+                   & Filters.command(["captcha"], glovar.prefix)
+                   & ~captcha_group & ~test_group & authorized_group
+                   & from_user)
+def captcha(client: Client, message: Message) -> bool:
+    # Send CAPTCHA request manually
+
+    if not message or not message.chat:
+        return True
+
+    # Basic data
+    gid = message.chat.id
+    mid = message.message_id
+
+    try:
+        # Check permission
+        if not is_class_c(None, message):
+            return True
+
+        now = message.date or get_now()
+        r_message = message.reply_to_message
+
+        if not r_message or not is_from_user(None, r_message):
+            return True
+
+        if r_message.new_chat_members:
+            user = r_message.new_chat_members[0]
+        else:
+            user = message.from_user
+
+        user_captcha(
+            client=client,
+            message=r_message,
+            gid=gid,
+            user=user,
+            mid=mid,
+            now=now
+        )
+
+        return True
+    except Exception as e:
+        logger.warning(f"Captcha error: {e}", exc_info=True)
+    finally:
+        delete_message(client, gid, mid)
+
+    return False
 
 
 @Client.on_message(Filters.incoming & Filters.group & Filters.command(["config"], glovar.prefix)
@@ -150,7 +199,7 @@ def config_directly(client: Client, message: Message) -> bool:
                     new_config = deepcopy(glovar.default_config)
                 else:
                     if command_context:
-                        if command_type in {"delete", "restrict", "ban", "forgive", "hint", "pass"}:
+                        if command_type in {"delete", "restrict", "ban", "forgive", "hint", "pass", "manual"}:
                             if command_context == "off":
                                 new_config[command_type] = False
                             elif command_context == "on":
@@ -307,19 +356,21 @@ def pass_group(client: Client, message: Message) -> bool:
         if not is_class_c(None, message):
             return True
 
+        r_message = message.reply_to_message
+
         # Generate the report message's text
         aid = message.from_user.id
         text = f"{lang('admin')}{lang('colon')}{code(aid)}\n"
 
         # Proceed
-        if message.reply_to_message and message.reply_to_message.from_user:
-            if message.reply_to_message.from_user.is_self:
+        if r_message and is_from_user(None, r_message):
+            if r_message.from_user.is_self:
                 return True
 
-            if message.new_chat_members:
-                uid = message.new_chat_members[0].id
+            if r_message.new_chat_members:
+                uid = r_message.new_chat_members[0].id
             else:
-                uid = message.reply_to_message.from_user.id
+                uid = r_message.from_user.id
         else:
             uid = 0
             id_text, _ = get_command_context(message)

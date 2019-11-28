@@ -23,15 +23,16 @@ from typing import Optional
 
 from captcha.image import ImageCaptcha
 from claptcha import Claptcha
-from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, User
+from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message, User
 
 from .. import glovar
 from .channel import get_debug_text
 from .etc import button_data, code, general_link, get_channel_link, get_full_name, get_now, lang, mention_name
 from .etc import mention_text, message_link, t2t, thread
 from .file import delete_file, get_new_path, save
-from .filters import is_nm_text
+from .filters import is_class_d_user, is_declared_message, is_limited_user, is_nm_text, is_watch_user
 from .group import delete_message
+from .ids import init_user_id
 from .user import restrict_user, terminate_user, unrestrict_user
 from .telegram import delete_messages, edit_message_photo, send_message, send_photo
 
@@ -611,5 +612,75 @@ def send_static(client: Client, gid: int, text: str, flood: bool = False) -> boo
             save("message_ids")
     except Exception as e:
         logger.warning(f"Send static error: {e}", exc_info=True)
+
+    return False
+
+
+def user_captcha(client: Client, message: Message, gid: int, user: User, mid: int, now: int) -> bool:
+    # User CAPTCHA
+    try:
+        # Basic data
+        uid = user.id
+
+        # Check if the user is Class D personnel
+        if is_class_d_user(user):
+            return True
+
+        # Init the user's status
+        if not init_user_id(uid):
+            return True
+
+        # Get user status
+        user_status = glovar.user_ids[uid]
+
+        # Check pass list
+        pass_time = user_status["pass"].get(gid, 0)
+        if pass_time:
+            return True
+
+        # Check wait list
+        wait_time = user_status["wait"].get(gid, 0)
+        if wait_time:
+            return True
+
+        # Check succeeded list
+        succeeded_time = user_status["succeeded"].get(gid, 0)
+        if now - succeeded_time < glovar.time_recheck:
+            return True
+
+        # Auto pass
+        if user_status["succeeded"]:
+            succeeded_time = max(user_status["succeeded"].values())
+
+            if succeeded_time and now - succeeded_time < glovar.time_remove + 70:
+                return True
+
+            if glovar.configs[gid].get("pass"):
+                if (succeeded_time and now - succeeded_time < glovar.time_recheck
+                        and not is_watch_user(user, "ban", now)
+                        and not is_watch_user(user, "delete", now)
+                        and not is_limited_user(gid, user, now)):
+                    return True
+
+        # Check failed list
+        failed_time = user_status["failed"].get(gid, 0)
+        if now - failed_time < glovar.time_punish:
+            terminate_user(
+                client=client,
+                the_type="punish",
+                uid=uid,
+                gid=gid
+            )
+            delete_message(client, gid, mid)
+            return True
+
+        # Check declare status
+        if is_declared_message(None, message):
+            return False
+
+        # Add to wait list
+        add_wait(client, gid, user, mid)
+    except Exception as e:
+        logger.warning(f"User captcha error: {e}", exc_info=True)
 
     return False

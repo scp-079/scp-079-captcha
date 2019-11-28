@@ -267,6 +267,7 @@ lang: Dict[str, str] = {
     "forgive": (zh_cn and "自动解禁") or "Auto Forgive",
     "hint": (zh_cn and "入群提示") or "Hint for New Joined User",
     "pass": (zh_cn and "自动免验证") or "Auto Pass",
+    "manual": (zh_cn and "仅手动") or "Manual Only",
     # Command
     "command_lack": (zh_cn and "命令参数缺失") or "Lack of Parameter",
     "command_para": (zh_cn and "命令参数有误") or "Incorrect Command Parameter",
@@ -405,7 +406,7 @@ lang: Dict[str, str] = {
 
 # Init
 
-all_commands: List[str] = ["config", "config_captcha", "invite", "pass", "static", "version"]
+all_commands: List[str] = ["captcha", "config", "config_captcha", "invite", "pass", "static", "version"]
 
 bot_ids: Set[int] = {avatar_id, captcha_id, clean_id, lang_id, long_id, noflood_id,
                      noporn_id, nospam_id, recheck_id, tip_id, user_id, warn_id}
@@ -428,7 +429,8 @@ default_config: Dict[str, Union[bool, int]] = {
     "ban": False,
     "forgive": True,
     "hint": True,
-    "pass": True
+    "pass": True,
+    "manual": False
 }
 
 default_message_data: Dict[str, Union[int, Set[int]]] = {
@@ -641,7 +643,8 @@ configs: Dict[int, Dict[str, Union[bool, int]]] = {}
 #         "ban": False,
 #         "forgive": True,
 #         "hint": False,
-#         "pass": True
+#         "pass": True,
+#         "manual": False
 #     }
 # }
 

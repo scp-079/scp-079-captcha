@@ -21,16 +21,15 @@ import logging
 from pyrogram import Client, Filters, Message
 
 from .. import glovar
-from ..functions.captcha import add_wait, question_answer, question_ask
+from ..functions.captcha import question_answer, question_ask, user_captcha
 from ..functions.channel import get_debug_text
 from ..functions.etc import code, general_link, get_now, lang, thread, mention_id
 from ..functions.file import save
 from ..functions.filters import authorized_group, captcha_group, class_c, class_d, class_e, declared_message
 from ..functions.filters import exchange_channel, from_user, hide_channel, is_class_d_user, is_class_e_user
-from ..functions.filters import is_declared_message, is_limited_user, is_watch_user
 from ..functions.filters import new_group, test_group
 from ..functions.group import delete_message, leave_group
-from ..functions.ids import init_group_id, init_user_id
+from ..functions.ids import init_group_id
 from ..functions.receive import receive_add_bad, receive_config_commit, receive_clear_data
 from ..functions.receive import receive_config_reply, receive_config_show, receive_declared_message
 from ..functions.receive import receive_leave_approve, receive_regex, receive_refresh, receive_remove_bad
@@ -57,68 +56,26 @@ def hint(client: Client, message: Message) -> bool:
         mid = message.message_id
         now = message.date or get_now()
 
+        # Check config
+        if glovar.configs[gid].get("manual"):
+            return True
+
         for new in message.new_chat_members:
             # Basic data
             uid = new.id
 
-            # Check if the user is Class D personnel
-            if is_class_d_user(new):
-                continue
+            # Process
+            result = user_captcha(
+                client=client,
+                message=message,
+                gid=gid,
+                user=new,
+                mid=mid,
+                now=now
+            )
 
-            # Init the user's status
-            if not init_user_id(uid):
-                continue
-
-            # Get user status
-            user_status = glovar.user_ids[uid]
-
-            # Check pass list
-            pass_time = user_status["pass"].get(gid, 0)
-            if pass_time:
-                continue
-
-            # Check wait list
-            wait_time = user_status["wait"].get(gid, 0)
-            if wait_time:
-                continue
-
-            # Check succeeded list
-            succeeded_time = user_status["succeeded"].get(gid, 0)
-            if now - succeeded_time < glovar.time_recheck:
-                continue
-
-            # Auto pass
-            if user_status["succeeded"]:
-                succeeded_time = max(user_status["succeeded"].values())
-
-                if succeeded_time and now - succeeded_time < glovar.time_remove + 70:
-                    continue
-
-                if glovar.configs[gid].get("pass"):
-                    if (succeeded_time and now - succeeded_time < glovar.time_recheck
-                            and not is_watch_user(new, "ban", now)
-                            and not is_watch_user(new, "delete", now)
-                            and not is_limited_user(gid, new, now)):
-                        continue
-
-            # Check failed list
-            failed_time = user_status["failed"].get(gid, 0)
-            if now - failed_time < glovar.time_punish:
-                terminate_user(
-                    client=client,
-                    the_type="punish",
-                    uid=uid,
-                    gid=gid
-                )
-                delete_message(client, gid, mid)
-                continue
-
-            # Check declare status
-            if is_declared_message(None, message):
+            if not result:
                 return True
-
-            # Add to wait list
-            add_wait(client, gid, new, mid)
 
             # Update user's join status
             glovar.user_ids[uid]["join"][gid] = now

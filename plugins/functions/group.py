@@ -58,7 +58,7 @@ def get_config_text(config: dict) -> str:
                    f"{lang('restrict')}{lang('colon')}{code(restrict_text)}\n")
 
         # Others
-        for the_type in ["ban", "forgive", "hint", "pass"]:
+        for the_type in ["ban", "forgive", "hint", "pass", "manual"]:
             the_text = (lambda x: lang("enabled") if x else lang("disabled"))(config.get(the_type))
             result += f"{lang(the_type)}{lang('colon')}{code(the_text)}\n"
     except Exception as e:
