@@ -81,6 +81,9 @@ limit_mention: int = 0
 limit_static: int = 0
 limit_track: int = 0
 limit_try: int = 0
+more: Union[bool, str] = ""
+more_link: str = ""
+more_text: str = ""
 noise: float = 0.0
 project_link: str = ""
 project_name: str = ""
@@ -146,6 +149,10 @@ try:
     limit_static = int(config["custom"].get("limit_static", limit_static))
     limit_track = int(config["custom"].get("limit_track", limit_track))
     limit_try = int(config["custom"].get("limit_try", limit_try))
+    more = config["custom"].get("more", more)
+    more = eval(more)
+    more_link = config["custom"].get("more_link", more_link)
+    more_text = config["custom"].get("more_text", more_text)
     noise = float(config["custom"].get("noise", noise))
     project_link = config["custom"].get("project_link", project_link)
     project_name = config["custom"].get("project_name", project_name)
@@ -206,6 +213,9 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or limit_static == 0
         or limit_track == 0
         or limit_try == 0
+        or more not in {False, True}
+        or more_link in {"", "[DATA EXPUNGED]"}
+        or more_text in {"", "[DATA EXPUNGED]"}
         or noise == 0.0
         or project_link in {"", "[DATA EXPUNGED]"}
         or project_name in {"", "[DATA EXPUNGED]"}
@@ -527,7 +537,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.2.6"
+version: str = "0.2.7"
 
 # Load data from text
 
