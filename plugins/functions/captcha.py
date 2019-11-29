@@ -133,7 +133,7 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
         text += f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n"
 
         # Generate the markup
-        markup = get_captcha_markup("hint")
+        markup = get_captcha_markup(the_type="hint")
 
         # Send the message
         result = send_message(client, gid, text, mid, markup)
@@ -243,7 +243,7 @@ def question_ask(client: Client, user: User, mid: int) -> bool:
                 f"{lang('question')}{lang('colon')}{code(question_text)}\n")
 
         # Generate the markup
-        markup = get_captcha_markup("ask", captcha, question_type)
+        markup = get_captcha_markup(the_type="ask", captcha=captcha, question_type=question_type)
 
         # Get the image
         image_path = captcha.get("image")
@@ -324,7 +324,7 @@ def question_change(client: Client, uid: int, mid: int) -> bool:
                 f"{lang('question')}{lang('colon')}{code(question_text)}\n")
 
         # Generate the markup
-        markup = get_captcha_markup("ask", captcha)
+        markup = get_captcha_markup(the_type="ask", captcha=captcha)
 
         # Get the image
         image_path = captcha.get("image") or "assets/none.png"
@@ -543,7 +543,8 @@ def captcha_number() -> dict:
     return result
 
 
-def get_captcha_markup(the_type: str, captcha: dict = None, question_type: str = "") -> Optional[InlineKeyboardMarkup]:
+def get_captcha_markup(the_type: str, captcha: dict = None, question_type: str = "",
+                       static: bool = False) -> Optional[InlineKeyboardMarkup]:
     # Get the captcha message's markup
     result = None
     try:
@@ -585,7 +586,9 @@ def get_captcha_markup(the_type: str, captcha: dict = None, question_type: str =
         elif the_type == "hint":
             query_data = button_data("hint", "check", None)
 
-            if glovar.locks["invite"].acquire(blocking=False):
+            if static:
+                captcha_link = glovar.captcha_link
+            elif glovar.locks["invite"].acquire(blocking=False):
                 captcha_link = glovar.invite["link"]
                 glovar.locks["invite"].release()
             else:
@@ -614,7 +617,7 @@ def get_captcha_markup(the_type: str, captcha: dict = None, question_type: str =
 def send_static(client: Client, gid: int, text: str, flood: bool = False) -> bool:
     # Send static message
     try:
-        markup = get_captcha_markup("hint")
+        markup = get_captcha_markup(the_type="hint", static=True)
         result = send_message(client, gid, text, None, markup)
         if result:
             new_id = result.message_id
