@@ -130,7 +130,8 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
 
         # Generate the hint text
         text += mention_users_text
-        text += f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n"
+        description = (lambda x: lang("description_captcha") if x else lang("description_hint"))(aid)
+        text += f"{lang('description')}{lang('colon')}{code(description)}\n"
 
         # Generate the markup
         markup = get_captcha_markup(the_type="hint")
