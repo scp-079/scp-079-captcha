@@ -511,7 +511,6 @@ receivers: Dict[str, List[str]] = {
 
 regex: Dict[str, bool] = {
     "ad": False,
-    "aff": False,
     "ban": False,
     "bio": False,
     "con": False,

@@ -344,7 +344,6 @@ def is_con_text(text: str, ocr: bool) -> bool:
     # Check if the text is con text
     try:
         if (is_regex_text("con", text, ocr)
-                or is_regex_text("aff", text, ocr)
                 or is_regex_text("iml", text, ocr)
                 or is_regex_text("pho", text, ocr)):
             return True
