@@ -361,16 +361,32 @@ lang: Dict[str, str] = {
                             f"Any message you send in this group will be considered as an answer to the question, "
                             f"please send carefully")),
     "description_captcha": (zh_cn and (f"待验证用户，请您点击下方右侧按钮进行验证，"
-                                       f"请在 {time_captcha} 秒内完成验证，否则您将被移出本群")
+                                       f"请在 {time_captcha} 秒内完成验证，否则您将被移出本群。"
+                                       f"如果您不是新入群用户，则本次验证为群组管理员的手动要求")
                             or (f"For users need to be verified, please click the button below to verify. "
                                 f"Please complete verification within {time_captcha} seconds, "
-                                f"or you will be removed from the group")),
+                                f"or you will be removed from the group. "
+                                f"If you are not a new user, "
+                                f"this verification is a manual request by the group admin")),
     "description_hint": (zh_cn and (f"新入群用户，请您点击下方右侧按钮进行验证，"
                                     f"请在 {time_captcha} 秒内完成验证，否则您将被移出本群")
                          or (f"For new joined users, please click the button below to verify. "
                              f"Please complete verification within {time_captcha} seconds, "
                              f"or you will be removed from the group")),
     "description_banned": (zh_cn and "群管理封禁") or "Group admin passed your verification",
+    "description_nospam": (zh_cn and (f"待验证用户，请您点击下方右侧按钮进行验证，"
+                                      f"请在 {time_captcha} 秒内完成验证，否则您将被移出本群。"
+                                      f"如果您不是新入群用户，则本次验证的发起可能为以下原因之一：群组管理员的手动要求；"
+                                      f"您触发了防广告机器人的封禁规则，但由于您入群时间较长，故未封禁您，但要求您完成一次验证")
+                           or (f"For users need to be verified, please click the button below to verify. "
+                               f"Please complete verification within {time_captcha} seconds, "
+                               f"or you will be removed from the group. "
+                               f"If you are not a new user, "
+                               f"this verification may be initiated for one of the following reasons: "
+                               f"Manual request by the group admin; "
+                               f"You triggered the rules of the anti-ad bot, "
+                               f"but because you have been in the group for a long time, "
+                               f"the bot does not ban You, but requires you to complete a verification")),
     "description_pass": (zh_cn and "群管理放行") or "Group admin banned you",
     "description_succeed": ((zh_cn and "验证成功，您可在相应群组中正常发言")
                             or "The verification is successful and you can speak in corresponding groups"),

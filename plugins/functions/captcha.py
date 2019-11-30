@@ -130,7 +130,14 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
 
         # Generate the hint text
         text += mention_users_text
-        description = (lambda x: lang("description_captcha") if x else lang("description_hint"))(aid)
+
+        if aid == glovar.nospam_id:
+            description = lang("description_nospam")
+        elif aid:
+            description = lang("description_captcha")
+        else:
+            description = lang("description_hint")
+
         text += f"{lang('description')}{lang('colon')}{code(description)}\n"
 
         # Generate the markup
