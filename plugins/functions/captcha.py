@@ -30,7 +30,7 @@ from .channel import get_debug_text
 from .etc import button_data, code, general_link, get_channel_link, get_full_name, get_now, lang, mention_name
 from .etc import mention_text, message_link, t2t, thread
 from .file import delete_file, get_new_path, save
-from .filters import is_class_d_user, is_declared_message, is_limited_user, is_nm_text, is_watch_user
+from .filters import is_class_d_user, is_declared_message, is_limited_user, is_nm_text, is_watch_user, is_wb_text
 from .group import delete_message
 from .ids import init_user_id
 from .user import restrict_user, terminate_user, unrestrict_user
@@ -672,8 +672,12 @@ def user_captcha(client: Client, message: Message, gid: int, user: User, mid: in
         if now - succeeded_time < glovar.time_recheck:
             return True
 
+        # Check name
+        name = get_full_name(user, True)
+        wb_name = is_wb_text(name, False)
+
         # Auto pass
-        if user_status["succeeded"]:
+        if user_status["succeeded"] and not wb_name:
             succeeded_time = max(user_status["succeeded"].values())
 
             if succeeded_time and now - succeeded_time < glovar.time_remove + 70:

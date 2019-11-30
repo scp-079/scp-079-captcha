@@ -517,10 +517,12 @@ regex: Dict[str, bool] = {
     "iml": False,
     "pho": False,
     "nm": False,
-    "spc": False,
+    "sho": True,
+    "spc": True,
     "spe": False,
     "wb": True
 }
+
 for c in ascii_lowercase:
     regex[f"ad{c}"] = False
 
