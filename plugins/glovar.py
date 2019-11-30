@@ -522,7 +522,7 @@ receivers: Dict[str, List[str]] = {
     "declare": ["ANALYZE", "AVATAR", "CAPTCHA", "CLEAN", "LANG", "LONG",
                 "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WARN", "WATCH"],
     "score": ["ANALYZE", "CAPTCHA", "CLEAN", "LANG", "LONG", "MANAGE",
-              "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "WARN"]
+              "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "WARN"]
 }
 
 regex: Dict[str, bool] = {
