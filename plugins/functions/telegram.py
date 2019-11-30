@@ -80,7 +80,7 @@ def delete_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[b
     return result
 
 
-def download_media(client: Client, file_id: str, file_ref: str, file_path: str):
+def download_media(client: Client, file_id: str, file_ref: str, file_path: str) -> Optional[str]:
     # Download a media file
     result = None
     try:
