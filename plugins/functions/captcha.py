@@ -639,7 +639,7 @@ def send_static(client: Client, gid: int, text: str, flood: bool = False) -> boo
     return False
 
 
-def user_captcha(client: Client, message: Message, gid: int, user: User, mid: int, now: int,
+def user_captcha(client: Client, message: Optional[Message], gid: int, user: User, mid: int, now: int,
                  aid: int = 0) -> bool:
     # User CAPTCHA
     try:
@@ -703,7 +703,7 @@ def user_captcha(client: Client, message: Message, gid: int, user: User, mid: in
             return True
 
         # Check declare status
-        if is_declared_message(None, message):
+        if message and is_declared_message(None, message):
             return False
 
         # Add to wait list

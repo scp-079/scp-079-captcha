@@ -538,7 +538,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.2.7"
+version: str = "0.2.8"
 
 # Load data from text
 

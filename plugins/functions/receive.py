@@ -25,12 +25,13 @@ from typing import Any
 from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
+from .captcha import user_captcha
 from .channel import get_debug_text, share_data
-from .etc import code, crypt_str, general_link, get_int, get_text, lang, thread, mention_id
+from .etc import code, crypt_str, general_link, get_int, get_now, get_text, lang, thread, mention_id
 from .file import crypt_file, data_to_file, delete_file, get_new_path, get_downloaded_path, save
 from .group import delete_message, get_config_text, leave_group
 from .ids import init_group_id, init_user_id
-from .telegram import send_message, send_report_message
+from .telegram import get_chat_member, send_message, send_report_message
 from .timers import update_admins
 from .user import change_member_status, get_level, kick_user, terminate_user, unban_user, unrestrict_user
 
@@ -280,6 +281,36 @@ def receive_file_data(client: Client, message: Message, decrypt: bool = True) ->
         logger.warning(f"Receive file error: {e}", exc_info=True)
 
     return data
+
+
+def receive_help_captcha(client: Client, data: dict) -> bool:
+    # Receive help captcha
+    try:
+        # Basic data
+        gid = data["group_id"]
+        uid = data["user_id"]
+        mid = data["message_id"]
+        now = get_now()
+
+        # Check the group
+        if gid not in glovar.admin_ids:
+            return True
+
+        # Get the chat member
+        member = get_chat_member(client, gid, uid)
+
+        # Check the member
+        if not member or not member.user:
+            return True
+
+        # CAPTCHA request
+        user_captcha(client, None, gid, member.user, mid, now, glovar.nospam_id)
+
+        return True
+    except Exception as e:
+        logger.warning(f"Receive help captcha error: {e}", exc_info=True)
+
+    return False
 
 
 def receive_leave_approve(client: Client, data: dict) -> bool:
