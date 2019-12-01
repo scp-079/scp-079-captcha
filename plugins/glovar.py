@@ -61,7 +61,6 @@ user_id: int = 0
 warn_id: int = 0
 
 # [channels]
-captcha_channel_id: int = 0
 captcha_group_id: int = 0
 critical_channel_id: int = 0
 debug_channel_id: int = 0
@@ -129,7 +128,6 @@ try:
     user_id = int(config["bots"].get("user_id", user_id))
     warn_id = int(config["bots"].get("warn_id", warn_id))
     # [channels]
-    captcha_channel_id = int(config["channels"].get("captcha_channel_id", captcha_channel_id))
     captcha_group_id = int(config["channels"].get("captcha_group_id", captcha_group_id))
     critical_channel_id = int(config["channels"].get("critical_channel_id", critical_channel_id))
     debug_channel_id = int(config["channels"].get("debug_channel_id", debug_channel_id))
@@ -195,7 +193,6 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or tip_id == 0
         or user_id == 0
         or warn_id == 0
-        or captcha_channel_id == 0
         or captcha_group_id == 0
         or critical_channel_id == 0
         or debug_channel_id == 0

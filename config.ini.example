@@ -33,7 +33,6 @@ user_id = [DATA EXPUNGED]
 warn_id = [DATA EXPUNGED]
 
 [channels]
-captcha_channel_id = [DATA EXPUNGED]
 captcha_group_id = [DATA EXPUNGED]
 critical_channel_id = [DATA EXPUNGED]
 debug_channel_id = [DATA EXPUNGED]
