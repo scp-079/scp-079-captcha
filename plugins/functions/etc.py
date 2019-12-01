@@ -193,27 +193,6 @@ def get_command_type(message: Message) -> str:
     return result
 
 
-def get_forward_name(message: Message, normal: bool = False) -> str:
-    # Get forwarded message's origin sender's name
-    text = ""
-    try:
-        if message.forward_from:
-            user = message.forward_from
-            text = get_full_name(user, normal)
-        elif message.forward_sender_name:
-            text = message.forward_sender_name
-        elif message.forward_from_chat:
-            chat = message.forward_from_chat
-            text = chat.title
-
-        if text:
-            text = t2t(text, normal)
-    except Exception as e:
-        logger.warning(f"Get forward name error: {e}", exc_info=True)
-
-    return text
-
-
 def get_full_name(user: User, normal: bool = False) -> str:
     # Get user's full name
     text = ""
