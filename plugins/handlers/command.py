@@ -272,13 +272,18 @@ def invite(client: Client, message: Message) -> bool:
         aid = message.from_user.id
         mid = message.message_id
 
-        # Generate
-        new_invite_link(client, "new")
-
-        # Generate the report message's text
+        # Text prefix
         text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
-                f"{lang('action')}{lang('colon')}{code(lang('action_invite'))}\n"
-                f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
+                f"{lang('action')}{lang('colon')}{code(lang('action_invite'))}\n")
+
+        # Generate a new invite link
+        result = new_invite_link(client, True)
+
+        # Check the result
+        if result:
+            text += f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n"
+        else:
+            text = f"{lang('status')}{lang('colon')}{code(lang('status_error'))}\n"
 
         # Send the report message
         thread(send_message, (client, cid, text, mid))

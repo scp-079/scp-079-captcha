@@ -554,7 +554,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.2.8"
+version: str = "0.2.9"
 
 # Load data from text
 
@@ -681,10 +681,13 @@ configs: Dict[int, Dict[str, Union[bool, int]]] = {}
 # }
 
 invite: Dict[str, Union[int, str]] = {
-    "id": 0,
     "link": "",
     "time": 0
 }
+# invite = {
+#     "link": "https://t.me/SCP_079_CAPTCHA",
+#     "time": 1512345678
+# }
 
 # Init word variables
 

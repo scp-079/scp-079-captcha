@@ -20,7 +20,7 @@ import logging
 from copy import deepcopy
 from time import sleep
 
-from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram import Client
 
 from .. import glovar
 from .channel import share_data, share_regex_count
@@ -28,7 +28,7 @@ from .etc import code, general_link, get_now, lang, thread
 from .file import save
 from .filters import is_class_e_user
 from .group import delete_message, leave_group
-from .telegram import delete_messages, edit_message_text, export_chat_invite_link, get_admins, get_group_info
+from .telegram import delete_messages, export_chat_invite_link, get_admins, get_group_info
 from .telegram import get_members, send_message
 from .user import kick_user, terminate_user, unban_user, unrestrict_user
 
@@ -173,7 +173,7 @@ def interval_min_10(client: Client) -> bool:
         clear_members(client)
 
         # New invite link
-        new_invite_link(client, "edit")
+        new_invite_link(client)
 
         return True
     except Exception as e:
@@ -182,12 +182,11 @@ def interval_min_10(client: Client) -> bool:
     return False
 
 
-def new_invite_link(client: Client, the_type: str) -> bool:
+def new_invite_link(client: Client, manual: bool = False) -> bool:
     # Generate new invite link
     glovar.locks["invite"].acquire()
     try:
         # Basic data
-        mid = glovar.invite["id"]
         now = get_now()
 
         # Copy the data
@@ -196,47 +195,19 @@ def new_invite_link(client: Client, the_type: str) -> bool:
 
         # Check if there is a waiting
         if any(user_ids[uid]["wait"] for uid in user_ids):
-            return True
+            return False
 
         # Check the link time
-        if now - glovar.invite.get("time", 0) < glovar.time_invite:
-            return True
+        if not manual and now - glovar.invite.get("time", 0) < glovar.time_invite:
+            return False
 
         # Generate link
         link = export_chat_invite_link(client, glovar.captcha_group_id)
 
         if not link:
-            return True
+            return False
 
         glovar.invite["link"] = link
-
-        # Generate text and markup
-        text = (f"{lang('description')}{lang('colon')}{code(lang('invite_text'))}\n"
-                f"{lang('attention')}{lang('colon')}{code(lang('attention_invite'))}\n")
-        markup = InlineKeyboardMarkup(
-            [
-                [
-                    InlineKeyboardButton(
-                        text=lang("invite_button"),
-                        url=link
-                    )
-                ]
-            ]
-        )
-
-        if the_type == "edit" and mid:
-            result = edit_message_text(client, glovar.captcha_channel_id, mid, text, markup)
-            if result:
-                glovar.invite["time"] = now
-                save("invite")
-                return True
-
-        result = send_message(client, glovar.captcha_channel_id, text, None, markup)
-        if result:
-            glovar.invite["id"] = result.message_id
-            mid and delete_message(client, glovar.captcha_channel_id, mid)
-            glovar.invite["time"] = now
-
         save("invite")
 
         return True
