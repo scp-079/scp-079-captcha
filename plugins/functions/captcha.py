@@ -211,7 +211,7 @@ def question_answer(client: Client, uid: int, text: str) -> bool:
                 mid = glovar.user_ids[uid]["mid"]
                 text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
                         f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
-                        f"{lang('description')}{lang('colon')}{code('description_again')}\n")
+                        f"{lang('description')}{lang('colon')}{code(lang('description_again'))}\n")
                 thread(send_report_message, (10, client, glovar.captcha_group_id, text, mid))
                 return True
 
