@@ -202,17 +202,13 @@ def question_answer(client: Client, uid: int, text: str) -> bool:
                 the_type="succeed",
                 uid=uid
             )
+            question_status(client, uid, "succeed")
         else:
             glovar.user_ids[uid]["try"] += 1
             save("user_ids")
 
             if glovar.user_ids[uid]["try"] < limit:
-                name = glovar.user_ids[uid]["name"]
-                mid = glovar.user_ids[uid]["mid"]
-                text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
-                        f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
-                        f"{lang('description')}{lang('colon')}{code(lang('description_again'))}\n")
-                thread(send_report_message, (10, client, glovar.captcha_group_id, text, mid))
+                question_status(client, uid, "again")
                 return True
 
             gid = min(glovar.user_ids[uid]["wait"], key=glovar.user_ids[uid]["wait"].get)
@@ -222,6 +218,7 @@ def question_answer(client: Client, uid: int, text: str) -> bool:
                 uid=uid,
                 gid=gid
             )
+            question_status(client, uid, "wrong")
 
         return True
     except Exception as e:
@@ -366,6 +363,34 @@ def question_change(client: Client, uid: int, mid: int) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Question change error: {e}", exc_info=True)
+
+    return False
+
+
+def question_status(client: Client, uid: int, the_type: str) -> bool:
+    # Reply question status
+    try:
+        # Decide the description
+        if the_type == "again":
+            description = lang("description_again")
+        elif the_type == "succeed":
+            description = lang("description_succeed")
+        elif the_type == "wrong":
+            description = lang("description_wrong")
+        else:
+            description = ""
+
+        # Send the report message
+        name = glovar.user_ids[uid]["name"]
+        mid = glovar.user_ids[uid]["mid"]
+        text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
+                f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
+                f"{lang('description')}{lang('colon')}{code(description)}\n")
+        thread(send_report_message, (10, client, glovar.captcha_group_id, text, mid))
+
+        return True
+    except Exception as e:
+        logger.warning(f"Question status error: {e}", exc_info=True)
 
     return False
 
