@@ -197,12 +197,12 @@ def question_answer(client: Client, uid: int, text: str) -> bool:
             answer = t2t(answer, True)
 
         if text and answer and text == answer:
+            question_status(client, uid, "succeed")
             terminate_user(
                 client=client,
                 the_type="succeed",
                 uid=uid
             )
-            question_status(client, uid, "succeed")
         else:
             glovar.user_ids[uid]["try"] += 1
             save("user_ids")
@@ -212,13 +212,13 @@ def question_answer(client: Client, uid: int, text: str) -> bool:
                 return True
 
             gid = min(glovar.user_ids[uid]["wait"], key=glovar.user_ids[uid]["wait"].get)
+            question_status(client, uid, "wrong")
             terminate_user(
                 client=client,
                 the_type="wrong",
                 uid=uid,
                 gid=gid
             )
-            question_status(client, uid, "wrong")
 
         return True
     except Exception as e:
