@@ -357,6 +357,8 @@ lang: Dict[str, str] = {
                             f"and incorrect answers will cause the verification to fail. "
                             f"Any message you send in this group will be considered as an answer to the question, "
                             f"please send carefully")),
+    "description_again": ((zh_cn and "回答错误，请调整答案，再试一次")
+                          or "Wrong answer, please adjust the answer and try again"),
     "description_captcha": (zh_cn and (f"待验证用户，请您点击下方右侧按钮进行验证，"
                                        f"请在 {time_captcha} 秒内完成验证，否则您将被移出本群。"
                                        f"如果您不是新入群用户，则本次验证为群组管理员的手动要求")
@@ -551,7 +553,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.2.9"
+version: str = "0.3.0"
 
 # Load data from text
 

@@ -34,7 +34,7 @@ from .filters import is_class_d_user, is_declared_message, is_limited_user, is_n
 from .group import delete_message
 from .ids import init_user_id
 from .user import restrict_user, terminate_user, unrestrict_user
-from .telegram import delete_messages, edit_message_photo, send_message, send_photo
+from .telegram import delete_messages, edit_message_photo, send_message, send_photo, send_report_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -207,6 +207,12 @@ def question_answer(client: Client, uid: int, text: str) -> bool:
             save("user_ids")
 
             if glovar.user_ids[uid]["try"] < limit:
+                name = glovar.user_ids[uid]["name"]
+                mid = glovar.user_ids[uid]["mid"]
+                text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
+                        f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
+                        f"{lang('description')}{lang('colon')}{code('description_again')}\n")
+                thread(send_report_message, (10, client, glovar.captcha_group_id, text, mid))
                 return True
 
             gid = min(glovar.user_ids[uid]["wait"], key=glovar.user_ids[uid]["wait"].get)
