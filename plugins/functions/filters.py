@@ -286,16 +286,26 @@ def is_ban_text(text: str, ocr: bool, message: Message = None) -> bool:
             return True
 
         # ad + con
-        ad = is_regex_text("ad", text, ocr) or is_emoji("ad", text, message)
+        ad = is_regex_text("ad", text, ocr)
         con = is_con_text(text, ocr)
 
         if ad and con:
+            return True
+
+        # emoji + con
+        emoji = is_emoji("ad", text, message)
+
+        if emoji and con:
             return True
 
         # ad_ + con
         ad = is_ad_text(text, ocr)
 
         if ad and con:
+            return True
+
+        # ad_ + emoji
+        if ad and emoji:
             return True
 
         # ad_ + ad_
