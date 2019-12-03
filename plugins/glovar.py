@@ -20,6 +20,7 @@ import logging
 import pickle
 from codecs import getdecoder
 from configparser import RawConfigParser
+from glob import glob
 from os import mkdir
 from os.path import exists
 from shutil import rmtree
@@ -398,13 +399,16 @@ lang: Dict[str, str] = {
     "question_change": (zh_cn and "更换问题") or "Change the Question",
     "question_chengyu": (zh_cn and "请发送上图所显示的成语") or "Please send the idiom shown in the above picture",
     "question_food": ((zh_cn and "正确答案在下方按钮中，请选择或发送上图所显示的名称")
-                      or "The correct answer is in the buttons below, "
-                         "please select or send the name shown in the above image"),
+                      or ("The correct answer is in the buttons below, "
+                          "please select or send the name shown in the above image")),
     "question_letter": ((zh_cn and "请发送上图所显示的一串英文字母（无数字，全部为英文字母），不区分大小写")
                         or "Please send a string of English letters (no numbers) as shown above, not case sensitive"),
     "question_math_pic": ((zh_cn and "正确答案在下方按钮中，请选择或发送上图中所显示的加减法算术题的正确答案")
                           or ("The correct answer is in the buttons below, please select or send the correct answer to "
                               "the addition or subtraction arithmetic question shown in the figure above")),
+    "question_pic": ((zh_cn and "正确答案在下方按钮中，请选择或发送上图中所显示物体的正确名称")
+                     or ("The correct answer is in the buttons below, "
+                         "please select or send the correct name of the object shown in the picture above")),
     "question_number": ((zh_cn and "请发送上图所显示的一串数字（无英文字母，全部为数字）")
                         or "Please send a string of numbers as shown above"),
     "suggestion": (zh_cn and "建议") or "Suggestion",
@@ -553,7 +557,38 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.3.0"
+version: str = "0.3.1"
+
+# Load data from pics database
+
+pics: Dict[str, Union[Dict[str, str], List[str]]] = {
+    "names": [],
+    "paths": {}
+}
+
+if exists("assets/pics"):
+    dir_list = glob("assets/pics/*")
+else:
+    dir_list = []
+
+for dir_path in dir_list:
+    dir_name = dir_path.split("/")[-1]
+
+    if not 0 < len(dir_name) < 6:
+        continue
+
+    pics["names"].append(dir_name)
+    file_list = glob(f"{dir_path}/*")
+    for file in file_list:
+        pics["path"][file] = dir_name
+
+if pics["names"] and pics["path"]:
+    append_types = ["chinese", "english", "image"]
+else:
+    append_types = []
+
+for question_type in append_types:
+    question_types[question_type].append("pic")
 
 # Load data from text
 

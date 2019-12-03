@@ -269,7 +269,7 @@ def question_ask(client: Client, user: User, mid: int) -> bool:
                 mid=mid,
                 markup=markup
             )
-            thread(delete_file, (image_path,))
+            "tmp/" in image_path and thread(delete_file, (image_path,))
         else:
             result = send_message(
                 client=client,
@@ -551,6 +551,39 @@ def captcha_math_pic() -> dict:
         }
     except Exception as e:
         logger.warning(f"Captcha math pic error: {e}", exc_info=True)
+
+    return result
+
+
+def captcha_pic() -> dict:
+    # Picture CAPTCHA
+    result = {}
+    try:
+        question = choice(list(glovar.pics["paths"]))
+        answer = glovar.pics["paths"][question]
+        candidates = [answer]
+
+        for _ in range(2):
+            candidate = choice(glovar.pics["names"])
+
+            while candidate in candidates:
+                candidate = choice(glovar.pics["names"])
+
+            candidates.append(candidate)
+
+        shuffle(candidates)
+
+        image_path = question
+
+        result = {
+            "image": image_path,
+            "question": lang("pic"),
+            "answer": answer,
+            "candidates": candidates,
+            "limit": glovar.limit_try
+        }
+    except Exception as e:
+        logger.warning(f"Captcha pic error: {e}", exc_info=True)
 
     return result
 
