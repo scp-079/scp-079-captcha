@@ -580,9 +580,9 @@ for dir_path in dir_list:
     pics["names"].append(dir_name)
     file_list = glob(f"{dir_path}/*")
     for file in file_list:
-        pics["path"][file] = dir_name
+        pics["paths"][file] = dir_name
 
-if pics["names"] and pics["path"]:
+if pics["names"] and pics["paths"]:
     append_types = ["chinese", "english", "image"]
 else:
     append_types = []
