@@ -269,7 +269,7 @@ def question_ask(client: Client, user: User, mid: int) -> bool:
                 mid=mid,
                 markup=markup
             )
-            "tmp/" in image_path and thread(delete_file, (image_path,))
+            image_path.startswith("tmp/") and thread(delete_file, (image_path,))
         else:
             result = send_message(
                 client=client,
@@ -349,7 +349,7 @@ def question_change(client: Client, uid: int, mid: int) -> bool:
             caption=text,
             markup=markup
         )
-        "tmp/" in image_path and thread(delete_file, (image_path,))
+        image_path.startswith("tmp/") and thread(delete_file, (image_path,))
 
         # Check if the message was edited successfully
         if result:
