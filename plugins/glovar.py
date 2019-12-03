@@ -561,10 +561,7 @@ version: str = "0.3.1"
 
 # Load data from pics database
 
-pics: Dict[str, Union[Dict[str, str], List[str]]] = {
-    "names": [],
-    "paths": {}
-}
+pics: Dict[str, List[str]] = {}
 
 if exists("assets/pics"):
     dir_list = glob("assets/pics/*")
@@ -577,12 +574,12 @@ for dir_path in dir_list:
     if not 0 < len(dir_name) < 6:
         continue
 
-    pics["names"].append(dir_name)
+    pics[dir_name] = []
     file_list = glob(f"{dir_path}/*")
     for file in file_list:
-        pics["paths"][file] = dir_name
+        pics[dir_name].append(file)
 
-if pics["names"] and pics["paths"]:
+if pics:
     append_types = ["chinese", "english", "image"]
 else:
     append_types = []

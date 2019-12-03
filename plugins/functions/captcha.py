@@ -559,15 +559,15 @@ def captcha_pic() -> dict:
     # Picture CAPTCHA
     result = {}
     try:
-        question = choice(list(glovar.pics["paths"]))
-        answer = glovar.pics["paths"][question]
+        answer = choice(list(glovar.pics))
+        question = choice(glovar.pics[answer])
         candidates = [answer]
 
         for _ in range(2):
-            candidate = choice(glovar.pics["names"])
+            candidate = choice(list(glovar.pics))
 
             while candidate in candidates:
-                candidate = choice(glovar.pics["names"])
+                candidate = choice(list(glovar.pics))
 
             candidates.append(candidate)
 
