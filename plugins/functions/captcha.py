@@ -577,7 +577,7 @@ def captcha_pic() -> dict:
 
         result = {
             "image": image_path,
-            "question": lang("pic"),
+            "question": lang("question_pic"),
             "answer": answer,
             "candidates": candidates,
             "limit": glovar.limit_try
