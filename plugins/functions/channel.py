@@ -64,6 +64,9 @@ def ask_for_help(client: Client, level: str, gid: int, uid: int, group: str = "s
 def ask_help_welcome(client: Client, uid: int, gids: List[int]) -> bool:
     # Ask help welcome
     try:
+        if len(gids) == 1 and glovar.tip_id not in glovar.admin_ids[gids[0]]:
+            return True
+
         share_data(
             client=client,
             receivers=["TIP"],
