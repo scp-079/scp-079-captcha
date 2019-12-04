@@ -23,7 +23,7 @@ from typing import Union
 from pyrogram import ChatPermissions, Client, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
-from .channel import ask_for_help, declare_message, send_debug, update_score
+from .channel import ask_for_help, ask_help_welcome, declare_message, send_debug, share_data, update_score
 from .etc import code, get_now, lang, mention_text, thread
 from .file import save
 from .group import delete_message
@@ -298,6 +298,10 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             # Update the score
             update_score(client, uid)
 
+            # Ask help welcome
+            ask_help_welcome(client, uid, wait_group_list)
+
+            # Send debug message
             send_debug(
                 client=client,
                 gids=wait_group_list,

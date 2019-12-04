@@ -22,7 +22,7 @@ from pyrogram import Client, Filters, Message
 
 from .. import glovar
 from ..functions.captcha import question_answer, question_ask, user_captcha
-from ..functions.channel import get_debug_text
+from ..functions.channel import ask_help_welcome, get_debug_text
 from ..functions.etc import code, general_link, get_now, lang, thread, mention_id
 from ..functions.file import save
 from ..functions.filters import authorized_group, captcha_group, class_c, class_d, class_e, declared_message
@@ -58,6 +58,7 @@ def hint(client: Client, message: Message) -> bool:
 
         # Check config
         if glovar.configs[gid].get("manual"):
+            ask_help_welcome(client, message.new_chat_members[0].id, [gid])
             return True
 
         for new in message.new_chat_members:

@@ -61,6 +61,25 @@ def ask_for_help(client: Client, level: str, gid: int, uid: int, group: str = "s
     return False
 
 
+def ask_help_welcome(client: Client, uid: int, gids: List[int]) -> bool:
+    # Ask help welcome
+    try:
+        share_data(
+            client=client,
+            receivers=["TIP"],
+            action="help",
+            action_type="welcome",
+            data={
+                "user_id": uid,
+                "group_ids": gids
+            }
+        )
+    except Exception as e:
+        logger.warning(f"Ask help welcome error: {e}", exc_info=True)
+
+    return False
+
+
 def declare_message(client: Client, gid: int, mid: int) -> bool:
     # Declare a message
     try:
