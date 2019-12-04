@@ -61,7 +61,7 @@ def ask_for_help(client: Client, level: str, gid: int, uid: int, group: str = "s
     return False
 
 
-def ask_help_welcome(client: Client, uid: int, gids: List[int]) -> bool:
+def ask_help_welcome(client: Client, uid: int, gids: List[int], mid: int = None) -> bool:
     # Ask help welcome
     try:
         if all(glovar.tip_id not in glovar.admin_ids[gid] for gid in gids):
@@ -74,7 +74,8 @@ def ask_help_welcome(client: Client, uid: int, gids: List[int]) -> bool:
             action_type="welcome",
             data={
                 "user_id": uid,
-                "group_ids": gids
+                "group_ids": gids,
+                "message_id": mid
             }
         )
     except Exception as e:

@@ -58,7 +58,7 @@ def hint(client: Client, message: Message) -> bool:
 
         # Check config
         if glovar.configs[gid].get("manual"):
-            ask_help_welcome(client, message.new_chat_members[0].id, [gid])
+            ask_help_welcome(client, message.new_chat_members[0].id, [gid], mid)
             return True
 
         for new in message.new_chat_members:
