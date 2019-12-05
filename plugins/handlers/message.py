@@ -315,7 +315,8 @@ def init_group(client: Client, message: Message) -> bool:
 
             if admin_members:
                 glovar.admin_ids[gid] = {admin.user.id for admin in admin_members
-                                         if not admin.user.is_bot and not admin.user.is_deleted}
+                                         if ((not admin.user.is_bot and not admin.user.is_deleted)
+                                             or admin.user.id in glovar.bot_ids)}
                 save("admin_ids")
                 text += f"{lang('status')}{lang('colon')}{code(lang('status_joined'))}\n"
             else:
