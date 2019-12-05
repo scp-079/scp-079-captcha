@@ -217,6 +217,8 @@ def get_chat(client: Client, cid: Union[int, str]) -> Union[Chat, ChatPreview, N
             except FloodWait as e:
                 flood_wait = True
                 wait_flood(e)
+            except (PeerIdInvalid, ChannelInvalid, ChannelPrivate):
+                return None
     except Exception as e:
         logger.warning(f"Get chat {cid} error: {e}", exc_info=True)
 
@@ -321,6 +323,8 @@ def leave_chat(client: Client, cid: int, delete: bool = False) -> bool:
             except FloodWait as e:
                 flood_wait = True
                 wait_flood(e)
+            except (PeerIdInvalid, ChannelInvalid, ChannelPrivate):
+                return False
 
         return True
     except Exception as e:
