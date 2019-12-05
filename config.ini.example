@@ -41,6 +41,7 @@ hide_channel_id = [DATA EXPUNGED]
 test_group_id = [DATA EXPUNGED]
 
 [custom]
+aio = [DATA EXPUNGED]
 backup = [DATA EXPUNGED]
 captcha_link = [DATA EXPUNGED]
 date_reset = [DATA EXPUNGED]
