@@ -371,9 +371,6 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             glovar.user_ids[uid]["mid"] = 0
             save("user_ids")
 
-            # Delete the hint
-            delete_hint(client)
-
             # Update the score
             update_score(client, uid)
 
