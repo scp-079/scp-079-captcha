@@ -26,7 +26,7 @@ from .. import glovar
 from .channel import ask_for_help, ask_help_welcome, declare_message, send_debug, update_score
 from .etc import code, get_now, lang, mention_text, thread
 from .file import save
-from .group import delete_message
+from .group import delete_hint, delete_message
 from .telegram import edit_message_photo, edit_message_text, kick_chat_member, restrict_chat_member, unban_chat_member
 
 # Enable logging
@@ -160,6 +160,9 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
             save("user_ids")
 
+            # Delete the hint
+            delete_hint(client)
+
         # Delete the message
         elif the_type == "delete" and mid:
             delete_message(client, gid, mid)
@@ -205,9 +208,13 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
             save("user_ids")
 
+            # Delete the hint
+            delete_hint(client)
+
             # Update the score
             update_score(client, uid)
 
+            # Send debug message
             send_debug(
                 client=client,
                 gids=[gid],
@@ -295,11 +302,14 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             glovar.user_ids[uid]["mid"] = 0
             save("user_ids")
 
-            # Update the score
-            update_score(client, uid)
+            # Delete the hint
+            delete_hint(client)
 
             # Ask help welcome
             ask_help_welcome(client, uid, wait_group_list)
+
+            # Update the score
+            update_score(client, uid)
 
             # Send debug message
             send_debug(
@@ -361,6 +371,9 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             glovar.user_ids[uid]["mid"] = 0
             save("user_ids")
 
+            # Delete the hint
+            delete_hint(client)
+
             # Update the score
             update_score(client, uid)
 
@@ -381,6 +394,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             # Update the score
             update_score(client, uid)
 
+            # Send debug message
             send_debug(
                 client=client,
                 gids=[gid],
@@ -439,6 +453,9 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             # Reset message id
             glovar.user_ids[uid]["mid"] = 0
             save("user_ids")
+
+            # Delete the hint
+            delete_hint(client)
 
             # Update the score
             update_score(client, uid)

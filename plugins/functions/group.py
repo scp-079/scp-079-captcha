@@ -29,6 +29,36 @@ from .telegram import delete_messages, leave_chat
 logger = logging.getLogger(__name__)
 
 
+def delete_hint(client: Client) -> bool:
+    # Delete hint messages
+    try:
+        # Get the wait group list
+        wait_group_list = {gid for uid in list(glovar.user_ids) for gid in list(glovar.user_ids[uid]["wait"])}
+
+        # Proceed
+        for gid in list(glovar.message_ids):
+            # Regular hint
+            mid = glovar.message_ids[gid]["hint"]
+            if mid and gid not in wait_group_list:
+                glovar.message_ids[gid]["hint"] = 0
+                delete_message(client, gid, mid)
+
+            # Flood static hint
+            mids = glovar.message_ids[gid]["flood"]
+            if mids and gid not in wait_group_list:
+                glovar.message_ids[gid]["flood"] = set()
+                thread(delete_messages, (client, gid, mids))
+
+        # Save the data
+        save("message_ids")
+
+        return True
+    except Exception as e:
+        logger.warning(f"Delete hint error: {e}", exc_info=True)
+
+    return False
+
+
 def delete_message(client: Client, gid: int, mid: int) -> bool:
     # Delete a single message
     try:
