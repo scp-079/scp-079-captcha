@@ -26,7 +26,7 @@ from claptcha import Claptcha
 from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message, User
 
 from .. import glovar
-from .channel import get_debug_text
+from .channel import ask_help_welcome, get_debug_text
 from .etc import button_data, code, general_link, get_channel_link, get_full_name, get_now, lang, mention_name
 from .etc import mention_text, message_link, t2t, thread
 from .file import delete_file, get_new_path, save
@@ -752,6 +752,7 @@ def user_captcha(client: Client, message: Optional[Message], gid: int, user: Use
             succeeded_time = max(user_status["succeeded"].values())
 
             if succeeded_time and now - succeeded_time < glovar.time_remove + 70:
+                not aid and ask_help_welcome(client, uid, [gid], mid)
                 return True
 
             if glovar.configs[gid].get("pass"):
@@ -759,6 +760,7 @@ def user_captcha(client: Client, message: Optional[Message], gid: int, user: Use
                         and not is_watch_user(user, "ban", now)
                         and not is_watch_user(user, "delete", now)
                         and not is_limited_user(gid, user, now)):
+                    not aid and ask_help_welcome(client, uid, [gid], mid)
                     return True
 
         # Check failed list
