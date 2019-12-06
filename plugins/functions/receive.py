@@ -29,7 +29,7 @@ from .captcha import user_captcha
 from .channel import get_debug_text, share_data
 from .etc import code, crypt_str, general_link, get_int, get_now, get_text, lang, thread, mention_id
 from .file import crypt_file, data_to_file, delete_file, get_new_path, get_downloaded_path, save
-from .group import delete_message, get_config_text, leave_group
+from .group import delete_hint, delete_message, get_config_text, leave_group
 from .ids import init_group_id, init_user_id
 from .telegram import get_chat_member, send_message, send_report_message
 from .timers import update_admins
@@ -58,6 +58,7 @@ def receive_add_bad(client: Client, data: dict) -> bool:
                         change_member_status(client, level, gid, the_id, True)
                         glovar.user_ids[the_id]["failed"][gid] = 0
 
+                    glovar.user_ids[the_id]["wait"] and delete_hint(client)
                     glovar.user_ids[the_id]["wait"] = {}
 
             save("user_ids")
@@ -433,11 +434,11 @@ def receive_remove_bad(client: Client, data: dict) -> bool:
 
             with glovar.locks["message"]:
                 if glovar.user_ids.get(the_id, {}):
-                    # Pass all waiting users
+                    # Pass in all waiting groups
                     for gid in list(glovar.user_ids[the_id]["wait"]):
                         unrestrict_user(client, gid, the_id)
 
-                    # Unban all punished users
+                    # Unban in all punished groups
                     for gid in list(glovar.user_ids[the_id]["failed"]):
                         if glovar.user_ids[the_id]["failed"][gid]:
                             unban_user(client, gid, the_id)
