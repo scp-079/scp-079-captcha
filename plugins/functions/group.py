@@ -17,13 +17,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from typing import Optional
 
-from pyrogram import Client
+from pyrogram import Client, Message
 
 from .. import glovar
 from .etc import code, lang, thread
 from .file import save
-from .telegram import delete_messages, leave_chat
+from .telegram import delete_messages, get_messages, leave_chat
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -93,6 +94,20 @@ def get_config_text(config: dict) -> str:
             result += f"{lang(the_type)}{lang('colon')}{code(the_text)}\n"
     except Exception as e:
         logger.warning(f"Get config text error: {e}", exc_info=True)
+
+    return result
+
+
+def get_message(client: Client, gid: int, mid: int) -> Optional[Message]:
+    # Get a single message
+    result = None
+    try:
+        mids = [mid]
+        result = get_messages(client, gid, mids)
+        if result:
+            result = result[0]
+    except Exception as e:
+        logger.warning(f"Get message error: {e}", exc_info=True)
 
     return result
 

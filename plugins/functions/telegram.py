@@ -294,6 +294,24 @@ def get_members(client: Client, cid: int, query: str = "all") -> Optional[Genera
     return result
 
 
+def get_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[List[Message]]:
+    # Get some messages
+    result = None
+    try:
+        flood_wait = True
+        while flood_wait:
+            flood_wait = False
+            try:
+                result = client.get_messages(chat_id=cid, message_ids=mids)
+            except FloodWait as e:
+                flood_wait = True
+                wait_flood(e)
+    except Exception as e:
+        logger.warning(f"Get messages {mids} in {cid} error: {e}", exc_info=True)
+
+    return result
+
+
 def kick_chat_member(client: Client, cid: int, uid: Union[int, str]) -> Union[bool, Message, None]:
     # Kick a chat member in a group
     result = None

@@ -30,7 +30,7 @@ from ..functions.etc import mention_id, thread
 from ..functions.file import save
 from ..functions.filters import authorized_group, captcha_group, class_e, from_user
 from ..functions.filters import is_class_c, is_class_e, is_from_user, test_group
-from ..functions.group import delete_message, get_config_text
+from ..functions.group import delete_message, get_config_text, get_message
 from ..functions.telegram import get_group_info, resolve_username, send_message, send_report_message
 from ..functions.timers import new_invite_link
 from ..functions.user import terminate_user
@@ -377,9 +377,12 @@ def pass_group(client: Client, message: Message) -> bool:
         # Proceed
         if r_message and is_from_user(None, r_message):
             if r_message.from_user.is_self:
-                return True
-
-            if r_message.new_chat_members:
+                r_message = get_message(client, gid, r_message.message_id)
+                if r_message and r_message.reply_to_message:
+                    uid = r_message.reply_to_message.from_user.id
+                else:
+                    return True
+            elif r_message.new_chat_members:
                 uid = r_message.new_chat_members[0].id
             else:
                 uid = r_message.from_user.id
