@@ -140,6 +140,9 @@ def interval_min_01(client: Client) -> bool:
 
         save("user_ids")
 
+        # Clear changed ids
+        glovar.changed_ids = set()
+
         # Delete hint messages
         delete_hint(client)
 

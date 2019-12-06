@@ -454,6 +454,9 @@ chats: Dict[int, Chat] = {}
 #     -10012345678: Chat
 # }
 
+changed_ids: Set[int] = set()
+# changed_ids = {12345678}
+
 declared_message_ids: Dict[int, Set[int]] = {}
 # declared_message_ids = {
 #     -10012345678: {123}

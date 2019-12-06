@@ -312,7 +312,14 @@ def question_change(client: Client, uid: int, mid: int) -> bool:
         limit = glovar.user_ids[uid]["limit"]
         tried = glovar.user_ids[uid]["try"]
 
+        # Check limit
         if tried >= limit:
+            return True
+
+        # Check changed status
+        if uid not in glovar.changed_ids:
+            glovar.changed_ids.add(uid)
+        else:
             return True
 
         # Get the question data
