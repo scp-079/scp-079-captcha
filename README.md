@@ -4,7 +4,9 @@ This bot is used to provide challenges for new joined members.
 
 ## How to use
 
-See [this article](https://scp-079.org/captcha/).
+- See [manual](https://telegra.ph/SCP-079-CAPTCHA-12-03)
+- See [this article](https://scp-079.org/captcha/) to build a bot by yourself
+- Discuss [group](https://t.me/SCP_079_CHAT)
 
 ## To Do List
 
