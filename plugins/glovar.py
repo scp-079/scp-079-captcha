@@ -530,8 +530,8 @@ media_group_ids: Set[int] = set()
 
 question_types: Dict[str, List[str]] = {
     "changeable": ["chengyu", "letter", "number"],
-    "chinese": ["chengyu", "food", "letter", "math", "math_pic", "number"],
-    "english": ["letter", "math", "math_pic", "number"],
+    "chinese": ["chengyu", "food", "letter", "math_pic", "number"],
+    "english": ["letter", "math_pic", "number"],
     "image": ["chengyu", "food", "letter", "math_pic", "pic", "number"],
     "text": ["math"]
 }
