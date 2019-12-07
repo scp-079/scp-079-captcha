@@ -88,6 +88,8 @@ more_text: str = ""
 noise: float = 0.0
 project_link: str = ""
 project_name: str = ""
+simple: Union[bool, str] = ""
+simple_only: Union[bool, str] = ""
 time_captcha: int = 0
 time_invite: int = 0
 time_new: int = 0
@@ -158,6 +160,10 @@ try:
     noise = float(config["custom"].get("noise", noise))
     project_link = config["custom"].get("project_link", project_link)
     project_name = config["custom"].get("project_name", project_name)
+    simple = config["custom"].get("simple", simple)
+    simple = eval(simple)
+    simple_only = config["custom"].get("simple_only", simple_only)
+    simple_only = eval(simple_only)
     time_captcha = int(config["custom"].get("time_captcha", time_captcha))
     time_invite = int(config["custom"].get("time_invite", time_invite))
     time_new = int(config["custom"].get("time_new", time_new))
@@ -221,6 +227,8 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or noise == 0.0
         or project_link in {"", "[DATA EXPUNGED]"}
         or project_name in {"", "[DATA EXPUNGED]"}
+        or simple not in {False, True}
+        or simple_only not in {False, True}
         or time_captcha == 0
         or time_invite == 0
         or time_new == 0
@@ -524,9 +532,25 @@ question_types: Dict[str, List[str]] = {
     "changeable": ["chengyu", "letter", "number"],
     "chinese": ["chengyu", "food", "letter", "math", "math_pic", "number"],
     "english": ["letter", "math", "math_pic", "number"],
-    "image": ["chengyu", "food", "letter", "math_pic", "number"],
+    "image": ["chengyu", "food", "letter", "math_pic", "pic", "number"],
     "text": ["math"]
 }
+
+if simple:
+    append_types = ["chinese", "english"]
+else:
+    append_types = []
+
+for question_type in append_types:
+    question_types[question_type].append("math")
+
+if simple_only:
+    replace_types = ["chinese", "english"]
+else:
+    replace_types = []
+
+for question_type in replace_types:
+    question_types[question_type] = ["math"]
 
 receivers: Dict[str, List[str]] = {
     "declare": ["ANALYZE", "AVATAR", "CAPTCHA", "CLEAN", "LANG", "LONG",
@@ -564,7 +588,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.3.4"
+version: str = "0.3.5"
 
 # Load data from pics database
 
@@ -586,8 +610,8 @@ for dir_path in dir_list:
     for file in file_list:
         pics[dir_name].append(file)
 
-if pics:
-    append_types = ["chinese", "english", "image"]
+if pics and not simple_only:
+    append_types = ["chinese", "english"]
 else:
     append_types = []
 
