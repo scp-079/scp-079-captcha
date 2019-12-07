@@ -371,6 +371,13 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             glovar.user_ids[uid]["mid"] = 0
             save("user_ids")
 
+            # Remove from CAPTCHA group
+            time = glovar.user_ids[uid]["time"]
+            if time:
+                glovar.user_ids[uid]["time"] = 0
+                save("user_ids")
+                kick_user(client, glovar.captcha_group_id, uid)
+
             # Update the score
             update_score(client, uid)
 
