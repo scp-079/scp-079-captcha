@@ -486,7 +486,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             delete_hint(client)
 
             # Remove from CAPTCHA group
-            delay(10, remove_captcha_group, [client, uid])
+            delay(15, remove_captcha_group, [client, uid])
 
             # Update the score
             update_score(client, uid)
