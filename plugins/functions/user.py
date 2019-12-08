@@ -24,7 +24,7 @@ from pyrogram import ChatPermissions, Client, InlineKeyboardButton, InlineKeyboa
 
 from .. import glovar
 from .channel import ask_for_help, ask_help_welcome, declare_message, send_debug, update_score
-from .etc import code, get_now, lang, mention_text, thread
+from .etc import code, delay, get_now, lang, mention_text, thread
 from .file import save
 from .group import delete_hint, delete_message
 from .telegram import edit_message_photo, edit_message_text, kick_chat_member, restrict_chat_member, unban_chat_member
@@ -107,6 +107,28 @@ def kick_user_thread(client: Client, gid: int, uid: Union[int, str]) -> bool:
     return False
 
 
+def remove_captcha_group(client: Client, uid: int) -> bool:
+    # Remove user from captcha group
+    glovar.locks["message"].acquire()
+    try:
+        if not glovar.user_ids.get(uid, {}):
+            return True
+
+        time = glovar.user_ids[uid]["time"]
+        if time:
+            glovar.user_ids[uid]["time"] = 0
+            save("user_ids")
+            kick_user(client, glovar.captcha_group_id, uid)
+
+        return True
+    except Exception as e:
+        logger.warning(f"Remove captcha group error: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
+
+    return False
+
+
 def restrict_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
     # Restrict a user
     try:
@@ -158,6 +180,9 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                 # Reset message id
                 glovar.user_ids[uid]["mid"] = 0
 
+                # Remove from CAPTCHA group
+                delay(10, remove_captcha_group, [client, uid])
+
             save("user_ids")
 
             # Delete the hint
@@ -205,6 +230,9 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
                 # Reset message id
                 glovar.user_ids[uid]["mid"] = 0
+
+                # Remove from CAPTCHA group
+                delay(10, remove_captcha_group, [client, uid])
 
             save("user_ids")
 
@@ -372,11 +400,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             save("user_ids")
 
             # Remove from CAPTCHA group
-            time = glovar.user_ids[uid]["time"]
-            if time:
-                glovar.user_ids[uid]["time"] = 0
-                save("user_ids")
-                kick_user(client, glovar.captcha_group_id, uid)
+            delay(10, remove_captcha_group, [client, uid])
 
             # Update the score
             update_score(client, uid)
@@ -460,6 +484,9 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
             # Delete the hint
             delete_hint(client)
+
+            # Remove from CAPTCHA group
+            delay(10, remove_captcha_group, [client, uid])
 
             # Update the score
             update_score(client, uid)
