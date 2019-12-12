@@ -766,7 +766,7 @@ def user_captcha(client: Client, message: Optional[Message], gid: int, user: Use
                 if (succeeded_time and now - succeeded_time < glovar.time_recheck
                         and not is_watch_user(user, "ban", now)
                         and not is_watch_user(user, "delete", now)
-                        and not is_limited_user(gid, user, now)):
+                        and not is_limited_user(gid, user, now, False)):
                     not aid and ask_help_welcome(client, uid, [gid], mid)
                     return True
 
