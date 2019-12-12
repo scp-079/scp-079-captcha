@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 
 @Client.on_message(Filters.incoming & Filters.group & Filters.new_chat_members
                    & ~captcha_group & ~test_group & ~new_group & authorized_group
-                   & from_user & ~class_c & ~class_e
+                   & from_user & ~class_c
                    & ~declared_message)
 def hint(client: Client, message: Message) -> bool:
     # Check new joined user
@@ -57,7 +57,7 @@ def hint(client: Client, message: Message) -> bool:
         now = message.date or get_now()
 
         # Check config
-        if glovar.configs[gid].get("manual"):
+        if glovar.configs[gid].get("manual") or is_class_e_user(message.from_user):
             uid = message.new_chat_members[0].id
             ask_help_welcome(client, uid, [gid], mid)
             return True
