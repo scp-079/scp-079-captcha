@@ -60,7 +60,7 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
         if len(wait_user_list) < glovar.limit_mention:
             if glovar.nospam_id in glovar.admin_ids[gid]:
                 # Check name
-                name = get_full_name(user, True)
+                name = get_full_name(user, True, True)
                 if name and is_nm_text(name):
                     glovar.user_ids[uid]["wait"] = {}
                     save("user_ids")
@@ -190,11 +190,11 @@ def question_answer(client: Client, uid: int, text: str) -> bool:
 
         if text:
             text = text.lower()
-            text = t2t(text, True)
+            text = t2t(text, True, True)
 
         if answer:
             answer = answer.lower()
-            answer = t2t(answer, True)
+            answer = t2t(answer, True, True)
 
         if text and answer and text == answer:
             question_status(client, uid, "succeed")
@@ -751,7 +751,7 @@ def user_captcha(client: Client, message: Optional[Message], gid: int, user: Use
             return True
 
         # Check name
-        name = get_full_name(user, True)
+        name = get_full_name(user, True, True)
         wb_name = is_wb_text(name, False)
 
         # Auto pass

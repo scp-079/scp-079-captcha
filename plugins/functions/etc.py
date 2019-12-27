@@ -193,7 +193,7 @@ def get_command_type(message: Message) -> str:
     return result
 
 
-def get_full_name(user: User, normal: bool = False) -> str:
+def get_full_name(user: User, normal: bool = False, printable: bool = False) -> str:
     # Get user's full name
     text = ""
     try:
@@ -205,7 +205,7 @@ def get_full_name(user: User, normal: bool = False) -> str:
             text += f" {user.last_name}"
 
         if text and normal:
-            text = t2t(text, normal)
+            text = t2t(text, normal, printable)
     except Exception as e:
         logger.warning(f"Get full name error: {e}", exc_info=True)
 
@@ -234,7 +234,7 @@ def get_now() -> int:
     return result
 
 
-def get_text(message: Message, normal: bool = False, printable: bool = True) -> str:
+def get_text(message: Message, normal: bool = False, printable: bool = False) -> str:
     # Get message's text
     text = ""
     try:
@@ -322,7 +322,7 @@ def random_str(i: int) -> str:
     return text
 
 
-def t2t(text: str, normal: bool, printable: bool = True) -> str:
+def t2t(text: str, normal: bool, printable: bool) -> str:
     # Convert the string, text to text
     try:
         if not text:

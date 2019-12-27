@@ -25,7 +25,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from pyrogram import Client
 
 from plugins import glovar
-from plugins.functions.timers import backup_files, interval_min_01, interval_min_10, new_invite_link
+from plugins.functions.timers import backup_files, interval_min_01, interval_min_10
 from plugins.functions.timers import reset_data, send_count, update_admins, update_status
 
 # Enable logging
