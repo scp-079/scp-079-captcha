@@ -61,7 +61,7 @@ def receive_add_bad(client: Client, data: dict) -> bool:
                     glovar.user_ids[the_id]["wait"] and delete_hint(client)
                     glovar.user_ids[the_id]["wait"] = {}
 
-            save("user_ids")
+                save("user_ids")
 
         save("bad_ids")
 
