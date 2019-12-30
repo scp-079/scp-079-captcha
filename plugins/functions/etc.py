@@ -337,7 +337,7 @@ def t2t(text: str, normal: bool, printable: bool) -> str:
         if printable:
             text = "".join(t for t in text if t.isprintable() or t in {"\n", "\r", "\t"})
 
-        if glovar.zh_cn:
+        if normal and glovar.zh_cn:
             text = convert(text, config="t2s.json")
     except Exception as e:
         logger.warning(f"T2T error: {e}", exc_info=True)
