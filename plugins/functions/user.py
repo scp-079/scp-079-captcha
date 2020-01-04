@@ -153,6 +153,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
         # Banned in group
         if the_type == "banned":
             glovar.user_ids[uid]["wait"].pop(gid, 0)
+            glovar.user_ids[uid]["manual"].discard(gid)
 
             # Edit the message
             if not glovar.user_ids[uid]["wait"] and glovar.user_ids[uid]["mid"]:
@@ -166,6 +167,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
                 # Edit the message
                 question_type = glovar.user_ids[uid]["type"]
+
                 if question_type in glovar.question_types["image"]:
                     thread(
                         target=edit_message_photo,
@@ -201,6 +203,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             unrestrict_user(client, gid, uid)
             glovar.user_ids[uid]["failed"].pop(gid, 0)
             glovar.user_ids[uid]["restricted"].discard(gid)
+
             if gid in glovar.user_ids[uid]["banned"]:
                 glovar.user_ids[uid]["banned"].discard(gid)
                 unban_user(client, gid, uid)
@@ -217,6 +220,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
                 # Edit the message
                 question_type = glovar.user_ids[uid]["type"]
+
                 if question_type in glovar.question_types["image"]:
                     thread(
                         target=edit_message_photo,
@@ -238,6 +242,13 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
             # Delete the hint
             delete_hint(client)
+
+            # Ask help welcome
+            if gid not in glovar.user_ids[uid]["manual"]:
+                ask_help_welcome(client, uid, [gid])
+            else:
+                glovar.user_ids[uid]["manual"].discard(gid)
+                save("user_ids")
 
             # Update the score
             update_score(client, uid)
@@ -284,6 +295,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             glovar.user_ids[uid]["answer"] = ""
             glovar.user_ids[uid]["limit"] = 0
             glovar.user_ids[uid]["try"] = 0
+
             if glovar.user_ids[uid]["wait"]:
                 gid = min(glovar.user_ids[uid]["wait"], key=glovar.user_ids[uid]["wait"].get)
                 glovar.user_ids[uid]["wait"] = {}
@@ -292,6 +304,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             # Edit the message
             name = glovar.user_ids[uid]["name"]
             mid = glovar.user_ids[uid]["mid"]
+
             if mid:
                 # Get the captcha status text
                 text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
@@ -334,7 +347,10 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             delete_hint(client)
 
             # Ask help welcome
-            ask_help_welcome(client, uid, wait_group_list)
+            welcome_ids = [wid for wid in wait_group_list if wid not in glovar.user_ids[uid]["manual"]]
+            glovar.user_ids[uid]["manual"] = set()
+            save("user_ids")
+            ask_help_welcome(client, uid, welcome_ids)
 
             # Update the score
             update_score(client, uid)
@@ -364,6 +380,8 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             glovar.user_ids[uid]["limit"] = 0
             glovar.user_ids[uid]["try"] = 0
             glovar.user_ids[uid]["wait"].pop(gid, 0)
+            glovar.user_ids[uid]["manual"].discard(gid)
+
             if glovar.user_ids[uid]["succeeded"].get(gid, 0):
                 glovar.user_ids[uid]["succeeded"][gid] = 0
 
@@ -376,6 +394,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             # Edit the message
             name = glovar.user_ids[uid]["name"]
             mid = glovar.user_ids[uid]["mid"]
+
             if mid:
                 # Get the captcha status text
                 text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
@@ -384,6 +403,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
                 # Edit the message
                 question_type = glovar.user_ids[uid]["type"]
+
                 if question_type in glovar.question_types["image"]:
                     thread(
                         target=edit_message_photo,
@@ -446,6 +466,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             glovar.user_ids[uid]["limit"] = 0
             glovar.user_ids[uid]["try"] = 0
             glovar.user_ids[uid]["wait"] = {}
+            glovar.user_ids[uid]["manual"] = set()
 
             # Give the user one more chance
             for gid in wait_group_list:

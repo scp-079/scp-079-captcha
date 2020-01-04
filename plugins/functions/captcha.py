@@ -51,6 +51,7 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
         # Add the user
         glovar.user_ids[uid]["name"] = name
         glovar.user_ids[uid]["wait"][gid] = now
+        aid and glovar.user_ids[uid]["manual"].add(gid)
         save("user_ids")
 
         # Get group's waiting user list
@@ -63,6 +64,7 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
                 name = get_full_name(user, True, True)
                 if name and is_nm_text(name):
                     glovar.user_ids[uid]["wait"] = {}
+                    glovar.user_ids[uid]["manual"] = set()
                     save("user_ids")
                     return True
 
@@ -174,6 +176,7 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
         else:
             unrestrict_user(client, gid, uid)
             glovar.user_ids[uid]["wait"].pop(gid, 0)
+            aid and glovar.user_ids[uid]["manual"].discard(gid)
 
         save("user_ids")
     except Exception as e:

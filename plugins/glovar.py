@@ -502,6 +502,7 @@ default_user_status: Dict[str, Union[int, str, Dict[Union[int, str], Union[float
     "failed": {},
     "restricted": set(),
     "banned": set(),
+    "manual": set(),
     "score": {
         "captcha": 0.0,
         "clean": 0.0,
@@ -588,7 +589,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.3.6"
+version: str = "0.3.7"
 
 # Load data from pics database
 
@@ -698,6 +699,7 @@ user_ids: Dict[int, Dict[str, Union[int, str, Dict[Union[int, str], Union[float,
 #         },
 #         "restricted": {-10012345678},
 #         "banned": {-10012345678},
+#         "manual": {-10012345678},
 #         "score": {
 #             "captcha": 0.0,
 #             "clean": 0.0,
