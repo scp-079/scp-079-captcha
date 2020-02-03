@@ -334,6 +334,8 @@ def update_admins(client: Client) -> bool:
                 glovar.trust_ids[gid] = {admin.user.id for admin in admin_members
                                          if ((not admin.user.is_bot and not admin.user.is_deleted)
                                              or admin.user.id in glovar.bot_ids)}
+                logger.warning(gid)
+                logger.warning(glovar.trust_ids[gid])
                 save("trust_ids")
 
                 if glovar.user_id not in glovar.admin_ids[gid]:
