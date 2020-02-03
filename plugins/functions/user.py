@@ -115,10 +115,13 @@ def remove_captcha_group(client: Client, uid: int) -> bool:
             return True
 
         time = glovar.user_ids[uid]["time"]
-        if time:
-            glovar.user_ids[uid]["time"] = 0
-            save("user_ids")
-            kick_user(client, glovar.captcha_group_id, uid)
+
+        if not time:
+            return True
+
+        glovar.user_ids[uid]["time"] = 0
+        save("user_ids")
+        kick_user(client, glovar.captcha_group_id, uid)
 
         return True
     except Exception as e:
@@ -270,26 +273,36 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
         # Verification succeed
         elif the_type == "succeed":
             wait_group_list = list(glovar.user_ids[uid]["wait"])
+
             for gid in wait_group_list:
                 unrestrict_user(client, gid, uid)
 
             failed_group_list = list(glovar.user_ids[uid]["failed"])
+
             for gid in failed_group_list:
-                if glovar.configs[gid].get("forgive"):
-                    unban_user(client, gid, uid)
-                    glovar.user_ids[uid]["failed"][gid] = 0
+                if not glovar.configs[gid].get("forgive"):
+                    continue
+
+                unban_user(client, gid, uid)
+                glovar.user_ids[uid]["failed"][gid] = 0
 
             restricted_group_list = list(glovar.user_ids[uid]["restricted"])
+
             for gid in restricted_group_list:
-                if glovar.configs[gid].get("forgive"):
-                    unrestrict_user(client, gid, uid)
-                    glovar.user_ids[uid]["restricted"].discard(gid)
+                if not glovar.configs[gid].get("forgive"):
+                    continue
+
+                unrestrict_user(client, gid, uid)
+                glovar.user_ids[uid]["restricted"].discard(gid)
 
             banned_group_list = list(glovar.user_ids[uid]["banned"])
+
             for gid in banned_group_list:
-                if glovar.configs[gid].get("forgive"):
-                    unban_user(client, gid, uid)
-                    glovar.user_ids[uid]["banned"].discard(gid)
+                if not glovar.configs[gid].get("forgive"):
+                    continue
+
+                unban_user(client, gid, uid)
+                glovar.user_ids[uid]["banned"].discard(gid)
 
             # Modify the status
             glovar.user_ids[uid]["answer"] = ""
@@ -473,12 +486,14 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                 glovar.user_ids[uid]["failed"][gid] = now
                 glovar.user_ids[uid]["restricted"].discard(gid)
                 glovar.user_ids[uid]["banned"].discard(gid)
+
                 if glovar.user_ids[uid]["succeeded"].get(gid, 0):
                     glovar.user_ids[uid]["succeeded"][gid] = 0
 
             # Edit the message
             name = glovar.user_ids[uid]["name"]
             mid = glovar.user_ids[uid]["mid"]
+
             if mid:
                 # Get the captcha status text
                 text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
@@ -488,6 +503,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
                 # Edit the message
                 question_type = glovar.user_ids[uid]["type"]
+
                 if question_type in glovar.question_types["image"]:
                     thread(
                         target=edit_message_photo,

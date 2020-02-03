@@ -41,6 +41,7 @@ def crypt_file(operation: str, file_in: str, file_out: str) -> bool:
             return True
 
         buffer = 64 * 1024
+
         if operation == "decrypt":
             decryptFile(file_in, file_out, glovar.password, buffer)
         else:

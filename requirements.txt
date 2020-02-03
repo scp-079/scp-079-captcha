@@ -5,13 +5,13 @@ claptcha==0.3.3
 cryptography==2.8
 emoji==0.5.4
 OpenCC==0.2
-Pillow==6.2.1
+Pillow==7.0.0
 pyaes==1.6.1
 pyAesCrypt==0.4.3
 pycparser==2.19
 Pyrogram==0.16.0
 PySocks==1.7.0
 pytz==2019.3
-six==1.13.0
+six==1.14.0
 TgCrypto==1.2.0
 tzlocal==2.0.0

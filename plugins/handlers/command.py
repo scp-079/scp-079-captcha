@@ -114,6 +114,7 @@ def config(client: Client, message: Message) -> bool:
 
         # Check command format
         command_type = get_command_type(message)
+
         if not command_type or not re.search(f"^{glovar.sender}$", command_type, re.I):
             return True
 
@@ -191,6 +192,7 @@ def config_directly(client: Client, message: Message) -> bool:
 
         # Check command format
         command_type, command_context = get_command_context(message)
+
         if command_type:
             if command_type == "show":
                 text += f"{lang('action')}{lang('colon')}{code(lang('config_show'))}\n"
@@ -216,8 +218,10 @@ def config_directly(client: Client, message: Message) -> bool:
                                 reason = lang("command_para")
 
                             config_list = ["restrict", "ban"]
+
                             if command_type in config_list and new_config[command_type]:
                                 config_list.remove(command_type)
+
                                 for other in config_list:
                                     new_config[other] = False
                         else:
@@ -378,6 +382,7 @@ def pass_group(client: Client, message: Message) -> bool:
         if r_message and is_from_user(None, r_message):
             if r_message.from_user.is_self:
                 r_message = get_message(client, gid, r_message.message_id)
+
                 if r_message and r_message.reply_to_message:
                     uid = r_message.reply_to_message.from_user.id
                 else:
@@ -389,11 +394,13 @@ def pass_group(client: Client, message: Message) -> bool:
         else:
             uid = 0
             id_text, _ = get_command_context(message)
+
             if id_text:
                 uid = get_int(id_text)
 
             if not uid and id_text:
                 peer_id, peer_type = resolve_username(client, id_text)
+
                 if peer_type == "user":
                     uid = peer_id
 

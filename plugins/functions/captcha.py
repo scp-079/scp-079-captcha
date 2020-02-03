@@ -58,15 +58,15 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
         wait_user_list = [wid for wid in glovar.user_ids if glovar.user_ids[wid]["wait"].get(gid, 0)]
 
         # Work with NOSPAM
-        if len(wait_user_list) < glovar.limit_mention:
-            if glovar.nospam_id in glovar.admin_ids[gid]:
-                # Check name
-                name = get_full_name(user, True, True)
-                if name and is_nm_text(name):
-                    glovar.user_ids[uid]["wait"] = {}
-                    glovar.user_ids[uid]["manual"] = set()
-                    save("user_ids")
-                    return True
+        if len(wait_user_list) < glovar.limit_mention and glovar.nospam_id in glovar.admin_ids[gid]:
+            # Check name
+            name = get_full_name(user, True, True)
+
+            if name and is_nm_text(name):
+                glovar.user_ids[uid]["wait"] = {}
+                glovar.user_ids[uid]["manual"] = set()
+                save("user_ids")
+                return True
 
         # Restrict the user
         restrict_user(client, gid, uid)
@@ -638,6 +638,7 @@ def get_captcha_markup(the_type: str, captcha: dict = None, question_type: str =
             candidates = captcha.get("candidates")
             if candidates:
                 markup_list.append([])
+
                 for candidate in candidates:
                     button = button_data("q", "a", candidate)
                     markup_list[0].append(
@@ -740,16 +741,19 @@ def user_captcha(client: Client, message: Optional[Message], gid: int, user: Use
 
         # Check pass list
         pass_time = user_status["pass"].get(gid, 0)
+
         if pass_time:
             return True
 
         # Check wait list
         wait_time = user_status["wait"].get(gid, 0)
+
         if wait_time:
             return True
 
         # Check succeeded list
         succeeded_time = user_status["succeeded"].get(gid, 0)
+
         if now - succeeded_time < glovar.time_recheck:
             return True
 
@@ -775,6 +779,7 @@ def user_captcha(client: Client, message: Optional[Message], gid: int, user: Use
 
         # Check failed list
         failed_time = user_status["failed"].get(gid, 0)
+
         if now - failed_time < glovar.time_punish:
             terminate_user(
                 client=client,

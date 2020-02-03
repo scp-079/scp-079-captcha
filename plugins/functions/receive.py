@@ -374,15 +374,18 @@ def receive_regex(client: Client, message: Message, data: str) -> bool:
     try:
         file_name = data
         word_type = file_name.split("_")[0]
+
         if word_type not in glovar.regex:
             return True
 
         words_data = receive_file_data(client, message)
+
         if not words_data:
             return True
 
         pop_set = set(eval(f"glovar.{file_name}")) - set(words_data)
         new_set = set(words_data) - set(eval(f"glovar.{file_name}"))
+
         for word in pop_set:
             eval(f"glovar.{file_name}").pop(word, 0)
 
@@ -395,6 +398,7 @@ def receive_regex(client: Client, message: Message, data: str) -> bool:
         if file_name in {"spc_words", "spe_words"}:
             special = file_name.split("_")[0]
             exec(f"glovar.{special}_dict = {{}}")
+
             for rule in words_data:
                 # Check keys
                 if "[" not in rule:
@@ -406,6 +410,7 @@ def receive_regex(client: Client, message: Message, data: str) -> bool:
 
                 keys = rule.split("]")[0][1:]
                 value = rule.split("?#")[1][1]
+
                 for k in keys:
                     eval(f"glovar.{special}_dict")[k] = value
 
