@@ -315,11 +315,14 @@ def update_admins(client: Client) -> bool:
     glovar.locks["admin"].acquire()
     try:
         group_list = list(glovar.admin_ids)
+        logger.warning(group_list)
 
         for gid in group_list:
             should_leave = True
             reason = "permissions"
             admin_members = get_admins(client, gid)
+
+            logger.warning(gid)
 
             if admin_members and any([admin.user.is_self for admin in admin_members]):
                 # Admin list
