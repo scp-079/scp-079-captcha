@@ -314,10 +314,21 @@ def init_group(client: Client, message: Message) -> bool:
             admin_members = get_admins(client, gid)
 
             if admin_members:
+                # Admin list
                 glovar.admin_ids[gid] = {admin.user.id for admin in admin_members
+                                         if (((not admin.user.is_bot and not admin.user.is_deleted)
+                                             or admin.user.id in glovar.bot_ids)
+                                             and admin.can_delete_messages
+                                             and admin.can_restrict_members)}
+                save("admin_ids")
+
+                # Trust list
+                glovar.trust_ids[gid] = {admin.user.id for admin in admin_members
                                          if ((not admin.user.is_bot and not admin.user.is_deleted)
                                              or admin.user.id in glovar.bot_ids)}
-                save("admin_ids")
+                save("trust_ids")
+
+                # Text
                 text += f"{lang('status')}{lang('colon')}{code(lang('status_joined'))}\n"
             else:
                 thread(leave_group, (client, gid))
