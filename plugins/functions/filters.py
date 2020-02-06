@@ -443,6 +443,7 @@ def is_high_score_user(user: User) -> float:
             return 0.0
 
         score = sum(user_status["score"].values())
+
         if score >= 3.0:
             return score
     except Exception as e:
