@@ -158,6 +158,9 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             glovar.user_ids[uid]["wait"].pop(gid, 0)
             glovar.user_ids[uid]["manual"].discard(gid)
 
+            for gid in glovar.user_ids[uid]["succeeded"]:
+                glovar.user_ids[uid]["succeeded"][gid] = 0
+
             # Edit the message
             if not glovar.user_ids[uid]["wait"] and glovar.user_ids[uid]["mid"]:
                 name = glovar.user_ids[uid]["name"]
