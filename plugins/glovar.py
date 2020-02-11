@@ -790,6 +790,7 @@ for file in file_list:
                     pickle.dump(eval(f"{file}"), f)
         except Exception as e:
             logger.error(f"Load data {file} error: {e}", exc_info=True)
+
             with open(f"data/.{file}", "rb") as f:
                 locals()[f"{file}"] = pickle.load(f)
     except Exception as e:
