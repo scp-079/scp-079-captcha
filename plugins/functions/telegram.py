@@ -113,6 +113,7 @@ def edit_message_photo(client: Client, cid: int, mid: int, photo: str, file_ref:
             caption=caption,
             parse_mode="html"
         )
+
         flood_wait = True
         while flood_wait:
             flood_wait = False
