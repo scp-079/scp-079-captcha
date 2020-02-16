@@ -362,6 +362,9 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             # Delete the hint
             delete_hint(client)
 
+            # Remove from CAPTCHA group
+            delay(20, remove_captcha_group, [client, uid])
+
             # Ask help welcome
             welcome_ids = [wid for wid in wait_group_list if wid not in glovar.user_ids[uid]["manual"]]
             glovar.user_ids[uid]["manual"] = set()
