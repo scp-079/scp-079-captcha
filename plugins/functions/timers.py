@@ -88,9 +88,6 @@ def clear_blacklist(client: Client) -> bool:
 def clear_members(client: Client) -> bool:
     # Clear CAPTCHA group members
     try:
-        # Basic data
-        now = get_now()
-
         members = get_members(client, glovar.captcha_group_id, "all")
 
         if not members:
@@ -109,14 +106,8 @@ def clear_members(client: Client) -> bool:
                 if user_data["wait"]:
                     continue
 
-                ask_time = user_data["time"]
-
-                if ask_time and now - ask_time < glovar.time_remove:
+                if user_data["time"]:
                     continue
-
-                if ask_time:
-                    glovar.user_ids[uid]["time"] = 0
-                    save("user_ids")
 
             kick_user(client, glovar.captcha_group_id, uid)
 

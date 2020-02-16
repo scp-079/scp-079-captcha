@@ -114,6 +114,9 @@ def remove_captcha_group(client: Client, uid: int) -> bool:
         if not glovar.user_ids.get(uid, {}):
             return True
 
+        if glovar.user_ids[uid]["mid"]:
+            return True
+
         time = glovar.user_ids[uid]["time"]
 
         if not time:
