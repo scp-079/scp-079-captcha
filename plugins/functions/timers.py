@@ -325,9 +325,10 @@ def update_admins(client: Client) -> bool:
                 # Admin list
                 glovar.admin_ids[gid] = {admin.user.id for admin in admin_members
                                          if (((not admin.user.is_bot and not admin.user.is_deleted)
-                                             or admin.user.id in glovar.bot_ids)
-                                             and admin.can_delete_messages
-                                             and admin.can_restrict_members)}
+                                              and admin.can_delete_messages
+                                              and admin.can_restrict_members)
+                                             or admin.status == "creator"
+                                             or admin.user.id in glovar.bot_ids)}
                 save("admin_ids")
 
                 # Trust list
