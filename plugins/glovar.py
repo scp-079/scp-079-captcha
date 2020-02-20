@@ -293,6 +293,7 @@ lang: Dict[str, str] = {
     "forgive": (zh_cn and "自动解禁") or "Auto Forgive",
     "hint": (zh_cn and "入群提示") or "Hint for New Joined User",
     "pass": (zh_cn and "自动免验证") or "Auto Pass",
+    "pin": (zh_cn and "自动置顶") or "Auto Pin",
     "manual": (zh_cn and "仅手动") or "Manual Only",
     # Command
     "command_lack": (zh_cn and "命令参数缺失") or "Lack of Parameter",
@@ -485,6 +486,7 @@ default_config: Dict[str, Union[bool, int]] = {
     "forgive": True,
     "hint": True,
     "pass": True,
+    "pin": True,
     "manual": False
 }
 
@@ -492,6 +494,12 @@ default_message_data: Dict[str, Union[int, Set[int]]] = {
     "flood": set(),
     "hint": 0,
     "static": 0
+}
+
+default_pinned_data: Dict[str, int] = {
+    "new_id": 0,
+    "old_id": 0,
+    "time": 0
 }
 
 default_user_status: Dict[str, Union[int, str, Dict[Union[int, str], Union[float, int]], Set[int]]] = {
@@ -595,7 +603,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.3.9"
+version: str = "0.4.0"
 
 # Load data from pics database
 
@@ -676,6 +684,15 @@ message_ids: Dict[int, Dict[str, Union[int, Set[int]]]] = {}
 #         "flood": {120, 121, 122},
 #         "hint": 123,
 #         "static": 124
+#     }
+# }
+
+pinned_ids: Dict[int, Dict[str, int]] = {}
+# pinned_ids = {
+#     -10012345678: {
+#         "new_id": 123,
+#         "old_id": 122,
+#         "time": 1512345678
 #     }
 # }
 
@@ -775,7 +792,8 @@ for word_type in regex:
 # }
 
 # Load data
-file_list: List[str] = ["admin_ids", "bad_ids", "left_group_ids", "message_ids", "trust_ids", "user_ids", "watch_ids",
+file_list: List[str] = ["admin_ids", "bad_ids", "left_group_ids", "message_ids",
+                        "pinned_ids", "trust_ids", "user_ids", "watch_ids",
                         "configs", "invite"]
 file_list += [f"{f}_words" for f in regex]
 

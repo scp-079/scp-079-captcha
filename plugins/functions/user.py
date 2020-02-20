@@ -347,6 +347,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
                 # Edit the message
                 question_type = glovar.user_ids[uid]["type"]
+
                 if question_type in glovar.question_types["image"]:
                     thread(
                         target=edit_message_photo,

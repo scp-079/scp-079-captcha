@@ -40,12 +40,14 @@ def delete_hint(client: Client) -> bool:
         for gid in list(glovar.message_ids):
             # Regular hint
             mid = glovar.message_ids[gid]["hint"]
+
             if mid and gid not in wait_group_list:
                 glovar.message_ids[gid]["hint"] = 0
                 delete_message(client, gid, mid)
 
             # Flood static hint
             mids = glovar.message_ids[gid]["flood"]
+
             if mids and gid not in wait_group_list:
                 glovar.message_ids[gid]["flood"] = set()
                 thread(delete_messages, (client, gid, mids))
@@ -89,7 +91,7 @@ def get_config_text(config: dict) -> str:
                    f"{lang('restrict')}{lang('colon')}{code(restrict_text)}\n")
 
         # Others
-        for the_type in ["ban", "forgive", "hint", "pass", "manual"]:
+        for the_type in ["ban", "forgive", "hint", "pass", "pin", "manual"]:
             the_text = (lambda x: lang("enabled") if x else lang("disabled"))(config.get(the_type))
             result += f"{lang(the_type)}{lang('colon')}{code(the_text)}\n"
     except Exception as e:
@@ -125,6 +127,9 @@ def leave_group(client: Client, gid: int) -> bool:
 
         glovar.message_ids.pop(gid, {})
         save("message_ids")
+
+        glovar.pinned_ids.pop(gid, {})
+        save("pinned_ids")
 
         glovar.trust_ids.pop(gid, set())
         save("trust_ids")
