@@ -617,7 +617,7 @@ else:
 for dir_path in dir_list:
     dir_name = dir_path.split("/")[-1]
 
-    if not 0 < len(dir_name) < 6:
+    if not 0 < len(dir_name.encode()) <= 15:
         continue
 
     pics[dir_name] = []
