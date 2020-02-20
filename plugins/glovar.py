@@ -536,6 +536,7 @@ locks: Dict[str, Lock] = {
     "admin": Lock(),
     "invite": Lock(),
     "message": Lock(),
+    "pin": Lock(),
     "receive": Lock(),
     "regex": Lock()
 }

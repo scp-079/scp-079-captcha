@@ -705,6 +705,7 @@ def get_captcha_markup(the_type: str, captcha: dict = None, question_type: str =
 
 def send_pin(client: Client, gid: int, now: int) -> bool:
     # Send pin message
+    glovar.locks["pin"].acquire()
     try:
         glovar.pinned_ids[gid]["time"] = now
         save("pinned_ids")
@@ -742,6 +743,8 @@ def send_pin(client: Client, gid: int, now: int) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Send pin error: {e}", exc_info=True)
+    finally:
+        glovar.locks["pin"].release()
 
     return False
 
