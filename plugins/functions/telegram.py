@@ -357,6 +357,30 @@ def leave_chat(client: Client, cid: int, delete: bool = False) -> bool:
     return False
 
 
+def pin_chat_message(client: Client, cid: int, mid: int) -> Optional[bool]:
+    # Pin a message in a group, channel or your own chat
+    result = None
+    try:
+        flood_wait = True
+        while flood_wait:
+            flood_wait = False
+            try:
+                result = client.pin_chat_message(
+                    chat_id=cid,
+                    message_id=mid,
+                    disable_notification=False
+                )
+            except FloodWait as e:
+                flood_wait = True
+                wait_flood(e)
+            except (ChatAdminRequired, PeerIdInvalid, ChannelInvalid, ChannelPrivate):
+                return False
+    except Exception as e:
+        logger.warning(f"Pin chat message error: {e}", exc_info=True)
+
+    return result
+
+
 def resolve_peer(client: Client, pid: Union[int, str]) -> Union[bool, InputPeerChannel, InputPeerUser, None]:
     # Get an input peer by id
     result = None

@@ -23,13 +23,14 @@ from time import sleep
 from pyrogram import Client
 
 from .. import glovar
+from .captcha import send_static
 from .channel import share_data, share_regex_count
 from .etc import code, general_link, get_now, lang, thread
 from .file import save
 from .filters import is_class_e_user
 from .group import delete_hint, delete_message, leave_group
 from .telegram import export_chat_invite_link, get_admins, get_group_info
-from .telegram import get_members, send_message
+from .telegram import get_members, pin_chat_message, send_message
 from .user import kick_user, terminate_user, unban_user, unrestrict_user
 
 # Enable logging
@@ -103,10 +104,10 @@ def clear_members(client: Client) -> bool:
             user_data = glovar.user_ids.get(uid, {})
 
             if user_data:
-                if user_data["wait"]:
+                if user_data.get("wait"):
                     continue
 
-                if user_data["time"]:
+                if user_data.get("time"):
                     continue
 
             kick_user(client, glovar.captcha_group_id, uid)
@@ -159,6 +160,46 @@ def interval_min_01(client: Client) -> bool:
 
         # Clear changed ids
         glovar.changed_ids = set()
+
+        # Clear pinned messages
+        for gid in list(glovar.pinned_ids):
+            # Basic data
+            new_id = glovar.pinned_ids[gid]["new_id"]
+            old_id = glovar.pinned_ids[gid]["old_id"]
+            time = glovar.pinned_ids[gid]["time"]
+
+            # Check pinned status
+            if not new_id:
+                continue
+
+            # Check normal time
+            if now - time < glovar.time_captcha * 2:
+                continue
+
+            # Get group's waiting user list
+            wait_user_list = [wid for wid in glovar.user_ids if glovar.user_ids[wid]["wait"].get(gid, 0)]
+
+            # Flood situation
+            if len(wait_user_list) > glovar.limit_static:
+                glovar.pinned_ids[gid]["time"] = now
+                continue
+
+            # Pin old message
+            if old_id:
+                thread(pin_chat_message, (client, gid, old_id))
+                glovar.pinned_ids[gid]["old_id"] = 0
+
+            # Delete new message
+            if new_id:
+                delete_message(client, gid, new_id)
+                glovar.pinned_ids[gid]["new_id"] = 0
+
+            # Send hint
+            if wait_user_list:
+                text = f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n"
+                thread(send_static, (client, gid, text))
+
+        save("pinned_ids")
 
         # Delete hint messages
         delete_hint(client)

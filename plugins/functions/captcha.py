@@ -31,10 +31,11 @@ from .etc import button_data, code, general_link, get_channel_link, get_full_nam
 from .etc import mention_text, message_link, t2t, thread
 from .file import delete_file, get_new_path, save
 from .filters import is_class_d_user, is_declared_message, is_limited_user, is_nm_text, is_watch_user, is_wb_text
-from .group import delete_message
+from .group import delete_message, get_pinned
 from .ids import init_user_id
 from .user import restrict_user, terminate_user, unrestrict_user
-from .telegram import delete_messages, edit_message_photo, send_message, send_photo, send_report_message
+from .telegram import delete_messages, edit_message_photo, pin_chat_message
+from .telegram import send_message, send_photo, send_report_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -105,7 +106,11 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
             text += f"{lang('message_type')}{lang('colon')}{code(lang('flood_static'))}\n"
             text += mention_users_text
             text += f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n"
-            thread(send_static, (client, gid, text, True))
+
+            if glovar.configs[gid].get("pin"):
+                thread(send_pin, (client, gid, now))
+            else:
+                thread(send_static, (client, gid, text, True))
 
             # Delete old hint
             old_id = glovar.message_ids[gid]["hint"]
@@ -698,25 +703,72 @@ def get_captcha_markup(the_type: str, captcha: dict = None, question_type: str =
     return result
 
 
+def send_pin(client: Client, gid: int, now: int) -> bool:
+    # Send pin message
+    try:
+        glovar.pinned_ids[gid]["time"] = now
+        save("pinned_ids")
+
+        if glovar.pinned_ids[gid]["new_id"]:
+            return True
+
+        text = f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n"
+        markup = get_captcha_markup(the_type="hint", static=True)
+        result = send_message(client, gid, text, None, markup)
+
+        if not result:
+            return False
+
+        new_id = result.message_id
+        old_ids = glovar.message_ids[gid]["flood"]
+        old_ids and delete_messages(client, gid, old_ids)
+
+        pinned_message = get_pinned(client, gid)
+
+        if pinned_message:
+            old_id = pinned_message.message_id
+        else:
+            old_id = 0
+
+        result = pin_chat_message(client, gid, new_id)
+
+        if not result:
+            return False
+
+        glovar.pinned_ids[gid]["new_id"] = new_id
+        glovar.pinned_ids[gid]["old_id"] = old_id
+        save("pinned_ids")
+
+        return True
+    except Exception as e:
+        logger.warning(f"Send pin error: {e}", exc_info=True)
+
+    return False
+
+
 def send_static(client: Client, gid: int, text: str, flood: bool = False) -> bool:
     # Send static message
     try:
         markup = get_captcha_markup(the_type="hint", static=True)
         result = send_message(client, gid, text, None, markup)
 
-        if result:
-            new_id = result.message_id
+        if not result:
+            return False
 
-            if flood:
-                old_ids = glovar.message_ids[gid]["flood"]
-                old_ids and delete_messages(client, gid, old_ids)
-                glovar.message_ids[gid]["flood"].add(new_id)
-            else:
-                old_id = glovar.message_ids[gid]["static"]
-                old_id and delete_message(client, gid, old_id)
-                glovar.message_ids[gid]["static"] = new_id
+        new_id = result.message_id
 
-            save("message_ids")
+        if flood:
+            old_ids = glovar.message_ids[gid]["flood"]
+            old_ids and delete_messages(client, gid, old_ids)
+            glovar.message_ids[gid]["flood"].add(new_id)
+        else:
+            old_id = glovar.message_ids[gid]["static"]
+            old_id and delete_message(client, gid, old_id)
+            glovar.message_ids[gid]["static"] = new_id
+
+        save("message_ids")
+
+        return True
     except Exception as e:
         logger.warning(f"Send static error: {e}", exc_info=True)
 
