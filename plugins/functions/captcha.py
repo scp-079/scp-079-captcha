@@ -636,6 +636,7 @@ def get_captcha_markup(the_type: str, captcha: dict = None, question_type: str =
 
             # Candidates buttons
             candidates = captcha.get("candidates")
+
             if candidates:
                 markup_list.append([])
 
@@ -702,6 +703,7 @@ def send_static(client: Client, gid: int, text: str, flood: bool = False) -> boo
     try:
         markup = get_captcha_markup(the_type="hint", static=True)
         result = send_message(client, gid, text, None, markup)
+
         if result:
             new_id = result.message_id
 
