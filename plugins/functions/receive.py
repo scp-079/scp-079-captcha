@@ -79,6 +79,8 @@ def receive_check_log(client: Client, message: Message, data: int) -> bool:
         # Basic data
         gid = data
         users = receive_file_data(client, message)
+        logger.warning(users)
+        debug_list = []
 
         # Kick user
         with glovar.locks["message"]:
@@ -90,6 +92,7 @@ def receive_check_log(client: Client, message: Message, data: int) -> bool:
                     continue
 
                 if not glovar.user_ids.get(uid, {}):
+                    debug_list.append(uid)
                     log_user(client, gid, uid)
                     continue
 
@@ -100,7 +103,10 @@ def receive_check_log(client: Client, message: Message, data: int) -> bool:
                                         "restricted", "banned", "manual"]):
                     continue
 
+                debug_list.append(uid)
                 log_user(client, gid, uid)
+
+        logger.warning(debug_list)
 
         return True
     except Exception as e:
