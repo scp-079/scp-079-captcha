@@ -182,20 +182,38 @@ def get_debug_text(client: Client, context: Union[int, Chat, List[int]]) -> str:
     return text
 
 
-def send_debug(client: Client, gids: List[int], action: str, uid: int, aid: int = 0, em: Message = None,
+def send_debug(client: Client, gids: List[int], action: str,
+               uid: int = 0, aid: int = 0,
+               em: Message = None, time: int = 0, duration: int = 0,
+               total: int = 0, count: int = 0,
                more: str = "") -> bool:
     # Send the debug message
     try:
         text = get_debug_text(client, gids)
-        text += (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
-                 f"{lang('action')}{lang('colon')}{code(action)}\n")
+
+        if uid:
+            text += f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
+
+        text += f"{lang('action')}{lang('colon')}{code(action)}\n"
 
         if aid:
             text += f"{lang('admin_group')}{lang('colon')}{code(aid)}\n"
 
         if em:
             mid = em.message_id
-            text += f"{lang('evidence')}{lang('colon')}{general_link(mid, message_link(em))}\n"
+            text += f"{lang('triggered_by')}{lang('colon')}{general_link(mid, message_link(em))}\n"
+
+        if time:
+            text += f"{lang('triggered_time')}{lang('colon')}{code(time)}\n"
+
+        if duration:
+            text += f"{lang('flood_duration')}{lang('colon')}{code(str(duration) + ' ' + lang('seconds'))}\n"
+
+        if total:
+            text += f"{lang('flood_total')}{lang('colon')}{code(str(total) + ' ' + lang('members'))}\n"
+
+        if count:
+            text += f"{lang('flood_count')}{lang('colon')}{code(str(count)) + ' ' + lang('members')}\n"
 
         if more:
             text += f"{lang('more')}{lang('colon')}{code(more)}\n"

@@ -134,11 +134,11 @@ def get_message(client: Client, gid: int, mid: int) -> Optional[Message]:
     return result
 
 
-def get_pinned(client: Client, gid: int) -> Optional[Message]:
+def get_pinned(client: Client, gid: int, cache: bool = True) -> Optional[Message]:
     # Get group's pinned message
     result = None
     try:
-        group = get_group(client, gid)
+        group = get_group(client, gid, cache)
 
         if group and group.pinned_message:
             result = group.pinned_message

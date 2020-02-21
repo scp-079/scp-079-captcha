@@ -26,9 +26,9 @@ from claptcha import Claptcha
 from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message, User
 
 from .. import glovar
-from .channel import ask_help_welcome, get_debug_text
+from .channel import ask_help_welcome, get_debug_text, send_debug
 from .etc import button_data, code, general_link, get_channel_link, get_full_name, get_now, lang, mention_name
-from .etc import mention_text, message_link, t2t, thread
+from .etc import mention_text, t2t, thread
 from .file import delete_file, get_new_path, save
 from .filters import is_class_d_user, is_declared_message, is_limited_user, is_nm_text, is_watch_user, is_wb_text
 from .group import delete_message, get_pinned
@@ -107,8 +107,20 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
             text += mention_users_text
             text += f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n"
 
+            if not glovar.pinned_ids[gid]["start"]:
+                glovar.pinned_ids[gid]["start"] = now
+                send_debug(
+                    client=client,
+                    gids=[gid],
+                    action=lang("action_flood"),
+                    time=now
+                )
+
+            glovar.pinned_ids[gid]["time"] = now
+            save("pinned_ids")
+
             if glovar.configs[gid].get("pin"):
-                thread(send_pin, (client, gid, now))
+                thread(send_pin, (client, gid))
             else:
                 thread(send_static, (client, gid, text, True))
 
@@ -169,15 +181,15 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
             save("message_ids")
 
             # Send debug message
-            debug_text = get_debug_text(client, gid)
-            debug_text += (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
-                           f"{lang('action')}{lang('colon')}{code(lang('action_wait'))}\n")
-
-            if aid:
-                debug_text += f"{lang('admin_group')}{lang('colon')}{code(aid)}\n"
-
-            debug_text += f"{lang('triggered_by')}{lang('colon')}{general_link(new_id, message_link(result))}\n"
-            thread(send_message, (client, glovar.debug_channel_id, debug_text))
+            send_debug(
+                client=client,
+                gids=[gid],
+                action=lang("action_wait"),
+                uid=uid,
+                aid=aid,
+                em=result,
+                time=now
+            )
         else:
             unrestrict_user(client, gid, uid)
             glovar.user_ids[uid]["wait"].pop(gid, 0)
@@ -703,16 +715,10 @@ def get_captcha_markup(the_type: str, captcha: dict = None, question_type: str =
     return result
 
 
-def send_pin(client: Client, gid: int, now: int) -> bool:
+def send_pin(client: Client, gid: int) -> bool:
     # Send pin message
     glovar.locks["pin"].acquire()
     try:
-        if not glovar.pinned_ids[gid]["start"]:
-            glovar.pinned_ids[gid]["start"] = now
-
-        glovar.pinned_ids[gid]["time"] = now
-        save("pinned_ids")
-
         if glovar.pinned_ids[gid]["new_id"]:
             return True
 
@@ -727,7 +733,7 @@ def send_pin(client: Client, gid: int, now: int) -> bool:
         old_ids = glovar.message_ids[gid]["flood"]
         old_ids and delete_messages(client, gid, old_ids)
 
-        pinned_message = get_pinned(client, gid)
+        pinned_message = get_pinned(client, gid, False)
 
         if pinned_message:
             old_id = pinned_message.message_id

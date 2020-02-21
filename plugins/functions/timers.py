@@ -24,7 +24,7 @@ from pyrogram import Client
 
 from .. import glovar
 from .captcha import send_static
-from .channel import share_data, share_regex_count
+from .channel import send_debug, share_data, share_regex_count
 from .etc import code, general_link, get_now, lang, thread
 from .file import save
 from .filters import is_class_e_user
@@ -170,7 +170,7 @@ def interval_min_01(client: Client) -> bool:
             time = glovar.pinned_ids[gid]["time"]
 
             # Check pinned status
-            if not new_id:
+            if not start and not new_id:
                 continue
 
             # Check normal time
@@ -195,6 +195,10 @@ def interval_min_01(client: Client) -> bool:
                 delete_message(client, gid, new_id)
                 glovar.pinned_ids[gid]["new_id"] = 0
 
+            # Reset time status
+            glovar.pinned_ids[gid]["start"] = 0
+            glovar.pinned_ids[gid]["time"] = 0
+
             # Resend regular hint
             if wait_user_list and not glovar.message_ids[gid]["hint"]:
                 text = f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n"
@@ -211,6 +215,15 @@ def interval_min_01(client: Client) -> bool:
                     "begin": start,
                     "end": now
                 }
+            )
+
+            # Send debug message
+            send_debug(
+                client=client,
+                gids=[gid],
+                action=lang("action_normal"),
+                time=time,
+                duration=time - start
             )
 
         save("pinned_ids")

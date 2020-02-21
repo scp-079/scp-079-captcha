@@ -26,7 +26,7 @@ from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
 from .captcha import user_captcha
-from .channel import get_debug_text, share_data
+from .channel import get_debug_text, send_debug, share_data
 from .etc import code, crypt_str, general_link, get_int, get_now, get_text, lang, thread, mention_id
 from .file import crypt_file, data_to_file, delete_file, get_new_path, get_downloaded_path, save
 from .filters import is_class_d_user, is_class_e_user
@@ -79,6 +79,7 @@ def receive_check_log(client: Client, message: Message, data: int) -> bool:
         # Basic data
         gid = data
         users = receive_file_data(client, message)
+        count = 0
 
         # Kick user
         with glovar.locks["message"]:
@@ -91,6 +92,7 @@ def receive_check_log(client: Client, message: Message, data: int) -> bool:
 
                 if not glovar.user_ids.get(uid, {}):
                     log_user(client, gid, uid)
+                    count += 1
                     continue
 
                 user_status = glovar.user_ids[uid]
@@ -101,6 +103,16 @@ def receive_check_log(client: Client, message: Message, data: int) -> bool:
                     continue
 
                 log_user(client, gid, uid)
+                count += 1
+
+        # Send debug message
+        send_debug(
+            client=client,
+            gids=[gid],
+            action=lang("action_count"),
+            total=len(users),
+            count=count
+        )
 
         return True
     except Exception as e:

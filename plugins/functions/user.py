@@ -288,7 +288,8 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                 gids=[gid],
                 action=lang("action_pass"),
                 uid=uid,
-                aid=aid
+                aid=aid,
+                time=now
             )
 
         # User under punishment
@@ -403,7 +404,8 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                 client=client,
                 gids=wait_group_list,
                 action=lang("action_verified"),
-                uid=uid
+                uid=uid,
+                time=now
             )
 
         # Verification timeout
@@ -474,6 +476,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                 gids=[gid],
                 action=lang(f"auto_{level}"),
                 uid=uid,
+                time=now,
                 more=lang("description_timeout")
             )
 
@@ -491,7 +494,8 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                 gids=[gid],
                 action=lang("action_undo_pass"),
                 uid=uid,
-                aid=aid
+                aid=aid,
+                time=now
             )
 
         # Verification Wrong
@@ -564,6 +568,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                 gids=wait_group_list,
                 action=lang(f"auto_kick"),
                 uid=uid,
+                time=now,
                 more=lang("description_wrong")
             )
 

@@ -351,6 +351,8 @@ lang: Dict[str, str] = {
     "more": (zh_cn and "附加信息") or "Extra Info",
     # Special
     "action_invite": (zh_cn and "重新生成邀请链接") or "Generate New Invite Link",
+    "action_flood": (zh_cn and "检测到轰炸") or "Flood Detected",
+    "action_normal": (zh_cn and "轰炸已终止") or "Flood Stopped",
     "action_pass": (zh_cn and "手动通过") or "Pass Manually",
     "action_static": (zh_cn and "发送固定提示消息") or "Send Static Hint",
     "action_undo_pass": (zh_cn and "撤销放行") or "Undo Pass",
@@ -412,7 +414,10 @@ lang: Dict[str, str] = {
                             or "The verification is successful and you can speak in corresponding groups"),
     "description_timeout": (zh_cn and "验证超时") or "Verification Timeout",
     "description_wrong": (zh_cn and "验证失败，回答错误") or "Verification failed. Wrong answer",
+    "flood_count": (zh_cn and "核查移除") or "Check Count",
+    "flood_duration": (zh_cn and "轰炸时长") or "Flood Duration",
     "flood_static": (zh_cn and "自动静态提示") or "Auto Static Hint",
+    "flood_total": (zh_cn and "轰炸总人数") or "Flood Total",
     "invite_button": (zh_cn and "加入验证群组") or "Join CAPTCHA Group",
     "invite_text": (zh_cn and "请在专用群组中进行验证") or "Please verify in a private group",
     "question": (zh_cn and "问题") or "Question",
@@ -434,6 +439,7 @@ lang: Dict[str, str] = {
     "suggestion": (zh_cn and "建议") or "Suggestion",
     "suggestion_wrong": ((zh_cn and f"请您等待 {time_punish} 秒后，再重新加入原始群组（非本群）触发新的验证请求")
                          or f"Please wait {time_punish} seconds before re-joining the original group for verification"),
+    "triggered_time": (zh_cn and "触发时间") or "Triggered Time",
     "wait_user": (zh_cn and "待验证用户") or "Users Need to Be Verified",
     # Terminate
     "auto_ban": (zh_cn and "自动封禁") or "Auto Ban",
@@ -606,7 +612,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.4.1"
+version: str = "0.4.2"
 
 # Load data from pics database
 
