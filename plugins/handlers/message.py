@@ -30,7 +30,7 @@ from ..functions.filters import exchange_channel, from_user, hide_channel, is_cl
 from ..functions.filters import new_group, test_group
 from ..functions.group import delete_message, leave_group
 from ..functions.ids import init_group_id
-from ..functions.receive import receive_add_bad, receive_config_commit, receive_clear_data
+from ..functions.receive import receive_add_bad, receive_check_log, receive_clear_data, receive_config_commit
 from ..functions.receive import receive_config_reply, receive_config_show, receive_declared_message
 from ..functions.receive import receive_help_captcha, receive_leave_approve, receive_regex, receive_refresh
 from ..functions.receive import receive_remove_bad, receive_remove_score, receive_remove_watch, receive_rollback
@@ -536,6 +536,10 @@ def process_data(client: Client, message: Message) -> bool:
                 if action == "add":
                     if action_type == "bad":
                         receive_add_bad(client, data)
+
+                elif action == "help":
+                    if action_type == "log":
+                        receive_check_log(client, message, data)
 
             elif sender == "WARN":
 

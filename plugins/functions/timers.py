@@ -166,6 +166,7 @@ def interval_min_01(client: Client) -> bool:
             # Basic data
             new_id = glovar.pinned_ids[gid]["new_id"]
             old_id = glovar.pinned_ids[gid]["old_id"]
+            start = glovar.pinned_ids[gid]["start"]
             time = glovar.pinned_ids[gid]["time"]
 
             # Check pinned status
@@ -194,10 +195,23 @@ def interval_min_01(client: Client) -> bool:
                 delete_message(client, gid, new_id)
                 glovar.pinned_ids[gid]["new_id"] = 0
 
-            # Send hint
-            if wait_user_list:
+            # Resend regular hint
+            if wait_user_list and not glovar.message_ids[gid]["hint"]:
                 text = f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n"
-                thread(send_static, (client, gid, text))
+                thread(send_static, (client, gid, text, True))
+
+            # Require joined members
+            share_data(
+                client=client,
+                receivers=["USER"],
+                action="help",
+                action_type="log",
+                data={
+                    "group_id": gid,
+                    "begin": start,
+                    "end": now
+                }
+            )
 
         save("pinned_ids")
 

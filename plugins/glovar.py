@@ -499,6 +499,7 @@ default_message_data: Dict[str, Union[int, Set[int]]] = {
 default_pinned_data: Dict[str, int] = {
     "new_id": 0,
     "old_id": 0,
+    "start": 0,
     "time": 0
 }
 
@@ -604,7 +605,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.4.0"
+version: str = "0.4.1"
 
 # Load data from pics database
 
@@ -693,6 +694,7 @@ pinned_ids: Dict[int, Dict[str, int]] = {}
 #     -10012345678: {
 #         "new_id": 123,
 #         "old_id": 122,
+#         "start": 1512345678,
 #         "time": 1512345678
 #     }
 # }

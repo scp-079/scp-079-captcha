@@ -29,6 +29,7 @@ from .captcha import user_captcha
 from .channel import get_debug_text, share_data
 from .etc import code, crypt_str, general_link, get_int, get_now, get_text, lang, thread, mention_id
 from .file import crypt_file, data_to_file, delete_file, get_new_path, get_downloaded_path, save
+from .filters import is_class_d_user, is_class_e_user
 from .group import delete_hint, delete_message, get_config_text, leave_group
 from .ids import init_group_id, init_user_id
 from .telegram import get_chat_member, send_message, send_report_message
@@ -68,6 +69,42 @@ def receive_add_bad(client: Client, data: dict) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Receive add bad error: {e}", exc_info=True)
+
+    return False
+
+
+def receive_check_log(client: Client, message: Message, data: int) -> bool:
+    # Receive check log
+    try:
+        # Basic data
+        gid = data
+        users = receive_file_data(client, message)
+
+        # Kick user
+        with glovar.locks["message"]:
+            for uid in users:
+                if is_class_d_user(uid):
+                    continue
+
+                if is_class_e_user(uid):
+                    continue
+
+                if not glovar.user_ids.get(uid, {}):
+                    kick_user(client, gid, uid)
+                    continue
+
+                user_status = glovar.user_ids[uid]
+
+                if any(gid in user_status[the_type]
+                       for the_type in ["join", "pass", "wait", "succeeded", "failed",
+                                        "restricted", "banned", "manual"]):
+                    continue
+
+                kick_user(client, gid, uid)
+
+        return True
+    except Exception as e:
+        logger.warning(f"Receive check log error: {e}", exc_info=True)
 
     return False
 

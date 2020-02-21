@@ -164,6 +164,7 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
             # Delete static messages
             old_ids = glovar.message_ids[gid]["flood"]
             old_ids and thread(delete_messages, (client, gid, old_ids))
+            glovar.message_ids[gid]["flood"] = set()
 
             # Save message ids
             save("message_ids")
@@ -707,6 +708,9 @@ def send_pin(client: Client, gid: int, now: int) -> bool:
     # Send pin message
     glovar.locks["pin"].acquire()
     try:
+        if not glovar.pinned_ids[gid]["start"]:
+            glovar.pinned_ids[gid]["start"] = now
+
         glovar.pinned_ids[gid]["time"] = now
         save("pinned_ids")
 
