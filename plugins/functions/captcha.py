@@ -164,7 +164,6 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
             # Delete static messages
             old_ids = glovar.message_ids[gid]["flood"]
             old_ids and thread(delete_messages, (client, gid, old_ids))
-            glovar.message_ids[gid]["flood"] = set()
 
             # Save message ids
             save("message_ids")
