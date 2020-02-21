@@ -393,6 +393,7 @@ lang: Dict[str, str] = {
                              f"Please complete verification within {time_captcha} seconds, "
                              f"or you will be removed from the group")),
     "description_banned": (zh_cn and "群管理封禁") or "Group admin passed your verification",
+    "description_log": (zh_cn and "日志核查") or "Log check",
     "description_nospam": (zh_cn and (f"待验证用户，请您点击下方右侧按钮进行验证，"
                                       f"请在 {time_captcha} 秒内完成验证，否则您将被移出本群。"
                                       f"如果您不是新入群用户，则本次验证的发起可能为以下原因之一：群组管理员的手动要求；"

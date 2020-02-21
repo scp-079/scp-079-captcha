@@ -34,7 +34,7 @@ from .group import delete_hint, delete_message, get_config_text, leave_group
 from .ids import init_group_id, init_user_id
 from .telegram import get_chat_member, send_message, send_report_message
 from .timers import update_admins
-from .user import change_member_status, get_level, kick_user, terminate_user, unban_user, unrestrict_user
+from .user import change_member_status, get_level, kick_user, log_user, terminate_user, unban_user, unrestrict_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -90,7 +90,7 @@ def receive_check_log(client: Client, message: Message, data: int) -> bool:
                     continue
 
                 if not glovar.user_ids.get(uid, {}):
-                    kick_user(client, gid, uid)
+                    log_user(client, gid, uid)
                     continue
 
                 user_status = glovar.user_ids[uid]
@@ -100,7 +100,7 @@ def receive_check_log(client: Client, message: Message, data: int) -> bool:
                                         "restricted", "banned", "manual"]):
                     continue
 
-                kick_user(client, gid, uid)
+                log_user(client, gid, uid)
 
         return True
     except Exception as e:

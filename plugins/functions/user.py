@@ -107,6 +107,26 @@ def kick_user_thread(client: Client, gid: int, uid: Union[int, str]) -> bool:
     return False
 
 
+def log_user(client: Client, gid: int, uid: int) -> bool:
+    # Log kick a user
+    try:
+        # Kick the user
+        kick_user(client, gid, uid)
+
+        # Send debug message
+        send_debug(
+            client=client,
+            gids=[gid],
+            action=lang(f"auto_kick"),
+            uid=uid,
+            more=lang("description_log")
+        )
+    except Exception as e:
+        logger.warning(f"Log user error: {e}", exc_info=True)
+
+    return False
+
+
 def remove_captcha_group(client: Client, uid: int) -> bool:
     # Remove user from captcha group
     glovar.locks["message"].acquire()
