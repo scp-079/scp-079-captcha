@@ -198,7 +198,6 @@ def interval_min_01(client: Client) -> bool:
                         "message_id": old_id
                     }
                 )
-                glovar.pinned_ids[gid]["old_id"] = 0
 
             # Delete new message
             if new_id:
