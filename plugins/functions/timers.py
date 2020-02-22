@@ -30,7 +30,7 @@ from .file import save
 from .filters import is_class_e_user
 from .group import delete_hint, delete_message, leave_group
 from .telegram import export_chat_invite_link, get_admins, get_group_info
-from .telegram import get_members, send_message
+from .telegram import get_members, pin_chat_message, send_message
 from .user import kick_user, terminate_user, unban_user, unrestrict_user
 
 # Enable logging
@@ -187,6 +187,7 @@ def interval_min_01(client: Client) -> bool:
 
             # Pin old message
             if old_id:
+                thread(pin_chat_message, (client, gid, old_id))
                 share_data(
                     client=client,
                     receivers=["USER"],
