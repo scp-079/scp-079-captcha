@@ -34,9 +34,9 @@ def clear_joined_messages(client: Client, gid: int, mid: int) -> bool:
     # Clear joined messages
     try:
         if mid - glovar.limit_static * 4 > 0:
-            mids = range(1, mid + 1)
-        else:
             mids = range(mid - glovar.limit_static * 4, mid + 1)
+        else:
+            mids = range(1, mid + 1)
 
         messages = get_messages(client, gid, mids)
 
