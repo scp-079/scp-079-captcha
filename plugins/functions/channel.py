@@ -213,7 +213,7 @@ def send_debug(client: Client, gids: List[int], action: str,
             text += f"{lang('flood_total')}{lang('colon')}{code(str(total) + ' ' + lang('members'))}\n"
 
         if count:
-            text += f"{lang('flood_count')}{lang('colon')}{code(str(count)) + ' ' + lang('members')}\n"
+            text += f"{lang('flood_count')}{lang('colon')}{code(str(count)  + ' ' + lang('members'))}\n"
 
         if more:
             text += f"{lang('more')}{lang('colon')}{code(more)}\n"

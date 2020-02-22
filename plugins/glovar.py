@@ -351,6 +351,7 @@ lang: Dict[str, str] = {
     "more": (zh_cn and "附加信息") or "Extra Info",
     # Special
     "action_invite": (zh_cn and "重新生成邀请链接") or "Generate New Invite Link",
+    "action_count": (zh_cn and "核查统计") or "Log Count",
     "action_flood": (zh_cn and "检测到轰炸") or "Flood Detected",
     "action_normal": (zh_cn and "轰炸已终止") or "Flood Stopped",
     "action_pass": (zh_cn and "手动通过") or "Pass Manually",
