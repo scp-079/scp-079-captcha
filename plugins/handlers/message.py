@@ -241,7 +241,7 @@ def verify_check(client: Client, message: Message) -> bool:
     return False
 
 
-@Client.on_message(Filters.group & Filters.service & Filters.pinned_message
+@Client.on_message(Filters.incoming & Filters.group & Filters.pinned_message
                    & ~captcha_group & ~test_group & authorized_group
                    & from_user)
 def delete_service(client: Client, message: Message) -> bool:
