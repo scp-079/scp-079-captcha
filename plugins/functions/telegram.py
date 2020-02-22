@@ -22,8 +22,8 @@ from typing import Generator, Iterable, List, Optional, Union
 from pyrogram import Chat, ChatMember, ChatPermissions, ChatPreview, Client
 from pyrogram import InputMediaPhoto, InlineKeyboardMarkup, Message
 from pyrogram.api.types import InputPeerUser, InputPeerChannel
-from pyrogram.errors import ChatAdminRequired, ButtonDataInvalid, ChannelInvalid, ChannelPrivate, FloodWait
-from pyrogram.errors import MessageDeleteForbidden, PeerIdInvalid, QueryIdInvalid
+from pyrogram.errors import ChatAdminRequired, ChatNotModified, ButtonDataInvalid, ChannelInvalid, ChannelPrivate
+from pyrogram.errors import FloodWait, MessageDeleteForbidden, PeerIdInvalid, QueryIdInvalid
 from pyrogram.errors import UsernameInvalid, UsernameNotOccupied, UserNotParticipant
 
 from .. import glovar
@@ -373,7 +373,7 @@ def pin_chat_message(client: Client, cid: int, mid: int) -> Optional[bool]:
             except FloodWait as e:
                 flood_wait = True
                 wait_flood(e)
-            except (ChatAdminRequired, PeerIdInvalid, ChannelInvalid, ChannelPrivate):
+            except (ChatAdminRequired, ChatNotModified, PeerIdInvalid, ChannelInvalid, ChannelPrivate):
                 return False
     except Exception as e:
         logger.warning(f"Pin chat message error: {e}", exc_info=True)
