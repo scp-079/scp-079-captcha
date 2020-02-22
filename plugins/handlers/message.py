@@ -253,7 +253,7 @@ def delete_service(client: Client, message: Message) -> bool:
         mid = message.message_id
 
         # Check if the message is sent by SCP-079-USER
-        if uid == glovar.user_ids:
+        if uid == glovar.user_id:
             delete_message(client, gid, mid)
 
         return True
