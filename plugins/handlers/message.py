@@ -117,6 +117,10 @@ def check(client: Client, message: Message) -> bool:
                 mid=mid
             )
 
+        # Check if the message is sent by SCP-079-USER
+        if message.pinned_message and uid == glovar.user_ids:
+            delete_message(client, gid, mid)
+
         return True
     except Exception as e:
         logger.warning(f"Check error: {e}", exc_info=True)
@@ -237,28 +241,6 @@ def verify_check(client: Client, message: Message) -> bool:
     finally:
         glovar.locks["message"].release()
         delete_message(client, gid, mid)
-
-    return False
-
-
-@Client.on_message(Filters.incoming & Filters.group & Filters.pinned_message
-                   & ~captcha_group & ~test_group & authorized_group
-                   & from_user)
-def delete_service(client: Client, message: Message) -> bool:
-    # Delete service messages sent by SCP-079-USER
-    try:
-        # Basic data
-        gid = message.chat.id
-        uid = message.from_user.id
-        mid = message.message_id
-
-        # Check if the message is sent by SCP-079-USER
-        if uid == glovar.user_ids:
-            delete_message(client, gid, mid)
-
-        return True
-    except Exception as e:
-        logger.warning(f"Delete service error: {e}", exc_info=True)
 
     return False
 
