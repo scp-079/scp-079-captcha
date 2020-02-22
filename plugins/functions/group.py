@@ -30,6 +30,30 @@ from .telegram import delete_messages, get_chat, get_messages, leave_chat
 logger = logging.getLogger(__name__)
 
 
+def clear_joined_messages(client: Client, gid: int, mid: int) -> bool:
+    # Clear joined messages
+    try:
+        if mid - glovar.limit_static * 4 > 0:
+            mids = range(1, mid + 1)
+        else:
+            mids = range(mid - glovar.limit_static * 4, mid + 1)
+
+        messages = get_messages(client, gid, mids)
+
+        if not messages:
+            return True
+
+        for message in messages:
+            if message.service:
+                delete_message(client, gid, message.message_id)
+
+        return True
+    except Exception as e:
+        logger.warning(f"Clear joined message error: {e}", exc_info=True)
+
+    return False
+
+
 def delete_hint(client: Client) -> bool:
     # Delete hint messages
     try:

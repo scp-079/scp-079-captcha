@@ -31,7 +31,7 @@ from .etc import button_data, code, general_link, get_channel_link, get_full_nam
 from .etc import mention_text, t2t, thread
 from .file import delete_file, get_new_path, save
 from .filters import is_class_d_user, is_declared_message, is_limited_user, is_nm_text, is_watch_user, is_wb_text
-from .group import delete_message, get_pinned
+from .group import clear_joined_messages, delete_message, get_pinned
 from .ids import init_user_id
 from .user import restrict_user, terminate_user, unrestrict_user
 from .telegram import delete_messages, edit_message_photo, pin_chat_message
@@ -109,6 +109,7 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
 
             if not glovar.pinned_ids[gid]["start"]:
                 glovar.pinned_ids[gid]["start"] = now
+                thread(clear_joined_messages, (client, gid, mid))
                 send_debug(
                     client=client,
                     gids=[gid],
