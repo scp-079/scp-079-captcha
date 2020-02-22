@@ -744,6 +744,7 @@ def send_pin(client: Client, gid: int) -> bool:
         result = pin_chat_message(client, gid, new_id)
 
         if not result:
+            delete_message(client, gid, new_id)
             return False
 
         glovar.pinned_ids[gid]["new_id"] = new_id
