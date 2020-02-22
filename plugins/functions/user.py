@@ -23,7 +23,7 @@ from typing import Union
 from pyrogram import ChatPermissions, Client, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .. import glovar
-from .channel import ask_for_help, ask_help_welcome, declare_message, send_debug, update_score
+from .channel import ask_for_help, ask_help_welcome, declare_message, send_debug, share_data, update_score
 from .etc import code, delay, get_now, lang, mention_text, thread
 from .file import save
 from .group import delete_hint, delete_message
@@ -110,8 +110,17 @@ def kick_user_thread(client: Client, gid: int, uid: Union[int, str]) -> bool:
 def log_user(client: Client, gid: int, uid: int) -> bool:
     # Log kick a user
     try:
-        # Kick the user
-        kick_user(client, gid, uid)
+        # Ask user to kick the user
+        share_data(
+            client=client,
+            receivers=["USER"],
+            action="help",
+            action_type="kick",
+            data={
+                "group_id": gid,
+                "user_id": uid
+            }
+        )
 
         # Send debug message
         send_debug(
