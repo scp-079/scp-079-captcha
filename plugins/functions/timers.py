@@ -188,6 +188,16 @@ def interval_min_01(client: Client) -> bool:
             # Pin old message
             if old_id:
                 thread(pin_chat_message, (client, gid, old_id))
+                share_data(
+                    client=client,
+                    receivers=["USER"],
+                    action="help",
+                    action_type="pin",
+                    data={
+                        "group_id": gid,
+                        "message_id": old_id
+                    }
+                )
                 glovar.pinned_ids[gid]["old_id"] = 0
 
             # Delete new message
