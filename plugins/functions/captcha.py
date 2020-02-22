@@ -168,6 +168,7 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
             result = send_message(client, gid, text, mid, markup)
         else:
             result = None
+            delete_message(client, gid, mid)
 
         # Check if the message was sent successfully
         if glovar.pinned_ids[gid]["start"] or result:
