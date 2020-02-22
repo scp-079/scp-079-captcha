@@ -164,10 +164,13 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
         markup = get_captcha_markup(the_type="hint")
 
         # Send the message
-        result = send_message(client, gid, text, mid, markup)
+        if not glovar.pinned_ids[gid]["start"]:
+            result = send_message(client, gid, text, mid, markup)
+        else:
+            result = None
 
         # Check if the message was sent successfully
-        if result:
+        if glovar.pinned_ids[gid]["start"] or result:
             # Update hint message id, delete old message
             new_id = result.message_id
             old_id = glovar.message_ids[gid]["hint"]
