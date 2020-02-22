@@ -368,7 +368,7 @@ def pin_chat_message(client: Client, cid: int, mid: int) -> Optional[bool]:
                 result = client.pin_chat_message(
                     chat_id=cid,
                     message_id=mid,
-                    disable_notification=False
+                    disable_notification=True
                 )
             except FloodWait as e:
                 flood_wait = True
