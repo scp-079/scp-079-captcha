@@ -26,7 +26,7 @@ from claptcha import Claptcha
 from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message, User
 
 from .. import glovar
-from .channel import ask_help_welcome, get_debug_text, send_debug
+from .channel import ask_help_welcome, get_debug_text, send_debug, share_data
 from .etc import button_data, code, general_link, get_channel_link, get_full_name, get_now, lang, mention_name
 from .etc import mention_text, t2t, thread
 from .file import delete_file, get_new_path, save
@@ -740,10 +740,19 @@ def send_pin(client: Client, gid: int) -> bool:
         else:
             old_id = 0
 
-        result = pin_chat_message(client, gid, new_id)
+        pin_chat_message(client, gid, new_id)
 
-        if not result:
-            return False
+        if old_id:
+            share_data(
+                client=client,
+                receivers=["USER"],
+                action="help",
+                action_type="pin",
+                data={
+                    "group_id": gid,
+                    "message_id": old_id
+                }
+            )
 
         glovar.pinned_ids[gid]["new_id"] = new_id
         glovar.pinned_ids[gid]["old_id"] = old_id
