@@ -443,7 +443,7 @@ def share_failed_users(client: Client, data: Dict[str, int]) -> bool:
         )
 
         # Reset data
-        if not data["admin_id"]:
+        if data["admin_id"]:
             return True
 
         glovar.failed_ids = {}
