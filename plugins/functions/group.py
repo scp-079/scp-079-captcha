@@ -129,7 +129,7 @@ def get_group(client: Client, gid: int, cache: bool = True) -> Optional[Chat]:
     try:
         the_cache = glovar.chats.get(gid)
 
-        if the_cache:
+        if cache and the_cache:
             result = the_cache
         else:
             result = get_chat(client, gid)

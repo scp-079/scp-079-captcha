@@ -121,34 +121,6 @@ def clear_members(client: Client) -> bool:
     return False
 
 
-def interval_hour_01(client: Client) -> bool:
-    # Execute every hour
-    glovar.locks["pin"].acquire()
-    try:
-        for gid in list(glovar.pinned_ids):
-            # Check flood status
-            if glovar.pinned_ids[gid]["start"]:
-                continue
-
-            # Get pinned message
-            pinned_message = get_pinned(client, gid, False)
-
-            if pinned_message:
-                glovar.pinned_ids[gid]["old_id"] = pinned_message.message_id
-            else:
-                glovar.pinned_ids[gid]["old_id"] = 0
-
-        save("pinned_ids")
-
-        return True
-    except Exception as e:
-        logger.warning(f"Interval hour 01 error: {e}", exc_info=True)
-    finally:
-        glovar.locks["pin"].release()
-
-    return False
-
-
 def interval_min_01(client: Client) -> bool:
     # Execute every minute
     glovar.locks["message"].acquire()
@@ -218,16 +190,6 @@ def interval_min_01(client: Client) -> bool:
             # Pin old message
             if old_id:
                 thread(pin_chat_message, (client, gid, old_id))
-                share_data(
-                    client=client,
-                    receivers=["USER"],
-                    action="help",
-                    action_type="pin",
-                    data={
-                        "group_id": gid,
-                        "message_id": old_id
-                    }
-                )
 
             # Delete new message
             if new_id:
