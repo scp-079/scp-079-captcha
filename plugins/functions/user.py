@@ -21,13 +21,15 @@ from time import sleep
 from typing import Union
 
 from pyrogram import ChatPermissions, Client, InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram.api.types import User
 
 from .. import glovar
 from .channel import ask_for_help, ask_help_welcome, declare_message, send_debug, share_data, update_score
 from .etc import code, delay, get_now, lang, mention_text, thread
 from .file import save
 from .group import delete_hint, delete_message
-from .telegram import edit_message_photo, edit_message_text, kick_chat_member, restrict_chat_member, unban_chat_member
+from .telegram import edit_message_photo, edit_message_text, get_user_full, kick_chat_member
+from .telegram import restrict_chat_member, unban_chat_member
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -63,6 +65,37 @@ def change_member_status(client: Client, level: str, gid: int, uid: int, record:
         return True
     except Exception as e:
         logger.warning(f"Change member status: {e}", exc_info=True)
+
+    return False
+
+
+def failed_user(client: Client, uid: int, reason: str) -> bool:
+    # Log failed user info
+    glovar.locks["failed"].acquire()
+    try:
+        if glovar.failed_ids.get(uid):
+            return True
+
+        user_full = get_user_full(client, uid)
+        user: User = user_full.user
+
+        if not user_full:
+            return True
+
+        glovar.failed_ids[uid] = {
+            "username": bool(user.username),
+            "first": user.first_name,
+            "last": user.last_name,
+            "bio": user_full.about,
+            "reason": reason
+        }
+        save("failed_ids")
+
+        return True
+    except Exception as e:
+        logger.warning(f"Failed user error: {e}", exc_info=True)
+    finally:
+        glovar.locks["failed"].release()
 
     return False
 
@@ -582,9 +615,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             )
 
         # Failed reason
-        if the_type in {"banned", "timeout", "wrong"}:
-            glovar.failed_ids[uid] = the_type
-            save("failed_ids")
+        thread(failed_user, (client, uid, the_type))
 
         return True
     except Exception as e:

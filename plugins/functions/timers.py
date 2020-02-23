@@ -22,7 +22,6 @@ from time import sleep
 from typing import Dict
 
 from pyrogram import Client
-from pyrogram.api.types import User
 
 from .. import glovar
 from .captcha import send_static
@@ -32,7 +31,7 @@ from .file import file_tsv, save
 from .filters import is_class_e_user
 from .group import delete_hint, delete_message, leave_group
 from .telegram import export_chat_invite_link, get_admins, get_group_info
-from .telegram import get_members, get_user_full, pin_chat_message, send_message
+from .telegram import get_members, pin_chat_message, send_message
 from .user import kick_user, terminate_user, unban_user, unrestrict_user
 
 # Enable logging
@@ -375,22 +374,19 @@ def share_failed_users(client: Client, data: Dict[str, int] = None) -> bool:
     glovar.locks["failed"].acquire()
     try:
         # User list
-        with glovar.locks["message"]:
-            users = list(glovar.failed_ids)
+        users = list(glovar.failed_ids)
 
         # Init data
         lines = []
 
         # Get users
         for uid in users:
-            user_full = get_user_full(client, uid)
-            user: User = user_full.user
-
-            if not user_full:
-                continue
-
-            lines.append([bool(user.username), user.first_name, user.last_name, user_full.about,
-                          glovar.failed_ids[uid]])
+            username = glovar.failed_ids[uid]["username"]
+            first_name = glovar.failed_ids[uid]["first"]
+            last_name = glovar.failed_ids[uid]["last"]
+            bio = glovar.failed_ids[uid]["bio"]
+            reason = glovar.failed_ids[uid]["reason"]
+            lines.append([username, first_name, last_name, bio, reason])
 
         # Save the tsv file
         file = file_tsv(["username", "first name", "last name", "bio", "reason"], lines)

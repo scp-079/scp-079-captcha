@@ -614,7 +614,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.4.5"
+version: str = "0.4.6"
 
 # Load data from pics database
 
@@ -686,9 +686,15 @@ bad_ids: Dict[str, Set[Union[int, str]]] = {
 #     "users": {12345678}
 # }
 
-failed_ids: Dict[int, str] = {}
+failed_ids: Dict[int, Dict[str, Union[bool, str]]] = {}
 # failed_ids = {
-#     12345678: "timeout"
+#     12345678: {
+#         "username": False,
+#         "first": "",
+#         "last": "",
+#         "bio": "",
+#         "reason": ""
+#     }
 # }
 
 left_group_ids: Set[int] = set()
