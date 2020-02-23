@@ -36,7 +36,7 @@ from ..functions.receive import receive_help_captcha, receive_leave_approve, rec
 from ..functions.receive import receive_remove_bad, receive_remove_score, receive_remove_watch, receive_rollback
 from ..functions.receive import receive_text_data, receive_user_score, receive_warn_banned_user, receive_watch_user
 from ..functions.telegram import get_admins, send_message
-from ..functions.timers import backup_files, send_count
+from ..functions.timers import backup_files, send_count, share_failed_users
 from ..functions.user import kick_user, terminate_user
 
 # Enable logging
@@ -547,7 +547,11 @@ def process_data(client: Client, message: Message) -> bool:
 
             elif sender == "REGEX":
 
-                if action == "regex":
+                if action == "captcha":
+                    if action_type == "ask":
+                        thread(share_failed_users, (client, data))
+
+                elif action == "regex":
                     if action_type == "update":
                         receive_regex(client, message, data)
                     elif action_type == "count":

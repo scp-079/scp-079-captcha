@@ -21,16 +21,17 @@ from copy import deepcopy
 from time import sleep
 
 from pyrogram import Client
+from pyrogram.api.types import User
 
 from .. import glovar
 from .captcha import send_static
 from .channel import send_debug, share_data, share_regex_count
 from .etc import code, general_link, get_now, lang, thread
-from .file import save
+from .file import file_tsv, save
 from .filters import is_class_e_user
 from .group import delete_hint, delete_message, get_pinned, leave_group
 from .telegram import export_chat_invite_link, get_admins, get_group_info
-from .telegram import get_members, pin_chat_message, send_message
+from .telegram import get_members, get_user_full, pin_chat_message, send_message
 from .user import kick_user, terminate_user, unban_user, unrestrict_user
 
 # Enable logging
@@ -402,6 +403,55 @@ def send_count(client: Client) -> bool:
         logger.warning(f"Send count error: {e}", exc_info=True)
     finally:
         glovar.locks["regex"].release()
+
+    return False
+
+
+def share_failed_users(client: Client, aid: int = None) -> bool:
+    # Share failed users
+    glovar.locks["failed"].acquire()
+    try:
+        # User list
+        with glovar.locks["message"]:
+            users = list(glovar.failed_ids)
+
+        # Init data
+        lines = []
+
+        # Get users
+        for uid in users:
+            user_full = get_user_full(client, uid)
+            user: User = user_full.user
+
+            if not user_full:
+                continue
+
+            lines.append([uid, user.username, user.first_name, user.last_name, user_full.about,
+                          glovar.failed_ids[uid]])
+
+        # Save the tsv file
+        file = file_tsv(["id", "username", "first name", "last name", "bio", "reason"], lines)
+        share_data(
+            client=client,
+            receivers=["REGEX"],
+            action="captcha",
+            action_type="result",
+            data=aid,
+            file=file
+        )
+
+        # Reset data
+        if not aid:
+            return True
+
+        glovar.failed_ids = {}
+        save("failed_ids")
+
+        return True
+    except Exception as e:
+        logger.warning(f"Share failed users error: {e}", exc_info=True)
+    finally:
+        glovar.locks["failed"].release()
 
     return False
 

@@ -26,7 +26,7 @@ from pyrogram import Client
 
 from plugins import glovar
 from plugins.functions.timers import backup_files, interval_hour_01, interval_min_01, interval_min_10
-from plugins.functions.timers import reset_data, send_count, update_admins, update_status
+from plugins.functions.timers import reset_data, send_count, share_failed_users, update_admins, update_status
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -49,6 +49,7 @@ scheduler.add_job(interval_min_10, "interval", [app], minutes=10)
 scheduler.add_job(update_status, "cron", [app, "awake"], minute=30)
 scheduler.add_job(backup_files, "cron", [app], hour=20)
 scheduler.add_job(send_count, "cron", [app], hour=21)
+scheduler.add_job(share_failed_users, "cron", [app], hour=21, minute=30)
 scheduler.add_job(reset_data, "cron", [app], day=glovar.date_reset, hour=22)
 scheduler.add_job(update_admins, "cron", [app], hour=22, minute=30)
 scheduler.start()

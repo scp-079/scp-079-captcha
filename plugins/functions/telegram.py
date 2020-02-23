@@ -21,7 +21,8 @@ from typing import Generator, Iterable, List, Optional, Union
 
 from pyrogram import Chat, ChatMember, ChatPermissions, ChatPreview, Client
 from pyrogram import InputMediaPhoto, InlineKeyboardMarkup, Message
-from pyrogram.api.types import InputPeerUser, InputPeerChannel
+from pyrogram.api.functions.users import GetFullUser
+from pyrogram.api.types import InputPeerUser, InputPeerChannel, UserFull
 from pyrogram.errors import ChatAdminRequired, ChatNotModified, ButtonDataInvalid, ChannelInvalid, ChannelPrivate
 from pyrogram.errors import FloodWait, MessageDeleteForbidden, PeerIdInvalid, QueryIdInvalid
 from pyrogram.errors import UsernameInvalid, UsernameNotOccupied, UserNotParticipant
@@ -314,6 +315,29 @@ def get_messages(client: Client, cid: int, mids: Union[int, Iterable[int]]) -> U
                 wait_flood(e)
     except Exception as e:
         logger.warning(f"Get messages {mids} in {cid} error: {e}", exc_info=True)
+
+    return result
+
+
+def get_user_full(client: Client, uid: int) -> Optional[UserFull]:
+    # Get a full user
+    result = None
+    try:
+        user_id = resolve_peer(client, uid)
+
+        if not user_id:
+            return None
+
+        flood_wait = True
+        while flood_wait:
+            flood_wait = False
+            try:
+                result = client.send(GetFullUser(id=user_id))
+            except FloodWait as e:
+                flood_wait = True
+                wait_flood(e)
+    except Exception as e:
+        logger.warning(f"Get user {uid} full error: {e}", exc_info=True)
 
     return result
 
