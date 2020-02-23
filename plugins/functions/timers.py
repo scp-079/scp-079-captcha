@@ -19,6 +19,7 @@
 import logging
 from copy import deepcopy
 from time import sleep
+from typing import Dict
 
 from pyrogram import Client
 from pyrogram.api.types import User
@@ -407,7 +408,7 @@ def send_count(client: Client) -> bool:
     return False
 
 
-def share_failed_users(client: Client, aid: int = None) -> bool:
+def share_failed_users(client: Client, data: Dict[str, int]) -> bool:
     # Share failed users
     glovar.locks["failed"].acquire()
     try:
@@ -436,12 +437,12 @@ def share_failed_users(client: Client, aid: int = None) -> bool:
             receivers=["REGEX"],
             action="captcha",
             action_type="result",
-            data=aid,
+            data=data,
             file=file
         )
 
         # Reset data
-        if not aid:
+        if not data["admin_id"]:
             return True
 
         glovar.failed_ids = {}
