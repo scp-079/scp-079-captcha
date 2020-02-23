@@ -22,6 +22,7 @@ from os import remove
 from os.path import exists
 from pickle import dump
 from shutil import copyfile
+from time import localtime, strftime
 from typing import Any, List
 
 from pyAesCrypt import decryptFile, encryptFile
@@ -87,7 +88,7 @@ def file_tsv(first_line: list, lines: List[list]) -> str:
     # Generate a TSV file
     result = ""
     try:
-        file = get_new_path(".tsv")
+        file = get_new_path(".tsv", f"CAPTCHA-FAILED-{strftime('%Y%m%d%H%M%S', localtime())}-")
 
         with open(file, "w") as f:
             w = writer(f, delimiter="\t")
@@ -116,13 +117,13 @@ def get_downloaded_path(client: Client, file_id: str, file_ref: str) -> str:
     return final_path
 
 
-def get_new_path(extension: str = "") -> str:
+def get_new_path(extension: str = "", prefix: str = "") -> str:
     # Get a new path in tmp directory
     result = ""
     try:
         file_path = random_str(8)
 
-        while exists(f"tmp/{file_path}{extension}"):
+        while exists(f"tmp/{prefix}{file_path}{extension}"):
             file_path = random_str(8)
 
         result = f"tmp/{file_path}{extension}"
