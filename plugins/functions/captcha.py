@@ -100,7 +100,7 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
         # Mention previous users text
         mention_users_text = "".join(mention_text("\U00002060", wid) for wid in mention_user_list)
 
-        # Flood situation
+        # Flood situation detected
         if len(wait_user_list) > glovar.limit_static:
             # Send static hint
             text += f"{lang('message_type')}{lang('colon')}{code(lang('flood_static'))}\n"
@@ -131,6 +131,25 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
             old_id and delete_message(client, gid, old_id)
             save("message_ids")
 
+            # Delete joined message
+            delete_message(client, gid, mid)
+
+            # Send debug message
+            mid_link = f"{get_channel_link(gid)}/{mid}"
+            debug_text = get_debug_text(client, gid)
+            debug_text += (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
+                           f"{lang('action')}{lang('colon')}{code(lang('action_wait'))}\n")
+
+            if aid:
+                debug_text += f"{lang('admin_group')}{lang('colon')}{code(aid)}\n"
+
+            debug_text += f"{lang('triggered_by')}{lang('colon')}{general_link(mid, mid_link)}\n"
+            thread(send_message, (client, glovar.debug_channel_id, debug_text))
+
+            return True
+
+        # Flood situation ongoing
+        if glovar.pinned_ids[gid]["start"]:
             # Delete joined message
             delete_message(client, gid, mid)
 
@@ -195,8 +214,7 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
             unrestrict_user(client, gid, uid)
             glovar.user_ids[uid]["wait"].pop(gid, 0)
             aid and glovar.user_ids[uid]["manual"].discard(gid)
-
-        save("user_ids")
+            save("user_ids")
 
         return True
     except Exception as e:
