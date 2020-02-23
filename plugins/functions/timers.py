@@ -370,7 +370,7 @@ def send_count(client: Client) -> bool:
     return False
 
 
-def share_failed_users(client: Client, data: Dict[str, int]) -> bool:
+def share_failed_users(client: Client, data: Dict[str, int] = None) -> bool:
     # Share failed users
     glovar.locks["failed"].acquire()
     try:
