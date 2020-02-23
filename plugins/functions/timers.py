@@ -389,11 +389,11 @@ def share_failed_users(client: Client, data: Dict[str, int] = None) -> bool:
             if not user_full:
                 continue
 
-            lines.append([uid, user.username, user.first_name, user.last_name, user_full.about,
+            lines.append([bool(user.username), user.first_name, user.last_name, user_full.about,
                           glovar.failed_ids[uid]])
 
         # Save the tsv file
-        file = file_tsv(["id", "username", "first name", "last name", "bio", "reason"], lines)
+        file = file_tsv(["username", "first name", "last name", "bio", "reason"], lines)
         share_data(
             client=client,
             receivers=["REGEX"],
