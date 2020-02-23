@@ -809,7 +809,7 @@ for word_type in regex:
 # }
 
 # Load data
-file_list: List[str] = ["admin_ids", "bad_ids", "left_group_ids", "message_ids",
+file_list: List[str] = ["admin_ids", "bad_ids", "file_ids", "left_group_ids", "message_ids",
                         "pinned_ids", "trust_ids", "user_ids", "watch_ids",
                         "configs", "invite"]
 file_list += [f"{f}_words" for f in regex]
