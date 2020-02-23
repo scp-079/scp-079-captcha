@@ -17,11 +17,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from csv import writer
 from os import remove
 from os.path import exists
 from pickle import dump
 from shutil import copyfile
-from typing import Any
+from typing import Any, List
 
 from pyAesCrypt import decryptFile, encryptFile
 from pyrogram import Client
@@ -80,6 +81,24 @@ def delete_file(path: str) -> bool:
         logger.warning(f"Delete file error: {e}", exc_info=True)
 
     return False
+
+
+def file_tsv(first_line: list, lines: List[list]) -> str:
+    # Generate a TSV file
+    result = ""
+    try:
+        file = get_new_path(".tsv")
+
+        with open(file, "w") as f:
+            w = writer(f, delimiter="\t")
+            w.writerow(first_line)
+            w.writerows(lines)
+
+        result = file
+    except Exception as e:
+        logger.warning(f"File tsv error: {e}", exc_info=True)
+
+    return result
 
 
 def get_downloaded_path(client: Client, file_id: str, file_ref: str) -> str:
