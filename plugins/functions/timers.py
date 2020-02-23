@@ -438,7 +438,8 @@ def share_failed_users(client: Client, data: Dict[str, int]) -> bool:
             action="captcha",
             action_type="result",
             data=data,
-            file=file
+            file=file,
+            encrypt=False
         )
 
         # Reset data
