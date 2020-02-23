@@ -685,6 +685,11 @@ bad_ids: Dict[str, Set[Union[int, str]]] = {
 #     "users": {12345678}
 # }
 
+failed_ids: Dict[int, str] = {}
+# failed_ids = {
+#     12345678: "timeout"
+# }
+
 left_group_ids: Set[int] = set()
 # left_group_ids = {-10012345678}
 

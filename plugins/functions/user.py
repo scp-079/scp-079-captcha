@@ -581,6 +581,11 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                 more=lang("description_wrong")
             )
 
+        # Failed reason
+        if the_type in {"banned", "timeout", "wrong"}:
+            glovar.failed_ids[uid] = the_type
+            save("failed_ids")
+
         return True
     except Exception as e:
         logger.warning(f"Terminate user error: {e}", exc_info=True)
