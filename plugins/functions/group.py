@@ -38,14 +38,13 @@ def clear_joined_messages(client: Client, gid: int, mid: int) -> bool:
         else:
             mids = range(1, mid + 1)
 
-        messages = get_messages(client, gid, mids)
+        for mid in mids:
+            message = get_messages(client, gid, mid)
 
-        if not messages:
-            return True
+            if not message or not message.service:
+                continue
 
-        for message in messages:
-            if message.service:
-                delete_message(client, gid, message.message_id)
+            delete_message(client, gid, mid)
 
         return True
     except Exception as e:

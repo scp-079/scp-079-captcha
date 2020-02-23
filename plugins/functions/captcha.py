@@ -738,10 +738,13 @@ def send_pin(client: Client, gid: int) -> bool:
 
         pinned_message = get_pinned(client, gid, False)
 
-        if pinned_message:
-            old_id = pinned_message.message_id
+        if pinned_message or glovar.pinned_ids[gid]["old_id"]:
+            old_id = (pinned_message and pinned_message.message_id) or glovar.pinned_ids[gid]["old_id"]
         else:
             old_id = 0
+
+        glovar.pinned_ids[gid]["old_id"] = old_id
+        save("pinned_ids")
 
         result = pin_chat_message(client, gid, new_id)
 
@@ -750,7 +753,6 @@ def send_pin(client: Client, gid: int) -> bool:
             return False
 
         glovar.pinned_ids[gid]["new_id"] = new_id
-        glovar.pinned_ids[gid]["old_id"] = old_id
         save("pinned_ids")
 
         return True

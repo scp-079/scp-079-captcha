@@ -28,7 +28,7 @@ from .channel import send_debug, share_data, share_regex_count
 from .etc import code, general_link, get_now, lang, thread
 from .file import save
 from .filters import is_class_e_user
-from .group import delete_hint, delete_message, leave_group
+from .group import delete_hint, delete_message, get_pinned, leave_group
 from .telegram import export_chat_invite_link, get_admins, get_group_info
 from .telegram import get_members, pin_chat_message, send_message
 from .user import kick_user, terminate_user, unban_user, unrestrict_user
@@ -119,6 +119,34 @@ def clear_members(client: Client) -> bool:
     return False
 
 
+def interval_hour_01(client: Client) -> bool:
+    # Execute every hour
+    glovar.locks["pin"].acquire()
+    try:
+        for gid in list(glovar.pinned_ids):
+            # Check flood status
+            if glovar.pinned_ids[gid]["start"]:
+                continue
+
+            # Get pinned message
+            pinned_message = get_pinned(client, gid, False)
+
+            if pinned_message:
+                glovar.pinned_ids[gid]["old_id"] = pinned_message.message_id
+            else:
+                glovar.pinned_ids[gid]["old_id"] = 0
+
+        save("pinned_ids")
+
+        return True
+    except Exception as e:
+        logger.warning(f"Interval hour 01 error: {e}", exc_info=True)
+    finally:
+        glovar.locks["pin"].release()
+
+    return False
+
+
 def interval_min_01(client: Client) -> bool:
     # Execute every minute
     glovar.locks["message"].acquire()
@@ -174,7 +202,7 @@ def interval_min_01(client: Client) -> bool:
                 continue
 
             # Check normal time
-            if now - time < glovar.time_captcha * 2:
+            if now - time < glovar.time_captcha * 3:
                 continue
 
             # Get group's waiting user list

@@ -300,7 +300,7 @@ def get_members(client: Client, cid: int, query: str = "all") -> Optional[Genera
     return result
 
 
-def get_messages(client: Client, cid: int, mids: Iterable[int]) -> Optional[List[Message]]:
+def get_messages(client: Client, cid: int, mids: Union[int, Iterable[int]]) -> Union[Message, List[Message], None]:
     # Get some messages
     result = None
     try:
