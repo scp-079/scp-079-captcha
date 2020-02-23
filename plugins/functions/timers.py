@@ -405,7 +405,7 @@ def share_failed_users(client: Client, data: Dict[str, int] = None) -> bool:
         )
 
         # Reset data
-        if data["admin_id"]:
+        if data and data["admin_id"]:
             return True
 
         glovar.failed_ids = {}
