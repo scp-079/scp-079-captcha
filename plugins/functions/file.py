@@ -126,7 +126,7 @@ def get_new_path(extension: str = "", prefix: str = "") -> str:
         while exists(f"tmp/{prefix}{file_path}{extension}"):
             file_path = random_str(8)
 
-        result = f"tmp/{file_path}{extension}"
+        result = f"tmp/{prefix}{file_path}{extension}"
     except Exception as e:
         logger.warning(f"Get new path error: {e}", exc_info=True)
 
