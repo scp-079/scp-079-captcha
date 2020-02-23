@@ -30,7 +30,7 @@ from .channel import send_debug, share_data, share_regex_count
 from .etc import code, general_link, get_now, lang, thread
 from .file import file_tsv, save
 from .filters import is_class_e_user
-from .group import delete_hint, delete_message, get_pinned, leave_group
+from .group import delete_hint, delete_message, leave_group
 from .telegram import export_chat_invite_link, get_admins, get_group_info
 from .telegram import get_members, get_user_full, pin_chat_message, send_message
 from .user import kick_user, terminate_user, unban_user, unrestrict_user
