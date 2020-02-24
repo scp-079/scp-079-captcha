@@ -615,7 +615,8 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
             )
 
         # Failed reason
-        thread(failed_user, (client, uid, the_type))
+        if the_type in {"banned", "timeout", "wrong"}:
+            thread(failed_user, (client, uid, the_type))
 
         return True
     except Exception as e:
