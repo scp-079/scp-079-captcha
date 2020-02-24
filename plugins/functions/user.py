@@ -220,7 +220,7 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
         # Banned in group
         if the_type == "banned":
-            glovar.user_ids[uid]["wait"].pop(gid, 0)
+            failed = glovar.user_ids[uid]["wait"].pop(gid, 0)
             glovar.user_ids[uid]["manual"].discard(gid)
 
             for gid in glovar.user_ids[uid]["succeeded"]:
@@ -260,6 +260,10 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
 
             # Delete the hint
             delete_hint(client)
+
+            # Check failed status
+            if not failed:
+                return True
 
         # Delete the message
         elif the_type == "delete" and mid:
