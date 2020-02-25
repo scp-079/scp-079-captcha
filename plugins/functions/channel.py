@@ -23,7 +23,7 @@ from typing import List, Union
 from pyrogram import Chat, Client, Message
 
 from .. import glovar
-from .etc import code, code_block, general_link, lang, message_link, thread
+from .etc import code, code_block, general_link, get_readable_time, lang, message_link, thread
 from .file import crypt_file, data_to_file, delete_file, get_new_path, save
 from .telegram import get_group_info, send_document, send_message
 
@@ -204,7 +204,7 @@ def send_debug(client: Client, gids: List[int], action: str,
             text += f"{lang('triggered_by')}{lang('colon')}{general_link(mid, message_link(em))}\n"
 
         if time:
-            text += f"{lang('triggered_time')}{lang('colon')}{code(time)}\n"
+            text += f"{lang('triggered_time')}{lang('colon')}{code(get_readable_time(time))}\n"
 
         if duration:
             text += f"{lang('flood_duration')}{lang('colon')}{code(str(duration) + ' ' + lang('seconds'))}\n"

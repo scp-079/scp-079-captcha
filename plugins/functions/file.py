@@ -22,14 +22,13 @@ from os import remove
 from os.path import exists
 from pickle import dump
 from shutil import copyfile
-from time import localtime, strftime
 from typing import Any, List
 
 from pyAesCrypt import decryptFile, encryptFile
 from pyrogram import Client
 
 from .. import glovar
-from .etc import random_str, thread
+from .etc import get_readable_time, random_str, thread
 from .telegram import download_media
 
 # Enable logging
@@ -88,7 +87,7 @@ def file_tsv(first_line: list, lines: List[list]) -> str:
     # Generate a TSV file
     result = ""
     try:
-        file = get_new_path(".tsv", f"CAPTCHA-FAILED-{strftime('%Y%m%d%H%M%S', localtime())}-")
+        file = get_new_path(".tsv", f"CAPTCHA-FAILED-{get_readable_time()}-")
 
         with open(file, "w") as f:
             w = writer(f, delimiter="\t")

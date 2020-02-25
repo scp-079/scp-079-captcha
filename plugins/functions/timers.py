@@ -449,19 +449,20 @@ def update_admins(client: Client) -> bool:
                     for admin in admin_members:
                         if (admin.user.is_self
                                 and admin.can_delete_messages
-                                and admin.can_restrict_members):
+                                and admin.can_restrict_members
+                                and admin.can_pin_messages):
                             should_leave = False
 
-                        # TODO
-                        # if (admin.user.is_self
-                        #         and admin.can_delete_messages
-                        #         and admin.can_restrict_members
-                        #         and admin.can_pin_messages):
-                        #     should_leave = False
-
                 if not should_leave:
+                    glovar.lack_group_ids.discard(gid)
+                    save("lack_group_ids")
                     continue
 
+                if gid in glovar.lack_group_ids:
+                    continue
+
+                glovar.lack_group_ids.add(gid)
+                save("lack_group_ids")
                 group_name, group_link = get_group_info(client, gid)
                 share_data(
                     client=client,
