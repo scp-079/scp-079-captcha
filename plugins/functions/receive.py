@@ -64,6 +64,11 @@ def receive_add_bad(client: Client, data: dict) -> bool:
 
                 save("user_ids")
 
+            # Remove failed status
+            with glovar.locks["failed"]:
+                glovar.failed_ids.pop(the_id, {})
+                save("failed_ids")
+
         save("bad_ids")
 
         return True

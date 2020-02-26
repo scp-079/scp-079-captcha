@@ -133,7 +133,7 @@ def exchange_to_hide(client: Client) -> bool:
 
 def format_data(sender: str, receivers: List[str], action: str, action_type: str,
                 data: Union[bool, dict, int, str] = None) -> str:
-    # See https://scp-079.org/exchange/
+    # Get exchange string
     text = ""
     try:
         data = {

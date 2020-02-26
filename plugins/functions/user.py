@@ -338,6 +338,11 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                 time=now
             )
 
+            # Remove failed status
+            with glovar.locks["failed"]:
+                glovar.failed_ids.pop(uid, {})
+                save("failed_ids")
+
         # User under punishment
         elif the_type == "punish":
             level = get_level(gid)
@@ -453,6 +458,11 @@ def terminate_user(client: Client, the_type: str, uid: int, gid: int = 0, mid: i
                 uid=uid,
                 time=now
             )
+
+            # Remove failed status
+            with glovar.locks["failed"]:
+                glovar.failed_ids.pop(uid, {})
+                save("failed_ids")
 
         # Verification timeout
         elif the_type == "timeout":
