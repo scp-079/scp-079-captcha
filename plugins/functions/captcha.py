@@ -26,7 +26,7 @@ from claptcha import Claptcha
 from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message, User
 
 from .. import glovar
-from .channel import ask_help_welcome, get_debug_text, send_debug
+from .channel import ask_help_welcome, get_debug_text, send_debug, share_data
 from .etc import button_data, code, general_link, get_channel_link, get_full_name, get_now, lang, mention_name
 from .etc import mention_text, t2t, thread
 from .file import delete_file, get_new_path, save
@@ -110,6 +110,16 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
             if not glovar.pinned_ids[gid]["start"]:
                 glovar.pinned_ids[gid]["start"] = now
                 thread(clear_joined_messages, (client, gid, mid))
+                share_data(
+                    client=client,
+                    receivers=["TIP"],
+                    action="captcha",
+                    action_type="flood",
+                    data={
+                        "group_id": gid,
+                        "status": "begin"
+                    }
+                )
                 send_debug(
                     client=client,
                     gids=[gid],

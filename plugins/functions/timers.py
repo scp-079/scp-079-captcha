@@ -217,6 +217,18 @@ def interval_min_01(client: Client) -> bool:
                 }
             )
 
+            # Share end status
+            share_data(
+                client=client,
+                receivers=["TIP"],
+                action="captcha",
+                action_type="flood",
+                data={
+                    "group_id": gid,
+                    "status": "end"
+                }
+            )
+
             # Send debug message
             send_debug(
                 client=client,
@@ -463,6 +475,7 @@ def update_admins(client: Client) -> bool:
 
                 glovar.lack_group_ids.add(gid)
                 save("lack_group_ids")
+
                 group_name, group_link = get_group_info(client, gid)
                 share_data(
                     client=client,
