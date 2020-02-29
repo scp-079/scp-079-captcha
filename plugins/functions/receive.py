@@ -340,6 +340,7 @@ def receive_file_data(client: Client, message: Message, decrypt: bool = True) ->
 
 def receive_help_captcha(client: Client, data: dict) -> bool:
     # Receive help captcha
+    glovar.locks["message"].acquire()
     try:
         # Basic data
         gid = data["group_id"]
@@ -364,6 +365,8 @@ def receive_help_captcha(client: Client, data: dict) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Receive help captcha error: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
 
     return False
 

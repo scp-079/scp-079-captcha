@@ -397,16 +397,12 @@ lang: Dict[str, str] = {
                              f"or you will be removed from the group")),
     "description_banned": (zh_cn and "群管理封禁") or "Group admin passed your verification",
     "description_log": (zh_cn and "日志核查") or "Log check",
-    "description_nospam": (zh_cn and (f"待验证用户，请您点击下方右侧按钮进行验证，"
+    "description_nospam": (zh_cn and (f"{{}}，请您点击下方右侧按钮进行验证，"
                                       f"请在 {time_captcha} 秒内完成验证，否则您将被移出本群。"
-                                      f"如果您不是新入群用户，则本次验证的发起可能为以下原因之一：群组管理员的手动要求；"
                                       f"您触发了防广告机器人的封禁规则，但由于您入群时间较长，故未封禁您，但要求您完成一次验证")
-                           or (f"For users need to be verified, please click the button below to verify. "
+                           or (f"{{}}, please click the button below to verify. "
                                f"Please complete verification within {time_captcha} seconds, "
                                f"or you will be removed from the group. "
-                               f"If you are not a new user, "
-                               f"this verification may be initiated for one of the following reasons: "
-                               f"Manual request by the group admin; "
                                f"You triggered the rules of the anti-ad bot, "
                                f"but because you have been in the group for a long time, "
                                f"the bot does not ban You, but requires you to complete a verification")),
@@ -498,10 +494,11 @@ default_config: Dict[str, Union[bool, int]] = {
     "manual": False
 }
 
-default_message_data: Dict[str, Union[int, Set[int]]] = {
+default_message_data: Dict[str, Union[int, Dict[int, int], Set[int]]] = {
     "flood": set(),
     "hint": 0,
-    "static": 0
+    "static": 0,
+    "nospam": {}
 }
 
 default_pinned_data: Dict[str, int] = {
@@ -550,9 +547,6 @@ locks: Dict[str, Lock] = {
     "receive": Lock(),
     "regex": Lock()
 }
-
-media_group_ids: Set[int] = set()
-# media_group_ids = {12556677123456789}
 
 question_types: Dict[str, List[str]] = {
     "changeable": ["chengyu", "letter", "number"],
@@ -614,7 +608,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.4.8"
+version: str = "0.4.9"
 
 # Load data from pics database
 
@@ -703,12 +697,15 @@ lack_group_ids: Set[int] = set()
 left_group_ids: Set[int] = set()
 # left_group_ids = {-10012345678}
 
-message_ids: Dict[int, Dict[str, Union[int, Set[int]]]] = {}
+message_ids: Dict[int, Dict[str, Union[int, Dict[int, int], Set[int]]]] = {}
 # message_ids = {
 #     -10012345678: {
 #         "flood": {120, 121, 122},
 #         "hint": 123,
-#         "static": 124
+#         "static": 124,
+#         "nospam": {
+#             125: 1512345678
+#         }
 #     }
 # }
 

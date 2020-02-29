@@ -22,7 +22,7 @@ from typing import Optional
 from pyrogram import Chat, Client, Message
 
 from .. import glovar
-from .etc import code, lang, thread
+from .etc import code, get_now, lang, thread
 from .file import save
 from .telegram import delete_messages, get_chat, get_messages, leave_chat
 
@@ -56,6 +56,9 @@ def clear_joined_messages(client: Client, gid: int, mid: int) -> bool:
 def delete_hint(client: Client) -> bool:
     # Delete hint messages
     try:
+        # Basic data
+        now = get_now()
+
         # Get the wait group list
         wait_group_list = {gid for uid in list(glovar.user_ids) for gid in list(glovar.user_ids[uid]["wait"])}
 
@@ -74,6 +77,19 @@ def delete_hint(client: Client) -> bool:
             if mids and gid not in wait_group_list:
                 glovar.message_ids[gid]["flood"] = set()
                 thread(delete_messages, (client, gid, mids))
+
+            # NOSPAM hint
+            if not glovar.message_ids[gid].get("nospam"):
+                continue
+
+            for mid in list(glovar.message_ids[gid]["nospam"]):
+                time = glovar.message_ids[gid]["nospam"][mid]
+
+                if now - time < glovar.time_captcha / 2:
+                    continue
+
+                glovar.message_ids[gid]["nospam"].pop(mid, 0)
+                delete_message(client, gid, mid)
 
         # Save the data
         save("message_ids")
@@ -130,11 +146,11 @@ def get_group(client: Client, gid: int, cache: bool = True) -> Optional[Chat]:
         the_cache = glovar.chats.get(gid)
 
         if cache and the_cache:
-            result = the_cache
-        else:
-            result = get_chat(client, gid)
+            return the_cache
 
-        if cache and result:
+        result = get_chat(client, gid)
+
+        if result:
             glovar.chats[gid] = result
     except Exception as e:
         logger.warning(f"Get group error: {e}", exc_info=True)

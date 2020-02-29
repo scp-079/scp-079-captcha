@@ -181,7 +181,8 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
         text += mention_users_text
 
         if aid == glovar.nospam_id:
-            description = lang("description_nospam")
+            description = lang("description_nospam").format(mention_name(user))
+            mid = None
         elif aid:
             description = lang("description_captcha")
         else:
@@ -197,15 +198,24 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
 
         # Check if the message was sent successfully
         if result:
-            # Update hint message id, delete old message
-            new_id = result.message_id
-            old_id = glovar.message_ids[gid]["hint"]
-            glovar.message_ids[gid]["hint"] = new_id
-            old_id and delete_message(client, gid, old_id)
+            if aid == glovar.nospam_id:
+                # Update nospam message id
+                new_id = result.message_id
 
-            # Delete static messages
-            old_ids = glovar.message_ids[gid]["flood"]
-            old_ids and thread(delete_messages, (client, gid, old_ids))
+                if glovar.message_ids[gid].get("nospam") is None:
+                    glovar.message_ids[gid]["nospam"] = {}
+
+                glovar.message_ids[gid]["nospam"][new_id] = get_now()
+            else:
+                # Update hint message id, delete old message
+                new_id = result.message_id
+                old_id = glovar.message_ids[gid]["hint"]
+                glovar.message_ids[gid]["hint"] = new_id
+                old_id and delete_message(client, gid, old_id)
+
+                # Delete static messages
+                old_ids = glovar.message_ids[gid]["flood"]
+                old_ids and thread(delete_messages, (client, gid, old_ids))
 
             # Save message ids
             save("message_ids")
