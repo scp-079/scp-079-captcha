@@ -243,7 +243,7 @@ def get_chat_member(client: Client, cid: int, uid: int) -> Union[bool, ChatMembe
             except FloodWait as e:
                 flood_wait = True
                 wait_flood(e)
-            except UserNotParticipant:
+            except (PeerIdInvalid, UserNotParticipant):
                 result = False
     except Exception as e:
         logger.warning(f"Get chat member {uid} in {cid} error: {e}", exc_info=True)
