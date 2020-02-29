@@ -191,7 +191,7 @@ def export_chat_invite_link(client: Client, cid: int) -> Union[bool, str, None]:
     return result
 
 
-def get_admins(client: Client, cid: int) -> Optional[Union[bool, List[ChatMember]]]:
+def get_admins(client: Client, cid: int) -> Union[bool, List[ChatMember], None]:
     # Get a group's admins
     result = None
     try:
