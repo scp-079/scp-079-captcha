@@ -873,7 +873,8 @@ def user_captcha(client: Client, message: Optional[Message], gid: int, user: Use
         if user_status["succeeded"] and not wb_name:
             succeeded_time = max(user_status["succeeded"].values())
 
-            if succeeded_time and now - succeeded_time < glovar.time_remove + 70:
+            if (succeeded_time and user_status["time"]
+                    and now - succeeded_time < glovar.time_remove + 30):
                 not aid and ask_help_welcome(client, uid, [gid], mid)
                 return True
 
