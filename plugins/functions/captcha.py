@@ -27,7 +27,7 @@ from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
 from .channel import ask_help_welcome, get_debug_text, send_debug, share_data
-from .etc import button_data, code, general_link, get_channel_link, get_full_name, get_now, lang, mention_name
+from .etc import button_data, code, delay, general_link, get_channel_link, get_full_name, get_now, lang, mention_name
 from .etc import mention_text, t2t, thread
 from .file import delete_file, get_new_path, save
 from .filters import is_class_d_user, is_declared_message, is_limited_user, is_nm_text, is_watch_user, is_wb_text
@@ -41,13 +41,17 @@ from .telegram import send_message, send_photo, send_report_message
 logger = logging.getLogger(__name__)
 
 
-def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bool:
+def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0, again: bool = False) -> bool:
     # Add user to the wait list
     try:
         # Basic data
         uid = user.id
         name = get_full_name(user)
         now = get_now()
+
+        # Check if the user is Class D personnel
+        if again and is_class_d_user(user):
+            return True
 
         # Add the user
         glovar.user_ids[uid]["name"] = name
@@ -59,7 +63,7 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
         wait_user_list = [wid for wid in glovar.user_ids if glovar.user_ids[wid]["wait"].get(gid, 0)]
 
         # Work with NOSPAM
-        if len(wait_user_list) < glovar.limit_mention and glovar.nospam_id in glovar.admin_ids[gid]:
+        if not again and len(wait_user_list) < glovar.limit_mention and glovar.nospam_id in glovar.admin_ids[gid]:
             # Check name
             name = get_full_name(user, True, True)
 
@@ -67,6 +71,7 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
                 glovar.user_ids[uid]["wait"] = {}
                 glovar.user_ids[uid]["manual"] = set()
                 save("user_ids")
+                delay(10, add_wait, [client, gid, user, mid, aid, True])
                 return True
 
         # Restrict the user
@@ -867,10 +872,11 @@ def user_captcha(client: Client, message: Optional[Message], gid: int, user: Use
 
         # Check name
         name = get_full_name(user, True, True)
+        ban_name = is_nm_text(name)
         wb_name = is_wb_text(name, False)
 
         # Auto pass
-        if user_status["succeeded"] and not wb_name:
+        if user_status["succeeded"] and not (ban_name or wb_name):
             succeeded_time = max(user_status["succeeded"].values())
 
             if (succeeded_time and user_status["time"]
