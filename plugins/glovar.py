@@ -397,10 +397,10 @@ lang: Dict[str, str] = {
                              f"or you will be removed from the group")),
     "description_banned": (zh_cn and "群管理封禁") or "Group admin passed your verification",
     "description_log": (zh_cn and "日志核查") or "Log check",
-    "description_nospam": (zh_cn and (f"{{}}，请您点击下方右侧按钮进行验证，"
+    "description_nospam": (zh_cn and (f"请您点击下方右侧按钮进行验证，"
                                       f"请在 {time_captcha} 秒内完成验证，否则您将被移出本群。"
                                       f"您触发了防广告机器人的封禁规则，但由于您入群时间较长，故未封禁您，但要求您完成一次验证")
-                           or (f"{{}}, please click the button below to verify. "
+                           or (f"Please click the button below to verify. "
                                f"Please complete verification within {time_captcha} seconds, "
                                f"or you will be removed from the group. "
                                f"You triggered the rules of the anti-ad bot, "

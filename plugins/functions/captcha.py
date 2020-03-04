@@ -186,7 +186,9 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0, again
         text += mention_users_text
 
         if aid == glovar.nospam_id:
-            description = lang("description_nospam").format(mention_name(user))
+            text = (f"{lang('user_name')}{lang('colon')}{mention_name(user)}\n"
+                    f"{lang('user_id')}{lang('colon')}{code(user.id)}\n")
+            description = lang("description_nospam")
             mid = None
         elif aid:
             description = lang("description_captcha")
