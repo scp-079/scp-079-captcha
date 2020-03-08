@@ -501,9 +501,8 @@ def receive_remove_bad(client: Client, data: dict) -> bool:
                         unrestrict_user(client, gid, the_id)
 
                     # Unban in all punished groups
-                    for gid in list(glovar.user_ids[the_id]["failed"]):
-                        if glovar.user_ids[the_id]["failed"][gid]:
-                            unban_user(client, gid, the_id)
+                    for gid in set(glovar.user_ids[the_id]["banned"]) | set(glovar.user_ids[the_id]["restricted"]):
+                        unban_user(client, gid, the_id)
 
                     # Remove users from CAPTCHA group
                     time = glovar.user_ids[the_id]["time"]
@@ -537,8 +536,8 @@ def receive_remove_score(client: Client, data: int) -> bool:
         for gid in list(glovar.user_ids[uid]["wait"]):
             unrestrict_user(client, gid, uid)
 
-        # Unban all punished users
-        for gid in list(glovar.user_ids[uid]["failed"]):
+        # Unban in all punished groups
+        for gid in set(glovar.user_ids[uid]["banned"]) | set(glovar.user_ids[uid]["restricted"]):
             unban_user(client, gid, uid)
 
         # Remove users from CAPTCHA group
