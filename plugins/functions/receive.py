@@ -539,8 +539,7 @@ def receive_remove_score(client: Client, data: int) -> bool:
 
         # Unban all punished users
         for gid in list(glovar.user_ids[uid]["failed"]):
-            if glovar.user_ids[uid]["failed"][gid]:
-                unban_user(client, gid, uid)
+            unban_user(client, gid, uid)
 
         # Remove users from CAPTCHA group
         time = glovar.user_ids[uid]["time"]
