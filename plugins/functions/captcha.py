@@ -318,6 +318,7 @@ def question_ask(client: Client, user: User, mid: int) -> bool:
         question_text = captcha["question"]
         text = (f"{lang('user_name')}{lang('colon')}{mention_name(user)}\n"
                 f"{lang('user_id')}{lang('colon')}{code(uid)}\n\n"
+                f"{lang('attention')}{lang('colon')}{code('question_attention')}\n\n"
                 f"{lang('description')}{lang('colon')}{code(lang('description_ask').format(limit))}\n\n"
                 f"{lang('question')}{lang('colon')}{code(question_text)}\n")
 
