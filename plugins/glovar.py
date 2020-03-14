@@ -418,7 +418,7 @@ lang: Dict[str, str] = {
     "invite_button": (zh_cn and "加入验证群组") or "Join CAPTCHA Group",
     "invite_text": (zh_cn and "请在专用群组中进行验证") or "Please verify in a private group",
     "question": (zh_cn and "问题") or "Question",
-    "question_attention": ((zh_cn and "请先看清哪个是对自己发出的问题，再回答")
+    "question_attention": ((zh_cn and "请看清哪个是对自己发出的问题再回答")
                            or "Please confirm which question is yours before answering"),
     "question_change": (zh_cn and "更换问题") or "Change the Question",
     "question_chengyu": (zh_cn and "请发送上图所显示的成语") or "Please send the idiom shown in the above picture",
