@@ -437,7 +437,7 @@ def receive_regex(client: Client, message: Message, data: str) -> bool:
 
         words_data = receive_file_data(client, message)
 
-        if not words_data:
+        if words_data is None:
             return True
 
         pop_set = set(eval(f"glovar.{file_name}")) - set(words_data)

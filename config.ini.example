@@ -46,6 +46,7 @@ backup = False
 captcha_link = [DATA EXPUNGED]
 date_reset = 1st mon
 default_group_link = https://t.me/SCP_079_DEBUG
+failed = False
 font_chinese = /usr/share/fonts/truetype/arphic-gkai00mp/gkai00mp.ttf
 font_english = /usr/share/fonts/truetype/freefont/FreeMono.ttf
 font_number = /usr/share/fonts/truetype/freefont/FreeMono.ttf

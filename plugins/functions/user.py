@@ -73,6 +73,9 @@ def failed_user(client: Client, uid: int, reason: str) -> bool:
     # Log failed user info
     glovar.locks["failed"].acquire()
     try:
+        if not glovar.failed:
+            return True
+
         if glovar.failed_ids.get(uid):
             return True
 

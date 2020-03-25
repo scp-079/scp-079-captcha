@@ -75,6 +75,7 @@ backup: Union[bool, str] = ""
 captcha_link: str = ""
 date_reset: str = ""
 default_group_link: str = ""
+failed: Union[bool, str] = ""
 font_chinese: str = ""
 font_english: str = ""
 font_number: str = ""
@@ -150,6 +151,8 @@ try:
     captcha_link = config["custom"].get("captcha_link", captcha_link)
     date_reset = config["custom"].get("date_reset", date_reset)
     default_group_link = config["custom"].get("default_group_link", default_group_link)
+    failed = config["custom"].get("failed", failed)
+    failed = eval(failed)
     font_chinese = config["custom"].get("font_chinese", font_chinese)
     font_english = config["custom"].get("font_english", font_english)
     font_number = config["custom"].get("font_number", font_number)
@@ -220,6 +223,7 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or captcha_link in {"", "[DATA EXPUNGED]"}
         or date_reset in {"", "[DATA EXPUNGED]"}
         or default_group_link in {"", "[DATA EXPUNGED]"}
+        or failed not in {False, True}
         or font_chinese in {"", "[DATA EXPUNGED]"}
         or font_english in {"", "[DATA EXPUNGED]"}
         or font_number in {"", "[DATA EXPUNGED]"}

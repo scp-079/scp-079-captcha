@@ -385,8 +385,16 @@ def share_failed_users(client: Client, data: Dict[str, int] = None) -> bool:
     # Share failed users
     glovar.locks["failed"].acquire()
     try:
+        # Check the config
+        if not glovar.failed:
+            return True
+
         # User list
         users = list(glovar.failed_ids)
+
+        # Check the list
+        if not users:
+            return True
 
         # Init data
         lines = []
