@@ -1,6 +1,6 @@
 # SCP-079-CAPTCHA
 
-This bot is used to provide challenges for new joined members.
+This bot is used to provide challenges for newly joined members.
 
 ## How to use
 

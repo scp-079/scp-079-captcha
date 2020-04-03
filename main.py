@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# SCP-079-CAPTCHA - Provide challenges for new joined members
+# SCP-079-CAPTCHA - Provide challenges for newly joined members
 # Copyright (C) 2019-2020 SCP-079 <https://scp-079.org>
 #
 # This file is part of SCP-079-CAPTCHA.
