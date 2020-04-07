@@ -846,11 +846,11 @@ def user_captcha(client: Client, message: Optional[Message], gid: int, user: Use
 
         # Check if the user is Class D personnel
         if is_class_d_user(user):
-            return True
+            return False
 
         # Init the user's status
         if not init_user_id(uid):
-            return True
+            return False
 
         # Get user status
         user_status = glovar.user_ids[uid]
