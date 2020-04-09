@@ -771,7 +771,9 @@ def send_pin(client: Client, gid: int) -> bool:
         if glovar.pinned_ids[gid]["new_id"]:
             return True
 
-        text = f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n"
+        text = (f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n"
+                f"{lang('auto_fix')}{lang('colon')}{code(lang('pin'))}\n"
+                f"{lang('reason')}{lang('colon')}{code(lang('action_flood'))}\n")
         markup = get_captcha_markup(the_type="hint", static=True)
         result = send_message(client, gid, text, None, markup)
 
