@@ -555,7 +555,7 @@ locks: Dict[str, Lock] = {
 }
 
 question_types: Dict[str, List[str]] = {
-    "changeable": ["chengyu", "letter", "number"],
+    "changeable": ["chengyu", "letter", "math_pic", "number"],
     "chinese": ["chengyu", "food", "letter", "math_pic", "number"],
     "english": ["letter", "math_pic", "number"],
     "image": ["chengyu", "food", "letter", "math_pic", "pic", "number"],

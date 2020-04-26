@@ -521,7 +521,7 @@ def captcha_food() -> dict:
             "question": lang("question_food"),
             "answer": answer,
             "candidates": candidates,
-            "limit": glovar.limit_try - 1
+            "limit": glovar.limit_try
         }
     except Exception as e:
         logger.warning(f"Captcha food error: {e}", exc_info=True)
