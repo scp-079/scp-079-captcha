@@ -889,13 +889,16 @@ def user_captcha(client: Client, message: Optional[Message], gid: int, user: Use
                 not aid and ask_help_welcome(client, uid, [gid], mid)
                 return True
 
-            if glovar.configs[gid].get("pass"):
-                if (succeeded_time and now - succeeded_time < glovar.time_recheck
-                        and not is_watch_user(user, "ban", now)
-                        and not is_watch_user(user, "delete", now)
-                        and not is_limited_user(gid, user, now, False)):
-                    not aid and ask_help_welcome(client, uid, [gid], mid)
-                    return True
+            if (glovar.configs[gid].get("pass")
+                    and succeeded_time and now - succeeded_time < glovar.time_recheck
+                    and not is_watch_user(user, "ban", now)
+                    and not is_watch_user(user, "delete", now)
+                    and not is_limited_user(gid, user, now, False)):
+                not aid and ask_help_welcome(client, uid, [gid], mid)
+                return True
+        elif glovar.configs[gid].get("pass") and uid in glovar.white_ids:
+            not aid and ask_help_welcome(client, uid, [gid], mid)
+            return True
 
         # Check failed list
         failed_time = user_status["failed"].get(gid, 0)

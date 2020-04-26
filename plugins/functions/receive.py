@@ -576,6 +576,26 @@ def receive_remove_watch(data: int) -> bool:
     return False
 
 
+def receive_remove_white(data: int) -> bool:
+    # Receive removed withe users
+    try:
+        # Basic data
+        uid = data
+
+        if not init_user_id(uid):
+            return True
+
+        # White ids
+        glovar.white_ids.discard(uid)
+        save("white_ids")
+
+        return True
+    except Exception as e:
+        logger.warning(f"Receive remove white error: {e}", exc_info=True)
+
+    return False
+
+
 def receive_rollback(client: Client, message: Message, data: dict) -> bool:
     # Receive rollback data
     try:
@@ -694,5 +714,21 @@ def receive_watch_user(data: dict) -> bool:
         return True
     except Exception as e:
         logger.warning(f"Receive watch user error: {e}", exc_info=True)
+
+    return False
+
+
+def receive_white_users(client: Client, message: Message) -> bool:
+    # Receive white users
+    try:
+        the_data = receive_file_data(client, message)
+
+        if not the_data:
+            return True
+
+        glovar.white_ids = the_data
+        save("white_ids")
+    except Exception as e:
+        logger.warning(f"Receive white users error: {e}", exc_info=True)
 
     return False

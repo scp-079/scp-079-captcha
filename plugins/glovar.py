@@ -785,6 +785,9 @@ watch_ids: Dict[str, Dict[int, int]] = {
 #     }
 # }
 
+white_ids: Set[int] = set()
+# white_ids = {12345678}
+
 # Init data variables
 
 configs: Dict[int, Dict[str, Union[bool, int]]] = {}
@@ -822,7 +825,7 @@ for word_type in regex:
 
 # Load data
 file_list: List[str] = ["admin_ids", "bad_ids", "failed_ids", "lack_group_ids", "left_group_ids", "message_ids",
-                        "pinned_ids", "trust_ids", "user_ids", "watch_ids",
+                        "pinned_ids", "trust_ids", "user_ids", "watch_ids", "white_ids",
                         "configs", "invite"]
 file_list += [f"{f}_words" for f in regex]
 

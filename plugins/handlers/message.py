@@ -34,7 +34,8 @@ from ..functions.receive import receive_add_bad, receive_check_log, receive_clea
 from ..functions.receive import receive_config_reply, receive_config_show, receive_declared_message
 from ..functions.receive import receive_help_captcha, receive_kicked_user, receive_leave_approve, receive_regex
 from ..functions.receive import receive_refresh, receive_remove_bad, receive_remove_score, receive_remove_watch
-from ..functions.receive import receive_rollback, receive_text_data, receive_user_score, receive_watch_user
+from ..functions.receive import receive_remove_white, receive_rollback, receive_text_data, receive_user_score
+from ..functions.receive import receive_watch_user, receive_white_users
 from ..functions.telegram import get_admins, send_message
 from ..functions.timers import backup_files, send_count, share_failed_users
 from ..functions.user import kick_user, terminate_user
@@ -406,7 +407,17 @@ def process_data(client: Client, message: Message) -> bool:
         # so it is intentionally written like this
         if glovar.sender in receivers:
 
-            if sender == "CLEAN":
+            if sender == "AVATAR":
+
+                if action == "add":
+                    if action_type == "white":
+                        receive_white_users(client, message)
+
+                elif action == "remove":
+                    if action_type == "white":
+                        receive_remove_white(data)
+
+            elif sender == "CLEAN":
 
                 if action == "add":
                     if action_type == "bad":
