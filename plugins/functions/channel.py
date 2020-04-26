@@ -25,6 +25,7 @@ from pyrogram import Chat, Client, Message
 from .. import glovar
 from .etc import code, code_block, general_link, get_readable_time, lang, message_link, thread
 from .file import crypt_file, data_to_file, delete_file, get_new_path, save
+from .filters import is_class_d_user
 from .telegram import get_group_info, send_document, send_message
 
 # Enable logging
@@ -64,6 +65,9 @@ def ask_for_help(client: Client, level: str, gid: int, uid: int, group: str = "s
 def ask_help_welcome(client: Client, uid: int, gids: List[int], mid: int = None) -> bool:
     # Ask help welcome
     try:
+        if is_class_d_user(uid):
+            return True
+
         if all(glovar.tip_id not in glovar.trust_ids[gid] for gid in gids):
             return True
 

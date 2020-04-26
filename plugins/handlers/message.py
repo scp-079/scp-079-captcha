@@ -32,9 +32,9 @@ from ..functions.group import delete_message, leave_group
 from ..functions.ids import init_group_id
 from ..functions.receive import receive_add_bad, receive_check_log, receive_clear_data, receive_config_commit
 from ..functions.receive import receive_config_reply, receive_config_show, receive_declared_message
-from ..functions.receive import receive_help_captcha, receive_leave_approve, receive_regex, receive_refresh
-from ..functions.receive import receive_remove_bad, receive_remove_score, receive_remove_watch, receive_rollback
-from ..functions.receive import receive_text_data, receive_user_score, receive_warn_banned_user, receive_watch_user
+from ..functions.receive import receive_help_captcha, receive_kicked_user, receive_leave_approve, receive_regex
+from ..functions.receive import receive_refresh, receive_remove_bad, receive_remove_score, receive_remove_watch
+from ..functions.receive import receive_rollback, receive_text_data, receive_user_score, receive_watch_user
 from ..functions.telegram import get_admins, send_message
 from ..functions.timers import backup_files, send_count, share_failed_users
 from ..functions.user import kick_user, terminate_user
@@ -585,7 +585,7 @@ def process_data(client: Client, message: Message) -> bool:
 
                 if action == "help":
                     if action_type == "delete":
-                        receive_warn_banned_user(client, data)
+                        receive_kicked_user(client, data)
 
         return True
     except Exception as e:
