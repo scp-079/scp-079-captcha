@@ -453,7 +453,7 @@ def question_status(client: Client, uid: int, the_type: str) -> bool:
         mid = glovar.user_ids[uid]["mid"]
         text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
                 f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
-                f"{lang('description')}{lang('colon')}{code(f'description_{the_type}')}\n")
+                f"{lang('description')}{lang('colon')}{code(lang(f'description_{the_type}'))}\n")
 
         if the_type == "wrong":
             text += f"{lang('suggestion')}{lang('colon')}{code(lang('suggestion_wrong'))}\n"
