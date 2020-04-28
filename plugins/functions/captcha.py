@@ -445,30 +445,52 @@ def question_change(client: Client, uid: int, mid: int) -> bool:
 
 def question_status(client: Client, uid: int, the_type: str) -> bool:
     # Reply question status
-    try:
-        # Decide the description
-        if the_type == "again":
-            description = lang("description_again")
-        elif the_type == "succeed":
-            description = lang("description_succeed")
-        elif the_type == "wrong":
-            description = lang("description_wrong")
-        else:
-            description = ""
+    result = False
 
-        # Send the report message
+    try:
+        # Generate the text
         name = glovar.user_ids[uid]["name"]
         mid = glovar.user_ids[uid]["mid"]
         text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
                 f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
-                f"{lang('description')}{lang('colon')}{code(description)}\n")
-        thread(send_report_message, (10, client, glovar.captcha_group_id, text, mid))
+                f"{lang('description')}{lang('colon')}{code(f'description_{the_type}')}\n")
 
-        return True
+        if the_type == "wrong":
+            text += f"{lang('suggestion')}{lang('colon')}{code(lang('suggestion_wrong'))}\n"
+
+        # Get the markup
+        if glovar.more and the_type == "succeed":
+            markup = InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            text=glovar.more_text,
+                            url=glovar.more_link
+                        )
+                    ]
+                ]
+            )
+        else:
+            markup = None
+
+        # Decide the time
+        if the_type == "again":
+            secs = 10
+        elif the_type == "succeed":
+            secs = 20
+        elif the_type == "wrong":
+            secs = 15
+        else:
+            secs = 5
+
+        # Send the message
+        thread(send_report_message, (secs, client, glovar.captcha_group_id, text, mid, markup))
+
+        result = True
     except Exception as e:
         logger.warning(f"Question status error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 def captcha_chengyu() -> dict:
