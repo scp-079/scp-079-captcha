@@ -681,7 +681,7 @@ def is_should_ignore(gid: int, user: User, aid: int = 0) -> bool:
         if glovar.pinned_ids[gid]["start"]:
             return False
 
-        name = get_full_name(user, True, True)
+        name = get_full_name(user, True, True, True)
 
         if not name or not is_nm_text(name):
             return False

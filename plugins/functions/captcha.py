@@ -986,7 +986,7 @@ def user_captcha(client: Client, message: Optional[Message], gid: int, user: Use
             return True
 
         # Check name
-        name = get_full_name(user, True, True)
+        name = get_full_name(user, True, True, True)
         ban_name = is_nm_text(name)
         wb_name = is_wb_text(name, False)
 
