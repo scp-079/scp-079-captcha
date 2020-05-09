@@ -25,6 +25,7 @@ from pyrogram import Client, Filters, Message
 from .. import glovar
 from ..functions.captcha import send_static, user_captcha
 from ..functions.channel import get_debug_text, share_data
+from ..functions.decorators import threaded
 from ..functions.etc import bold, code, delay, get_command_context, get_command_type, get_int, get_now, get_text, lang
 from ..functions.etc import mention_id, thread
 from ..functions.file import save
@@ -33,7 +34,7 @@ from ..functions.filters import is_class_c, is_class_e, is_from_user, test_group
 from ..functions.group import delete_message, get_config_text
 from ..functions.telegram import get_group_info, get_messages, resolve_username, send_message, send_report_message
 from ..functions.timers import new_invite_link
-from ..functions.user import terminate_user
+from ..functions.user import terminate_user_pass, terminate_user_succeed, terminate_user_undo_pass
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -157,10 +158,7 @@ def config(client: Client, message: Message) -> bool:
     except Exception as e:
         logger.warning(f"Config error: {e}", exc_info=True)
     finally:
-        if is_class_c(None, message):
-            delay(3, delete_message, [client, gid, mid])
-        else:
-            delete_message(client, gid, mid)
+        delay(3, delete_message, [client, gid, mid]) if is_class_c(None, message) else delete_message(client, gid, mid)
 
     return False
 
@@ -331,9 +329,8 @@ def pass_captcha(client: Client, message: Message) -> bool:
                      or glovar.user_ids[uid]["failed"]
                      or glovar.user_ids[uid]["restricted"]
                      or glovar.user_ids[uid]["banned"])):
-            terminate_user(
+            terminate_user_succeed(
                 client=client,
-                the_type="succeed",
                 uid=uid
             )
             text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
@@ -406,9 +403,8 @@ def pass_group(client: Client, message: Message) -> bool:
 
         if uid:
             if glovar.user_ids.get(uid, {}) and glovar.user_ids[uid]["wait"].get(gid, 0):
-                terminate_user(
+                terminate_user_pass(
                     client=client,
-                    the_type="pass",
                     uid=uid,
                     gid=gid,
                     aid=aid
@@ -417,9 +413,8 @@ def pass_group(client: Client, message: Message) -> bool:
                          f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
                          f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
             elif glovar.user_ids[uid]["pass"].get(gid, 0):
-                terminate_user(
+                terminate_user_undo_pass(
                     client=client,
-                    the_type="undo_pass",
                     uid=uid,
                     gid=gid,
                     aid=aid
@@ -463,6 +458,7 @@ def static(client: Client, message: Message) -> bool:
     mid = message.message_id
 
     glovar.locks["message"].acquire()
+
     try:
         # Check permission
         if not is_class_c(None, message):
@@ -476,7 +472,7 @@ def static(client: Client, message: Message) -> bool:
 
         # Proceed
         hint_text = f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n"
-        thread(send_static, (client, gid, hint_text))
+        send_static(client, gid, hint_text)
 
         # Send the report message
         thread(send_report_message, (15, client, gid, text))
@@ -494,8 +490,11 @@ def static(client: Client, message: Message) -> bool:
 @Client.on_message(Filters.incoming & Filters.group & Filters.command(["version"], glovar.prefix)
                    & test_group
                    & from_user)
+@threaded()
 def version(client: Client, message: Message) -> bool:
     # Check the program's version
+    result = False
+
     try:
         # Basic data
         cid = message.chat.id
@@ -507,10 +506,8 @@ def version(client: Client, message: Message) -> bool:
                 f"{lang('version')}{lang('colon')}{bold(glovar.version)}\n")
 
         # Send the report message
-        thread(send_message, (client, cid, text, mid))
-
-        return True
+        result = send_message(client, cid, text, mid)
     except Exception as e:
         logger.warning(f"Version error: {e}", exc_info=True)
 
-    return False
+    return result

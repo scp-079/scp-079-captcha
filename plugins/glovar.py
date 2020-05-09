@@ -30,6 +30,7 @@ from typing import Dict, List, Set, Union
 
 from emoji import UNICODE_EMOJI
 from pyrogram import Chat
+from yaml import safe_load
 
 # Enable logging
 logging.basicConfig(
@@ -51,15 +52,22 @@ prefix_str: str = "/!"
 avatar_id: int = 0
 captcha_id: int = 0
 clean_id: int = 0
+index_id: int = 0
 lang_id: int = 0
 long_id: int = 0
 noflood_id: int = 0
 noporn_id: int = 0
 nospam_id: int = 0
-recheck_id: int = 0
 tip_id: int = 0
 user_id: int = 0
 warn_id: int = 0
+
+# [captcha]
+captcha_link: str = ""
+font_chinese: str = ""
+font_english: str = ""
+font_number: str = ""
+noise: float = 0.0
 
 # [channels]
 captcha_group_id: int = 0
@@ -70,36 +78,12 @@ hide_channel_id: int = 0
 test_group_id: int = 0
 
 # [custom]
-aio: Union[bool, str] = ""
-backup: Union[bool, str] = ""
-captcha_link: str = ""
-date_reset: str = ""
 default_group_link: str = ""
-failed: Union[bool, str] = ""
-font_chinese: str = ""
-font_english: str = ""
-font_number: str = ""
-limit_mention: int = 0
-limit_static: int = 0
-limit_track: int = 0
-limit_try: int = 0
 more: Union[bool, str] = ""
 more_link: str = ""
 more_text: str = ""
-noise: float = 0.0
 project_link: str = ""
 project_name: str = ""
-simple: Union[bool, str] = ""
-simple_only: Union[bool, str] = ""
-time_captcha: int = 0
-time_invite: int = 0
-time_new: int = 0
-time_punish: int = 0
-time_recheck: int = 0
-time_remove: int = 0
-time_short: int = 0
-time_track: int = 0
-zh_cn: Union[bool, str] = ""
 
 # [emoji]
 emoji_ad_single: int = 0
@@ -113,6 +97,34 @@ emoji_wb_total: int = 0
 key: Union[bytes, str] = ""
 password: str = ""
 
+# [language]
+lang: str = ""
+normalize: Union[bool, str] = ""
+
+# [limit]
+limit_flood: int = 0
+limit_mention: int = 0
+limit_track: int = 0
+limit_try: int = 0
+
+# [mode]
+aio: Union[bool, str] = ""
+backup: Union[bool, str] = ""
+failed: Union[bool, str] = ""
+simple: Union[bool, str] = ""
+simple_only: Union[bool, str] = ""
+
+# [time]
+date_reset: str = ""
+time_captcha: int = 0
+time_invite: int = 0
+time_new: int = 0
+time_punish: int = 0
+time_recheck: int = 0
+time_remove: int = 0
+time_short: int = 0
+time_track: int = 0
+
 try:
     config = RawConfigParser()
     config.read("config.ini")
@@ -125,15 +137,22 @@ try:
     avatar_id = int(config["bots"].get("avatar_id", str(avatar_id)))
     captcha_id = int(config["bots"].get("captcha_id", str(captcha_id)))
     clean_id = int(config["bots"].get("clean_id", str(clean_id)))
+    index_id = int(config["bots"].get("index_id", str(index_id)))
     lang_id = int(config["bots"].get("lang_id", str(lang_id)))
     long_id = int(config["bots"].get("long_id", str(long_id)))
     noflood_id = int(config["bots"].get("noflood_id", str(noflood_id)))
     noporn_id = int(config["bots"].get("noporn_id", str(noporn_id)))
     nospam_id = int(config["bots"].get("nospam_id", str(nospam_id)))
-    recheck_id = int(config["bots"].get("recheck_id", str(recheck_id)))
     tip_id = int(config["bots"].get("tip_id", str(tip_id)))
     user_id = int(config["bots"].get("user_id", str(user_id)))
     warn_id = int(config["bots"].get("warn_id", str(warn_id)))
+
+    # [captcha]
+    captcha_link = config["captcha"].get("captcha_link", captcha_link)
+    font_chinese = config["captcha"].get("font_chinese", font_chinese)
+    font_english = config["captcha"].get("font_english", font_english)
+    font_number = config["captcha"].get("font_number", font_number)
+    noise = float(config["captcha"].get("noise", str(noise)))
 
     # [channels]
     captcha_group_id = int(config["channels"].get("captcha_group_id", str(captcha_group_id)))
@@ -144,43 +163,13 @@ try:
     test_group_id = int(config["channels"].get("test_group_id", str(test_group_id)))
 
     # [custom]
-    aio = config["custom"].get("aio", aio)
-    aio = eval(aio)
-    backup = config["custom"].get("backup", backup)
-    backup = eval(backup)
-    captcha_link = config["custom"].get("captcha_link", captcha_link)
-    date_reset = config["custom"].get("date_reset", date_reset)
     default_group_link = config["custom"].get("default_group_link", default_group_link)
-    failed = config["custom"].get("failed", failed)
-    failed = eval(failed)
-    font_chinese = config["custom"].get("font_chinese", font_chinese)
-    font_english = config["custom"].get("font_english", font_english)
-    font_number = config["custom"].get("font_number", font_number)
-    limit_mention = int(config["custom"].get("limit_mention", str(limit_mention)))
-    limit_static = int(config["custom"].get("limit_static", str(limit_static)))
-    limit_track = int(config["custom"].get("limit_track", str(limit_track)))
-    limit_try = int(config["custom"].get("limit_try", str(limit_try)))
     more = config["custom"].get("more", more)
     more = eval(more)
     more_link = config["custom"].get("more_link", more_link)
     more_text = config["custom"].get("more_text", more_text)
-    noise = float(config["custom"].get("noise", str(noise)))
     project_link = config["custom"].get("project_link", project_link)
     project_name = config["custom"].get("project_name", project_name)
-    simple = config["custom"].get("simple", simple)
-    simple = eval(simple)
-    simple_only = config["custom"].get("simple_only", simple_only)
-    simple_only = eval(simple_only)
-    time_captcha = int(config["custom"].get("time_captcha", str(time_captcha)))
-    time_invite = int(config["custom"].get("time_invite", str(time_invite)))
-    time_new = int(config["custom"].get("time_new", str(time_new)))
-    time_punish = int(config["custom"].get("time_punish", str(time_punish)))
-    time_recheck = int(config["custom"].get("time_recheck", str(time_recheck)))
-    time_remove = int(config["custom"].get("time_remove", str(time_remove)))
-    time_short = int(config["custom"].get("time_short", str(time_short)))
-    time_track = int(config["custom"].get("time_track", str(time_track)))
-    zh_cn = config["custom"].get("zh_cn", zh_cn)
-    zh_cn = eval(zh_cn)
 
     # [emoji]
     emoji_ad_single = int(config["emoji"].get("emoji_ad_single", str(emoji_ad_single)))
@@ -194,51 +183,117 @@ try:
     key = config["encrypt"].get("key", key)
     key = key.encode("utf-8")
     password = config["encrypt"].get("password", password)
+
+    # [language]
+    lang = config["language"].get("lang", lang)
+    normalize = config["language"].get("normalize", normalize)
+    normalize = eval(normalize)
+
+    # [limit]
+    limit_flood = int(config["limit"].get("limit_flood", str(limit_flood)))
+    limit_mention = int(config["limit"].get("limit_mention", str(limit_mention)))
+    limit_track = int(config["limit"].get("limit_track", str(limit_track)))
+    limit_try = int(config["limit"].get("limit_try", str(limit_try)))
+
+    # [mode]
+    aio = config["mode"].get("aio", aio)
+    aio = eval(aio)
+    backup = config["mode"].get("backup", backup)
+    backup = eval(backup)
+    failed = config["mode"].get("failed", failed)
+    failed = eval(failed)
+    simple = config["mode"].get("simple", simple)
+    simple = eval(simple)
+    simple_only = config["mode"].get("simple_only", simple_only)
+    simple_only = eval(simple_only)
+
+    # [time]
+    date_reset = config["time"].get("date_reset", date_reset)
+    time_captcha = int(config["time"].get("time_captcha", str(time_captcha)))
+    time_invite = int(config["time"].get("time_invite", str(time_invite)))
+    time_new = int(config["time"].get("time_new", str(time_new)))
+    time_punish = int(config["time"].get("time_punish", str(time_punish)))
+    time_recheck = int(config["time"].get("time_recheck", str(time_recheck)))
+    time_remove = int(config["time"].get("time_remove", str(time_remove)))
+    time_short = int(config["time"].get("time_short", str(time_short)))
+    time_track = int(config["time"].get("time_track", str(time_track)))
 except Exception as e:
     logger.warning(f"Read data from config.ini error: {e}", exc_info=True)
 
 # Check
-if (bot_token in {"", "[DATA EXPUNGED]"}
+if (False
+        # [basic]
+        or bot_token in {"", "[DATA EXPUNGED]"}
         or prefix == []
+
+        # [bots]
         or avatar_id == 0
         or captcha_id == 0
         or clean_id == 0
+        or index_id == 0
         or lang_id == 0
         or long_id == 0
         or noflood_id == 0
         or noporn_id == 0
         or nospam_id == 0
-        or recheck_id == 0
         or tip_id == 0
         or user_id == 0
         or warn_id == 0
+
+        # [captcha]
+        or captcha_link in {"", "[DATA EXPUNGED]"}
+        or font_chinese in {"", "[DATA EXPUNGED]"}
+        or font_english in {"", "[DATA EXPUNGED]"}
+        or font_number in {"", "[DATA EXPUNGED]"}
+        or noise == 0.0
+
+        # [channels]
         or captcha_group_id == 0
         or critical_channel_id == 0
         or debug_channel_id == 0
         or exchange_channel_id == 0
         or hide_channel_id == 0
         or test_group_id == 0
-        or aio not in {False, True}
-        or backup not in {False, True}
-        or captcha_link in {"", "[DATA EXPUNGED]"}
-        or date_reset in {"", "[DATA EXPUNGED]"}
+
+        # [custom]
         or default_group_link in {"", "[DATA EXPUNGED]"}
-        or failed not in {False, True}
-        or font_chinese in {"", "[DATA EXPUNGED]"}
-        or font_english in {"", "[DATA EXPUNGED]"}
-        or font_number in {"", "[DATA EXPUNGED]"}
-        or limit_mention == 0
-        or limit_static == 0
-        or limit_track == 0
-        or limit_try == 0
         or more not in {False, True}
         or more_link in {"", "[DATA EXPUNGED]"}
         or more_text in {"", "[DATA EXPUNGED]"}
-        or noise == 0.0
         or project_link in {"", "[DATA EXPUNGED]"}
         or project_name in {"", "[DATA EXPUNGED]"}
+
+        # [emoji]
+        or emoji_ad_single == 0
+        or emoji_ad_total == 0
+        or emoji_many == 0
+        or emoji_protect in {"", "[DATA EXPUNGED]"}
+        or emoji_wb_single == 0
+        or emoji_wb_total == 0
+
+        # [encrypt]
+        or key in {b"", b"[DATA EXPUNGED]", "", "[DATA EXPUNGED]"}
+        or password in {"", "[DATA EXPUNGED]"}
+
+        # [language]
+        or lang in {"", "[DATA EXPUNGED]"}
+        or normalize not in {False, True}
+
+        # [limit]
+        or limit_mention == 0
+        or limit_flood == 0
+        or limit_track == 0
+        or limit_try == 0
+
+        # [mode]
+        or aio not in {False, True}
+        or backup not in {False, True}
+        or failed not in {False, True}
         or simple not in {False, True}
         or simple_only not in {False, True}
+
+        # [time]
+        or date_reset in {"", "[DATA EXPUNGED]"}
         or time_captcha == 0
         or time_invite == 0
         or time_new == 0
@@ -246,233 +301,34 @@ if (bot_token in {"", "[DATA EXPUNGED]"}
         or time_recheck == 0
         or time_remove == 0
         or time_short == 0
-        or time_track == 0
-        or zh_cn not in {False, True}
-        or emoji_ad_single == 0
-        or emoji_ad_total == 0
-        or emoji_many == 0
-        or emoji_protect in {"", "[DATA EXPUNGED]"}
-        or emoji_wb_single == 0
-        or emoji_wb_total == 0
-        or key in {b"", b"[DATA EXPUNGED]", "", "[DATA EXPUNGED]"}
-        or password in {"", "[DATA EXPUNGED]"}):
+        or time_track == 0):
     logger.critical("No proper settings")
     raise SystemExit("No proper settings")
 
-# Languages
-lang: Dict[str, str] = {
-    # Admin
-    "admin": (zh_cn and "管理员") or "Admin",
-    "admin_group": (zh_cn and "群管理") or "Group Admin",
-    "admin_project": (zh_cn and "项目管理员") or "Project Admin",
-    # Basic
-    "action": (zh_cn and "执行操作") or "Action",
-    "clear": (zh_cn and "清空数据") or "Clear Data",
-    "colon": (zh_cn and "：") or ": ",
-    "description": (zh_cn and "说明") or "Description",
-    "disabled": (zh_cn and "禁用") or "Disabled",
-    "enabled": (zh_cn and "启用") or "Enabled",
-    "name": (zh_cn and "名称") or "Name",
-    "reason": (zh_cn and "原因") or "Reason",
-    "reset": (zh_cn and "重置数据") or "Reset Data",
-    "rollback": (zh_cn and "数据回滚") or "Rollback",
-    "score": (zh_cn and "评分") or "Score",
-    "status_failed": (zh_cn and "未执行") or "Failed",
-    "status_succeeded": (zh_cn and "成功执行") or "Succeeded",
-    "version": (zh_cn and "版本") or "Version",
-    # Config
-    "config": (zh_cn and "设置") or "Settings",
-    "config_button": (zh_cn and "请点击下方按钮进行设置") or "Press the Button to Config",
-    "config_change": (zh_cn and "更改设置") or "Change Config",
-    "config_create": (zh_cn and "创建设置会话") or "Create Config Session",
-    "config_go": (zh_cn and "前往设置") or "Go to Config",
-    "config_locked": (zh_cn and "设置当前被锁定") or "Config is Locked",
-    "config_show": (zh_cn and "查看设置") or "Show Config",
-    "config_updated": (zh_cn and "已更新") or "Updated",
-    "custom": (zh_cn and "自定义") or "Custom",
-    "default": (zh_cn and "默认") or "Default",
-    "delete": (zh_cn and "协助删除") or "Help Delete",
-    "restrict": (zh_cn and "禁言模式") or "Restriction Mode",
-    "ban": (zh_cn and "封禁模式") or "Ban Mode",
-    "forgive": (zh_cn and "自动解禁") or "Auto Forgive",
-    "hint": (zh_cn and "入群提示") or "Hint for New Joined User",
-    "pass": (zh_cn and "自动免验证") or "Auto Pass",
-    "pin": (zh_cn and "自动置顶") or "Auto Pin",
-    "manual": (zh_cn and "仅手动") or "Manual Only",
-    # Command
-    "command_lack": (zh_cn and "命令参数缺失") or "Lack of Parameter",
-    "command_para": (zh_cn and "命令参数有误") or "Incorrect Command Parameter",
-    "command_type": (zh_cn and "命令类别有误") or "Incorrect Command Type",
-    "command_usage": (zh_cn and "用法有误") or "Incorrect Usage",
-    # Debug
-    "evidence": (zh_cn and "证据留存") or "Evidence",
-    "triggered_by": (zh_cn and "触发消息") or "Triggered By",
-    # Emergency
-    "issue": (zh_cn and "发现状况") or "Issue",
-    "exchange_invalid": (zh_cn and "数据交换频道失效") or "Exchange Channel Invalid",
-    "auto_fix": (zh_cn and "自动处理") or "Auto Fix",
-    "protocol_1": (zh_cn and "启动 1 号协议") or "Initiate Protocol 1",
-    "transfer_channel": (zh_cn and "频道转移") or "Transfer Channel",
-    "emergency_channel": (zh_cn and "应急频道") or "Emergency Channel",
-    # Group
-    "group_id": (zh_cn and "群组 ID") or "Group ID",
-    "group_name": (zh_cn and "群组名称") or "Group Name",
-    "inviter": (zh_cn and "邀请人") or "Inviter",
-    "leave_auto": (zh_cn and "自动退出并清空数据") or "Leave automatically",
-    "leave_approve": (zh_cn and "已批准退出群组") or "Approve to Leave the Group",
-    "reason_admin": (zh_cn and "获取管理员列表失败") or "Failed to Fetch Admin List",
-    "reason_leave": (zh_cn and "非管理员或已不在群组中") or "Not Admin in Group",
-    "reason_none": (zh_cn and "无数据") or "No Data",
-    "reason_permissions": (zh_cn and "权限缺失") or "Missing Permissions",
-    "reason_unauthorized": (zh_cn and "未授权使用") or "Unauthorized",
-    "reason_user": (zh_cn and "缺失 USER") or "Missing USER",
-    "refresh": (zh_cn and "刷新群管列表") or "Refresh Admin Lists",
-    "status_joined": (zh_cn and "已加入群组") or "Joined the Group",
-    "status_left": (zh_cn and "已退出群组") or "Left the Group",
-    # More
-    "privacy": (zh_cn and "可能涉及隐私而未转发") or "Not Forwarded Due to Privacy Reason",
-    "cannot_forward": (zh_cn and "此类消息无法转发至频道") or "The Message Cannot be Forwarded to Channel",
-    # Message Types
-    "gam": (zh_cn and "游戏") or "Game",
-    "ser": (zh_cn and "服务消息") or "Service",
-    # Record
-    "project": (zh_cn and "项目编号") or "Project",
-    "project_origin": (zh_cn and "原始项目") or "Original Project",
-    "status": (zh_cn and "状态") or "Status",
-    "user_id": (zh_cn and "用户 ID") or "User ID",
-    "level": (zh_cn and "操作等级") or "Level",
-    "rule": (zh_cn and "规则") or "Rule",
-    "message_type": (zh_cn and "消息类别") or "Message Type",
-    "message_game": (zh_cn and "游戏标识") or "Game Short Name",
-    "message_lang": (zh_cn and "消息语言") or "Message Language",
-    "message_len": (zh_cn and "消息长度") or "Message Length",
-    "message_freq": (zh_cn and "消息频率") or "Message Frequency",
-    "user_score": (zh_cn and "用户得分") or "User Score",
-    "user_bio": (zh_cn and "用户简介") or "User Bio",
-    "user_name": (zh_cn and "用户昵称") or "User Name",
-    "from_name": (zh_cn and "来源名称") or "Forward Name",
-    "contact": (zh_cn and "联系方式") or "Contact Info",
-    "more": (zh_cn and "附加信息") or "Extra Info",
-    # Special
-    "action_invite": (zh_cn and "重新生成邀请链接") or "Generate New Invite Link",
-    "action_count": (zh_cn and "核查统计") or "Log Count",
-    "action_flood": (zh_cn and "检测到轰炸") or "Flood Detected",
-    "action_normal": (zh_cn and "轰炸已终止") or "Flood Stopped",
-    "action_pass": (zh_cn and "手动通过") or "Pass Manually",
-    "action_static": (zh_cn and "发送固定提示消息") or "Send Static Hint",
-    "action_undo_pass": (zh_cn and "撤销放行") or "Undo Pass",
-    "action_verified": (zh_cn and "通过验证") or "Verified",
-    "action_wait": (zh_cn and "等待验证") or "Wait for Verification",
-    "attention": (zh_cn and "注意") or "Attention",
-    "attention_invite": ((zh_cn and "如果提示链接无效，可能是因为链接正在更新，请多试几次")
-                         or ("If it prompts that the link is invalid, "
-                             "it may be because the link is being updated, please try a few more times")),
-    "check_admin": ((zh_cn and "您为管理员，您可自由加入验证群组中查看机器人运行情况")
-                    or "You are an admin, you are free to join the verification group to see how the bot works"),
-    "check_no": (zh_cn and "您在本群中不需要验证即可发言") or "You can send messages without verification in this group",
-    "check_pass": (zh_cn and "您在本群中已通过验证") or "You have passed the verification in this group",
-    "check_yes": (zh_cn and "您需要验证才能在本群发言") or "You need to verify to send messages in this group",
-    "captcha_check": (zh_cn and "我需要验证吗") or "Should I Verify",
-    "captcha_go": (zh_cn and "前往验证") or "Go to Verify",
-    "description_ask": (zh_cn and (f"请您尽快回答下方的问题以完成验证，"
-                                   f"您可以点击正确答案的按钮或直接发送正确答案。"
-                                   f"注意，您共有 {{}} 次机会回答问题，答错将导致验证失败。"
-                                   f"您在本群的任何发言均将视为对问题的回答，请谨慎发言")
-                        or (f"Please answer the question below to complete the verification as soon as possible. "
-                            f"You can click the right answer's button or send the right answer directly. "
-                            f"Note that you have {{}} chances to answer the question, "
-                            f"and incorrect answers will cause the verification to fail. "
-                            f"Any message you send in this group will be considered as an answer to the question, "
-                            f"please send carefully")),
-    "description_again": ((zh_cn and "回答错误，请调整答案，再试一次")
-                          or "Wrong answer, please adjust the answer and try again"),
-    "description_captcha": (zh_cn and (f"待验证用户，请您点击下方右侧按钮进行验证，"
-                                       f"请在 {time_captcha} 秒内完成验证，否则您将被移出本群。"
-                                       f"如果您不是新入群用户，则本次验证为群组管理员的手动要求")
-                            or (f"For users need to be verified, please click the button below to verify. "
-                                f"Please complete verification within {time_captcha} seconds, "
-                                f"or you will be removed from the group. "
-                                f"If you are not a new user, "
-                                f"this verification is a manual request by the group admin")),
-    "description_hint": (zh_cn and (f"新入群用户，请您点击下方右侧按钮进行验证，"
-                                    f"请在 {time_captcha} 秒内完成验证，否则您将被移出本群")
-                         or (f"For new joined users, please click the button below to verify. "
-                             f"Please complete verification within {time_captcha} seconds, "
-                             f"or you will be removed from the group")),
-    "description_banned": (zh_cn and "群管理封禁") or "Group admin passed your verification",
-    "description_log": (zh_cn and "日志核查") or "Log check",
-    "description_nospam": (zh_cn and (f"请您点击下方右侧按钮进行验证，"
-                                      f"请在 {time_captcha} 秒内完成验证，否则您将被移出本群。"
-                                      f"您触发了防广告机器人的封禁规则，但由于您入群时间较长，故未封禁您，但要求您完成一次验证")
-                           or (f"Please click the button below to verify. "
-                               f"Please complete verification within {time_captcha} seconds, "
-                               f"or you will be removed from the group. "
-                               f"You triggered the rules of the anti-ad bot, "
-                               f"but because you have been in the group for a long time, "
-                               f"the bot does not ban You, but requires you to complete a verification")),
-    "description_pass": (zh_cn and "群管理放行") or "Group admin banned you",
-    "description_succeed": ((zh_cn and "验证成功，您可在相应群组中正常发言")
-                            or "The verification is successful and you can speak in corresponding groups"),
-    "description_timeout": (zh_cn and "验证超时") or "Verification Timeout",
-    "description_wrong": (zh_cn and "验证失败，回答错误") or "Verification failed. Wrong answer",
-    "flood_count": (zh_cn and "核查移除") or "Check Count",
-    "flood_duration": (zh_cn and "轰炸时长") or "Flood Duration",
-    "flood_static": (zh_cn and "自动静态提示") or "Auto Static Hint",
-    "flood_total": (zh_cn and "轰炸总人数") or "Flood Total",
-    "invite_button": (zh_cn and "加入验证群组") or "Join CAPTCHA Group",
-    "invite_text": (zh_cn and "请在专用群组中进行验证") or "Please verify in a private group",
-    "question": (zh_cn and "问题") or "Question",
-    "question_attention": ((zh_cn and "请确认哪个是对自己发出的问题再回答")
-                           or "Please confirm which question is yours before answering"),
-    "question_change": (zh_cn and "更换问题") or "Change the Question",
-    "question_chengyu": (zh_cn and "请发送上图所显示的成语") or "Please send the idiom shown in the above picture",
-    "question_food": ((zh_cn and "正确答案在下方按钮中，请选择或发送上图所显示的名称")
-                      or ("The correct answer is in the buttons below, "
-                          "please select or send the name shown in the above image")),
-    "question_letter": ((zh_cn and "请发送上图所显示的一串英文字母（无数字，全部为英文字母），不区分大小写")
-                        or "Please send a string of English letters (no numbers) as shown above, not case sensitive"),
-    "question_math_pic": ((zh_cn and "正确答案在下方按钮中，请选择或发送上图中所显示的加减法算术题的正确答案")
-                          or ("The correct answer is in the buttons below, please select or send the correct answer to "
-                              "the addition or subtraction arithmetic question shown in the figure above")),
-    "question_pic": ((zh_cn and "正确答案在下方按钮中，请选择或发送上图中所显示物体的正确名称")
-                     or ("The correct answer is in the buttons below, "
-                         "please select or send the correct name of the object shown in the picture above")),
-    "question_number": ((zh_cn and "请发送上图所显示的一串数字（无英文字母，全部为数字）")
-                        or "Please send a string of numbers as shown above"),
-    "suggestion": (zh_cn and "建议") or "Suggestion",
-    "suggestion_wrong": ((zh_cn and f"请您等待 {time_punish} 秒后，再重新加入原始群组（非本群）触发新的验证请求")
-                         or f"Please wait {time_punish} seconds before re-joining the original group for verification"),
-    "triggered_time": (zh_cn and "触发时间") or "Triggered Time",
-    "wait_user": (zh_cn and "待验证用户") or "Users Need to Be Verified",
-    # Terminate
-    "auto_ban": (zh_cn and "自动封禁") or "Auto Ban",
-    "auto_delete": (zh_cn and "自动删除") or "Auto Delete",
-    "auto_kick": (zh_cn and "自动移除") or "Auto Kick",
-    "auto_restrict": (zh_cn and "自动禁言") or "Auto Restrict",
-    "global_delete": (zh_cn and "全局删除") or "Global Delete",
-    "name_ban": (zh_cn and "名称封禁") or "Ban by Name",
-    "name_examine": (zh_cn and "名称检查") or "Name Examination",
-    "name_recheck": (zh_cn and "名称复查") or "Name Recheck",
-    "op_downgrade": (zh_cn and "操作降级") or "Operation Downgrade",
-    "op_upgrade": (zh_cn and "操作升级") or "Operation Upgrade",
-    "rule_custom": (zh_cn and "群组自定义") or "Custom Rule",
-    "rule_global": (zh_cn and "全局规则") or "Global Rule",
-    "score_ban": (zh_cn and "评分封禁") or "Ban by Score",
-    "score_user": (zh_cn and "用户评分") or "High Score",
-    "watch_ban": (zh_cn and "追踪封禁") or "Watch Ban",
-    "watch_delete": (zh_cn and "追踪删除") or "Watch Delete",
-    "watch_user": (zh_cn and "敏感追踪") or "Watched User",
-    # Unit
-    "members": (zh_cn and "名") or "member(s)",
-    "seconds": (zh_cn and "秒") or "second(s)"
-}
+# Language Dictionary
+lang_dict: dict = {}
+
+try:
+    with open(f"languages/{lang}.yml", "r") as f:
+        lang_dict = safe_load(f)
+except Exception as e:
+    logger.critical(f"Reading language YAML file failed: {e}", exc_info=True)
+    raise SystemExit("Reading language YAML file failed")
 
 # Init
 
-all_commands: List[str] = ["captcha", "config", "config_captcha", "invite", "pass", "static", "version"]
+all_commands: List[str] = [
+    "captcha",
+    "config",
+    "config_captcha",
+    "invite",
+    "pass",
+    "static",
+    "version"
+]
 
-bot_ids: Set[int] = {avatar_id, captcha_id, clean_id, lang_id, long_id, noflood_id,
-                     noporn_id, nospam_id, recheck_id, tip_id, user_id, warn_id}
+bot_ids: Set[int] = {avatar_id, captcha_id, clean_id, index_id, lang_id, long_id,
+                     noflood_id, noporn_id, nospam_id, tip_id, user_id, warn_id}
 
 chats: Dict[int, Chat] = {}
 # chats = {
@@ -500,10 +356,19 @@ default_config: Dict[str, Union[bool, int]] = {
     "manual": False
 }
 
+default_custom_text: Dict[str, str] = {
+    "flood": "",
+    "manual": "",
+    "nospam": "",
+    "single": "",
+    "static": ""
+}
+
 default_message_data: Dict[str, Union[int, Dict[int, int], Set[int]]] = {
     "flood": set(),
     "hint": 0,
     "static": 0,
+    "manual": {},
     "nospam": {}
 }
 
@@ -511,7 +376,7 @@ default_pinned_data: Dict[str, int] = {
     "new_id": 0,
     "old_id": 0,
     "start": 0,
-    "time": 0
+    "last": 0
 }
 
 default_user_status: Dict[str, Union[int, str, Dict[Union[int, str], Union[float, int]], Set[int]]] = {
@@ -580,9 +445,9 @@ for question_type in replace_types:
 
 receivers: Dict[str, List[str]] = {
     "declare": ["ANALYZE", "AVATAR", "CAPTCHA", "CLEAN", "LANG", "LONG",
-                "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WARN", "WATCH"],
-    "score": ["ANALYZE", "CAPTCHA", "CLEAN", "LANG", "LONG", "MANAGE",
-              "NOFLOOD", "NOPORN", "NOSPAM", "RECHECK", "TIP", "USER", "WARN", "WATCH"]
+                "NOFLOOD", "NOPORN", "NOSPAM", "TIP", "USER", "WARN", "WATCH"],
+    "score": ["ANALYZE", "AVATAR", "CAPTCHA", "CLEAN", "INDEX", "LANG", "LONG",
+              "MANAGE", "NOFLOOD", "NOPORN", "NOSPAM", "TIP", "USER", "WARN", "WATCH"]
 }
 
 regex: Dict[str, bool] = {
@@ -614,7 +479,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.4.9"
+version: str = "0.5.0"
 
 # Load data from pics database
 
@@ -697,6 +562,15 @@ failed_ids: Dict[int, Dict[str, Union[bool, str]]] = {}
 #     }
 # }
 
+ignore_ids: Dict[str, Set[int]] = {
+    "nospam": set(),
+    "user": set()
+}
+# ignore_ids = {
+#     "nospam": {-10012345678},
+#     "user": {-10012345678}
+# }
+
 lack_group_ids: Set[int] = set()
 # lack_group_ids = {-10012345678}
 
@@ -709,8 +583,11 @@ message_ids: Dict[int, Dict[str, Union[int, Dict[int, int], Set[int]]]] = {}
 #         "flood": {120, 121, 122},
 #         "hint": 123,
 #         "static": 124,
-#         "nospam": {
+#         "manual": {
 #             125: 1512345678
+#         }
+#         "nospam": {
+#             126: 1512345678
 #         }
 #     }
 # }
@@ -721,7 +598,7 @@ pinned_ids: Dict[int, Dict[str, int]] = {}
 #         "new_id": 123,
 #         "old_id": 122,
 #         "start": 1512345678,
-#         "time": 1512345678
+#         "last": 1512345678
 #     }
 # }
 
@@ -805,6 +682,30 @@ configs: Dict[int, Dict[str, Union[bool, int]]] = {}
 #     }
 # }
 
+custom_texts: Dict[int, Dict[str, str]] = {}
+# custom_texts = {
+#     -10012345678: {
+#         "flood": "",
+#         "manual": "",
+#         "nospam": "",
+#         "single": "",
+#         "static": ""
+#     }
+# }
+
+flood_logs: Dict[int, List[Dict[str, Union[int, str]]]] = {}
+# flood_logs = {
+#     -10012345678: [
+#         {
+#             "user id": 12345678,
+#             "time": 205001011200,
+#             "action": "timeout",
+#             "message id": 0,
+#             "admin id": 0
+#         }
+#     ]
+# }
+
 invite: Dict[str, Union[int, str]] = {
     "link": "",
     "time": 0
@@ -824,9 +725,9 @@ for word_type in regex:
 # }
 
 # Load data
-file_list: List[str] = ["admin_ids", "bad_ids", "failed_ids", "lack_group_ids", "left_group_ids", "message_ids",
-                        "pinned_ids", "trust_ids", "user_ids", "watch_ids", "white_ids",
-                        "configs", "invite"]
+file_list: List[str] = ["admin_ids", "bad_ids", "failed_ids", "ignore_ids", "lack_group_ids", "left_group_ids",
+                        "message_ids", "pinned_ids", "trust_ids", "user_ids", "watch_ids", "white_ids",
+                        "configs", "custom_texts", "flood_logs", "invite"]
 file_list += [f"{f}_words" for f in regex]
 
 for file in file_list:

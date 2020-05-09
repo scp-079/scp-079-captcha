@@ -32,13 +32,13 @@ from ..functions.group import delete_message, leave_group
 from ..functions.ids import init_group_id
 from ..functions.receive import receive_add_bad, receive_check_log, receive_clear_data, receive_config_commit
 from ..functions.receive import receive_config_reply, receive_config_show, receive_declared_message
-from ..functions.receive import receive_help_captcha, receive_kicked_user, receive_leave_approve, receive_regex
+from ..functions.receive import receive_help_captcha, receive_warn_kicked_user, receive_leave_approve, receive_regex
 from ..functions.receive import receive_refresh, receive_remove_bad, receive_remove_score, receive_remove_watch
 from ..functions.receive import receive_remove_white, receive_rollback, receive_text_data, receive_user_score
 from ..functions.receive import receive_watch_user, receive_white_users
 from ..functions.telegram import get_admins, send_message
 from ..functions.timers import backup_files, send_count, share_failed_users
-from ..functions.user import kick_user, terminate_user
+from ..functions.user import kick_user, terminate_user_delete
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -110,10 +110,8 @@ def check(client: Client, message: Message) -> bool:
         if (glovar.user_ids.get(uid, {})
                 and (glovar.user_ids[uid]["wait"].get(gid, 0)
                      or glovar.user_ids[uid]["failed"].get(gid, 0))):
-            terminate_user(
+            terminate_user_delete(
                 client=client,
-                the_type="delete",
-                uid=uid,
                 gid=gid,
                 mid=mid
             )
@@ -596,7 +594,7 @@ def process_data(client: Client, message: Message) -> bool:
 
                 if action == "help":
                     if action_type == "delete":
-                        receive_kicked_user(client, data)
+                        receive_warn_kicked_user(client, data)
 
         return True
     except Exception as e:

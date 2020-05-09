@@ -23,7 +23,7 @@ from pyrogram import Client, CallbackQuery
 
 from .. import glovar
 from ..functions.captcha import question_answer, question_change
-from ..functions.etc import get_int, get_text, lang, thread
+from ..functions.etc import get_int, get_text, lang
 from ..functions.filters import authorized_group, captcha_group, is_class_e_user, test_group
 from ..functions.telegram import answer_callback
 
@@ -34,6 +34,8 @@ logger = logging.getLogger(__name__)
 @Client.on_callback_query(~captcha_group & ~test_group & authorized_group)
 def check_wait(client: Client, callback_query: CallbackQuery) -> bool:
     # Answer the check query
+    result = False
+
     try:
         # Basic data
         gid = callback_query.message.chat.id
@@ -42,34 +44,39 @@ def check_wait(client: Client, callback_query: CallbackQuery) -> bool:
         action = callback_data["a"]
         action_type = callback_data["t"]
 
-        # Answer the callback
         if action != "hint":
-            return True
+            return False
 
         if action_type != "check":
-            return True
+            return False
 
-        if glovar.user_ids.get(uid, {}) and glovar.user_ids[uid]["wait"].get(gid, 0):
-            thread(answer_callback, (client, callback_query.id, lang("check_yes"), True))
-        elif (glovar.user_ids.get(uid, {})
-              and (glovar.user_ids[uid]["pass"].get(gid, 0) or glovar.user_ids[uid]["succeeded"].get(gid, 0))):
-            thread(answer_callback, (client, callback_query.id, lang("check_pass"), True))
+        # Get the user's status
+        user_status = glovar.user_ids.get(uid, {})
+
+        # Generate the answer text
+        if user_status and user_status["wait"].get(gid, 0):
+            text = lang("check_yes")
+        elif user_status and (user_status["pass"].get(gid, 0) or user_status["succeeded"].get(gid, 0)):
+            text = lang("check_pass")
         elif is_class_e_user(uid):
-            thread(answer_callback, (client, callback_query.id, lang("check_admin"), True))
+            text = lang("check_admin")
         else:
-            thread(answer_callback, (client, callback_query.id, lang("check_no"), True))
+            text = lang("check_no")
 
-        return True
+        result = answer_callback(client, callback_query.id, text, True)
     except Exception as e:
         logger.warning(f"Check wait error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 @Client.on_callback_query(captcha_group)
 def question(client: Client, callback_query: CallbackQuery) -> bool:
     # Answer the question query
+    result = False
+
     glovar.locks["message"].acquire()
+
     try:
         # Basic data
         uid = callback_query.from_user.id
@@ -101,17 +108,15 @@ def question(client: Client, callback_query: CallbackQuery) -> bool:
             question_answer(client, uid, text)
 
         # Change the question
-        if action_type == "c":
+        elif action_type == "c":
             mid = message.message_id
             question_change(client, uid, mid)
 
         # Answer the callback
-        thread(answer_callback, (client, callback_query.id, ""))
-
-        return True
+        result = answer_callback(client, callback_query.id, "")
     except Exception as e:
         logger.warning(f"Question error: {e}", exc_info=True)
     finally:
         glovar.locks["message"].release()
 
-    return False
+    return result

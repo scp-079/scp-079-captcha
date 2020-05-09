@@ -26,20 +26,24 @@ from pyrogram import Client
 from .. import glovar
 from .captcha import send_static
 from .channel import send_debug, share_data, share_regex_count
-from .etc import code, general_link, get_now, lang, thread
+from .decorators import threaded
+from .etc import code, general_link, get_now, get_readable_time, lang, thread
 from .file import file_tsv, save
 from .filters import is_class_e_user
-from .group import delete_hint, delete_message, leave_group
+from .group import delete_hint, delete_message, leave_group, save_admins
 from .telegram import export_chat_invite_link, get_admins, get_group_info
 from .telegram import get_members, pin_chat_message, send_message
-from .user import kick_user, terminate_user, unban_user, unrestrict_user
+from .user import check_timeout_user, forgive_users, kick_user, lift_ban, remove_group_user, unban_user
 
 # Enable logging
 logger = logging.getLogger(__name__)
 
 
+@threaded()
 def backup_files(client: Client) -> bool:
     # Backup data files to BACKUP
+    result = False
+
     try:
         for file in glovar.file_list:
             # Check
@@ -57,20 +61,22 @@ def backup_files(client: Client) -> bool:
             )
             sleep(5)
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Backup error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 def clear_blacklist(client: Client) -> bool:
     # Clear CAPTCHA group banned members
+    result = False
+
     try:
         members = get_members(client, glovar.captcha_group_id, "kicked")
 
         if not members:
-            return True
+            return False
 
         for member in members:
             if not member.restricted_by or not member.restricted_by.is_self:
@@ -80,20 +86,22 @@ def clear_blacklist(client: Client) -> bool:
             uid = user.id
             unban_user(client, glovar.captcha_group_id, uid)
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Clear blacklist error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 def clear_members(client: Client) -> bool:
     # Clear CAPTCHA group members
+    result = False
+
     try:
         members = get_members(client, glovar.captcha_group_id, "all")
 
         if not members:
-            return True
+            return False
 
         for member in members:
             user = member.user
@@ -104,105 +112,86 @@ def clear_members(client: Client) -> bool:
             uid = user.id
             user_data = glovar.user_ids.get(uid, {})
 
-            if user_data:
-                if user_data.get("wait"):
-                    continue
-
-                if user_data.get("time"):
-                    continue
+            if user_data and (user_data.get("wait") or user_data.get("time")):
+                continue
 
             kick_user(client, glovar.captcha_group_id, uid)
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Clear members error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 def interval_min_01(client: Client) -> bool:
     # Execute every minute
+    result = False
+
     glovar.locks["message"].acquire()
+
     try:
         # Basic data
         now = get_now()
 
-        # Check user status
+        # Check users
         for uid in list(glovar.user_ids):
-            # Remove users from CAPTCHA group
-            time = glovar.user_ids[uid]["time"]
+            # Remove users from the CAPTCHA group
+            remove_group_user(client, uid, now)
 
-            if time and now - time > glovar.time_remove:
-                glovar.user_ids[uid]["time"] = 0
-                kick_user(client, glovar.captcha_group_id, uid)
-
-            # Check timeout
-            if glovar.user_ids[uid]["wait"]:
-                for gid in list(glovar.user_ids[uid]["wait"]):
-                    time = glovar.user_ids[uid]["wait"][gid]
-
-                    if time and now - time > glovar.time_captcha:
-                        terminate_user(
-                            client=client,
-                            the_type="timeout",
-                            uid=uid,
-                            gid=gid
-                        )
+            # Terminate timeout users
+            check_timeout_user(client, uid, now)
 
             # Lift the ban on users
-            for gid in list(glovar.user_ids[uid]["failed"]):
-                time = glovar.user_ids[uid]["failed"][gid]
+            lift_ban(client, uid, now)
 
-                if time and now - time > glovar.time_punish:
-                    glovar.user_ids[uid]["failed"][gid] = 0
-                    unban_user(client, gid, uid)
-
+        # Save the user_ids
         save("user_ids")
 
         # Clear changed ids
         glovar.changed_ids = set()
 
-        # Clear pinned messages
+        # Check the flood status
         for gid in list(glovar.pinned_ids):
             # Basic data
             new_id = glovar.pinned_ids[gid]["new_id"]
             old_id = glovar.pinned_ids[gid]["old_id"]
             start = glovar.pinned_ids[gid]["start"]
-            time = glovar.pinned_ids[gid]["time"]
+            last = glovar.pinned_ids[gid]["last"]
 
             # Check pinned status
             if not start and not new_id:
                 continue
 
             # Check normal time
-            if now - time < glovar.time_captcha * 3:
+            if now - last < glovar.time_captcha * 3:
                 continue
 
             # Get group's waiting user list
             wait_user_list = [wid for wid in glovar.user_ids if glovar.user_ids[wid]["wait"].get(gid, 0)]
 
-            # Flood situation
-            if len(wait_user_list) > glovar.limit_static:
-                glovar.pinned_ids[gid]["time"] = now
+            # Flood situation ongoing
+            if len(wait_user_list) > glovar.limit_flood:
                 continue
 
             # Pin old message
-            if old_id:
-                thread(pin_chat_message, (client, gid, old_id))
+            old_id and thread(pin_chat_message, (client, gid, old_id))
 
-            # Delete new message
-            if new_id:
-                delete_message(client, gid, new_id)
-                glovar.pinned_ids[gid]["new_id"] = 0
+            # Delete newly pinned message
+            new_id and delete_message(client, gid, new_id)
+            glovar.pinned_ids[gid]["new_id"] = 0
 
             # Reset time status
             glovar.pinned_ids[gid]["start"] = 0
-            glovar.pinned_ids[gid]["time"] = 0
+            glovar.pinned_ids[gid]["last"] = 0
 
             # Resend regular hint
-            if wait_user_list and not glovar.message_ids[gid]["hint"]:
-                text = f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n"
-                thread(send_static, (client, gid, text, True))
+            wait_user_list and not glovar.message_ids[gid]["hint"] and send_static(
+                client=client,
+                gid=gid,
+                text=f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n",
+                flood=True
+            )
 
             # Require joined members
             share_data(
@@ -217,43 +206,34 @@ def interval_min_01(client: Client) -> bool:
                 }
             )
 
-            # Share end status
-            share_data(
-                client=client,
-                receivers=["TIP"],
-                action="captcha",
-                action_type="flood",
-                data={
-                    "group_id": gid,
-                    "status": "end"
-                }
-            )
-
             # Send debug message
             send_debug(
                 client=client,
                 gids=[gid],
                 action=lang("action_normal"),
-                time=time,
-                duration=time - start
+                time=last,
+                duration=last - start
             )
 
+        # Save the pinned_ids
         save("pinned_ids")
 
         # Delete hint messages
         delete_hint(client)
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Interval min 01 error: {e}", exc_info=True)
     finally:
         glovar.locks["message"].release()
 
-    return False
+    return result
 
 
 def interval_min_10(client: Client) -> bool:
     # Execute every 10 minutes
+    result = False
+
     try:
         # Clear blacklist
         clear_blacklist(client)
@@ -264,16 +244,19 @@ def interval_min_10(client: Client) -> bool:
         # New invite link
         new_invite_link(client)
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Interval min 10 error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 def new_invite_link(client: Client, manual: bool = False) -> bool:
     # Generate new invite link
+    result = False
+
     glovar.locks["invite"].acquire()
+
     try:
         # Basic data
         now = get_now()
@@ -299,18 +282,21 @@ def new_invite_link(client: Client, manual: bool = False) -> bool:
         glovar.invite["link"] = link
         save("invite")
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"New invite link error: {e}", exc_info=True)
     finally:
         glovar.locks["invite"].release()
 
-    return False
+    return result
 
 
 def reset_data(client: Client) -> bool:
     # Reset user data every month
+    result = False
+
     glovar.locks["message"].acquire()
+
     try:
         glovar.bad_ids = {
             "users": set()
@@ -320,22 +306,7 @@ def reset_data(client: Client) -> bool:
         glovar.left_group_ids = set()
         save("left_group_ids")
 
-        for uid in list(glovar.user_ids):
-            # Pass all waiting users
-            for gid in list(glovar.user_ids[uid]["wait"]):
-                unrestrict_user(client, gid, uid)
-
-            # Unban all punished users
-            for gid in list(glovar.user_ids[uid]["failed"]):
-                if glovar.user_ids[uid]["failed"][gid]:
-                    unban_user(client, gid, uid)
-
-            # Remove users from CAPTCHA group
-            time = glovar.user_ids[uid]["time"]
-            time and kick_user(client, glovar.captcha_group_id, uid)
-            mid = glovar.user_ids[uid]["mid"]
-            mid and delete_message(client, glovar.captcha_group_id, mid)
-
+        forgive_users(client)
         glovar.user_ids = {}
         save("user_ids")
 
@@ -350,18 +321,21 @@ def reset_data(client: Client) -> bool:
                 f"{lang('action')}{lang('colon')}{code(lang('reset'))}\n")
         thread(send_message, (client, glovar.debug_channel_id, text))
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Reset data error: {e}", exc_info=True)
     finally:
         glovar.locks["message"].release()
 
-    return False
+    return result
 
 
 def send_count(client: Client) -> bool:
     # Send regex count to REGEX
+    result = False
+
     glovar.locks["regex"].acquire()
+
     try:
         for word_type in glovar.regex:
             share_regex_count(client, word_type)
@@ -372,18 +346,21 @@ def send_count(client: Client) -> bool:
 
             save(f"{word_type}_words")
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Send count error: {e}", exc_info=True)
     finally:
         glovar.locks["regex"].release()
 
-    return False
+    return result
 
 
 def share_failed_users(client: Client, data: Dict[str, int] = None) -> bool:
     # Share failed users
+    result = False
+
     glovar.locks["failed"].acquire()
+
     try:
         # Check the config
         if not glovar.failed:
@@ -409,7 +386,11 @@ def share_failed_users(client: Client, data: Dict[str, int] = None) -> bool:
             lines.append([username, first_name, last_name, bio, reason])
 
         # Save the tsv file
-        file = file_tsv(["username", "first name", "last name", "bio", "reason"], lines)
+        file = file_tsv(
+            first_line=["username", "first name", "last name", "bio", "reason"],
+            lines=lines,
+            prefix=f"CAPTCHA-FAILED-{get_readable_time()}-"
+        )
         share_data(
             client=client,
             receivers=["REGEX"],
@@ -427,86 +408,32 @@ def share_failed_users(client: Client, data: Dict[str, int] = None) -> bool:
         glovar.failed_ids = {}
         save("failed_ids")
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Share failed users error: {e}", exc_info=True)
     finally:
         glovar.locks["failed"].release()
 
-    return False
+    return result
 
 
 def update_admins(client: Client) -> bool:
     # Update admin list every day
+    result = False
+
     glovar.locks["admin"].acquire()
+
     try:
+        # Basic data
         group_list = list(glovar.admin_ids)
 
+        # Check groups
         for gid in group_list:
-            should_leave = True
-            reason = "permissions"
+            group_name, group_link = get_group_info(client, gid)
             admin_members = get_admins(client, gid)
 
-            if admin_members and any([admin.user.is_self for admin in admin_members]):
-                # Admin list
-                glovar.admin_ids[gid] = {admin.user.id for admin in admin_members
-                                         if (((not admin.user.is_bot and not admin.user.is_deleted)
-                                              and admin.can_delete_messages
-                                              and admin.can_restrict_members)
-                                             or admin.status == "creator"
-                                             or admin.user.id in glovar.bot_ids)}
-                save("admin_ids")
-
-                # Trust list
-                glovar.trust_ids[gid] = {admin.user.id for admin in admin_members
-                                         if ((not admin.user.is_bot and not admin.user.is_deleted)
-                                             or admin.user.id in glovar.bot_ids)}
-                save("trust_ids")
-
-                if glovar.user_id not in glovar.admin_ids[gid]:
-                    reason = "user"
-                else:
-                    for admin in admin_members:
-                        if (admin.user.is_self
-                                and admin.can_delete_messages
-                                and admin.can_restrict_members
-                                and admin.can_pin_messages):
-                            should_leave = False
-
-                if not should_leave:
-                    glovar.lack_group_ids.discard(gid)
-                    save("lack_group_ids")
-                    continue
-
-                if gid in glovar.lack_group_ids:
-                    continue
-
-                glovar.lack_group_ids.add(gid)
-                save("lack_group_ids")
-
-                group_name, group_link = get_group_info(client, gid)
-                share_data(
-                    client=client,
-                    receivers=["MANAGE"],
-                    action="leave",
-                    action_type="request",
-                    data={
-                        "group_id": gid,
-                        "group_name": group_name,
-                        "group_link": group_link,
-                        "reason": reason
-                    }
-                )
-                reason = lang(f"reason_{reason}")
-                project_link = general_link(glovar.project_name, glovar.project_link)
-                debug_text = (f"{lang('project')}{lang('colon')}{project_link}\n"
-                              f"{lang('group_name')}{lang('colon')}{general_link(group_name, group_link)}\n"
-                              f"{lang('group_id')}{lang('colon')}{code(gid)}\n"
-                              f"{lang('status')}{lang('colon')}{code(reason)}\n")
-                thread(send_message, (client, glovar.debug_channel_id, debug_text))
-            elif admin_members is False or any([admin.user.is_self for admin in admin_members]) is False:
-                # Bot is not in the chat, leave automatically without approve
-                group_name, group_link = get_group_info(client, gid)
+            # Bot is not in the chat, leave automatically without approve
+            if admin_members is False or any(admin.user.is_self for admin in admin_members) is False:
                 leave_group(client, gid)
                 share_data(
                     client=client,
@@ -526,20 +453,71 @@ def update_admins(client: Client) -> bool:
                               f"{lang('status')}{lang('colon')}{code(lang('leave_auto'))}\n"
                               f"{lang('reason')}{lang('colon')}{code(lang('reason_leave'))}\n")
                 thread(send_message, (client, glovar.debug_channel_id, debug_text))
+                continue
 
-        return True
+            # Check the admin list
+            if not (admin_members and any([admin.user.is_self for admin in admin_members])):
+                continue
+
+            # Save the admin list
+            save_admins(gid, admin_members)
+
+            # Ignore the group
+            if gid in glovar.lack_group_ids:
+                continue
+
+            # Check the permissions
+            if glovar.user_id not in glovar.admin_ids[gid]:
+                reason = "user"
+            elif any(admin.user.is_self
+                     and admin.can_delete_messages
+                     and admin.can_restrict_members
+                     and admin.can_pin_messages
+                     for admin in admin_members):
+                glovar.lack_group_ids.discard(gid)
+                save("lack_group_ids")
+                continue
+            else:
+                reason = "permissions"
+                glovar.lack_group_ids.add(gid)
+                save("lack_group_ids")
+
+            # Send the leave request
+            share_data(
+                client=client,
+                receivers=["MANAGE"],
+                action="leave",
+                action_type="request",
+                data={
+                    "group_id": gid,
+                    "group_name": group_name,
+                    "group_link": group_link,
+                    "reason": reason
+                }
+            )
+            reason = lang(f"reason_{reason}")
+            project_link = general_link(glovar.project_name, glovar.project_link)
+            debug_text = (f"{lang('project')}{lang('colon')}{project_link}\n"
+                          f"{lang('group_name')}{lang('colon')}{general_link(group_name, group_link)}\n"
+                          f"{lang('group_id')}{lang('colon')}{code(gid)}\n"
+                          f"{lang('status')}{lang('colon')}{code(reason)}\n")
+            thread(send_message, (client, glovar.debug_channel_id, debug_text))
+
+        result = True
     except Exception as e:
         logger.warning(f"Update admin error: {e}", exc_info=True)
     finally:
         glovar.locks["admin"].release()
 
-    return False
+    return result
 
 
 def update_status(client: Client, the_type: str) -> bool:
     # Update running status to BACKUP
+    result = False
+
     try:
-        share_data(
+        result = share_data(
             client=client,
             receivers=["BACKUP"],
             action="backup",
@@ -549,9 +527,7 @@ def update_status(client: Client, the_type: str) -> bool:
                 "backup": glovar.backup
             }
         )
-
-        return True
     except Exception as e:
         logger.warning(f"Update status error: {e}", exc_info=True)
 
-    return False
+    return result

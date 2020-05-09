@@ -1,0 +1,182 @@
+# Mandarin Chinese (Simplified)
+
+# Admin
+admin: 管理员
+admin_group: 群管理
+admin_project: 项目管理员
+
+# Basic
+action: 执行操作
+clear: 清空数据
+description: 说明
+disabled: 禁用
+enabled: 启用
+name: 名称
+reason: 原因
+reset: 重置数据
+rollback: 数据回滚
+score: 评分
+status_failed: 未执行
+status_succeeded: 成功执行
+version: 版本
+
+# Config
+config: 设置
+config_button: 请点击下方按钮进行设置
+config_change: 更改设置
+config_create: 创建设置会话
+config_go: 前往设置
+config_locked: 设置当前被锁定
+config_show: 查看设置
+config_updated: 已更新
+custom: 自定义
+default: 默认
+delete: 协助删除
+restrict: 禁言模式
+ban: 封禁模式
+forgive: 自动解禁
+hint: 入群提示
+pass: 自动免验证
+pin: 自动置顶
+manual: 仅手动
+
+# Command
+command_lack: 命令参数缺失
+command_para: 命令参数有误
+command_type: 命令类别有误
+command_usage: 用法有误
+
+# Debug
+evidence: 证据留存
+triggered_by: 触发消息
+
+# Emergency
+auto_fix: 自动处理
+emergency_channel: 应急频道
+exchange_invalid: 数据交换频道失效
+issue: 发现状况
+protocol_1: 启动 1 号协议
+transfer_channel: 频道转移
+
+# Group
+group_id: 群组 ID
+group_name: 群组名称
+inviter: 邀请人
+leave_approve: 已批准退出群组
+leave_auto: 自动退出并清空数据
+reason_admin: 获取管理员列表失败
+reason_leave: 非管理员或已不在群组中
+reason_none: 无数据
+reason_permissions: 权限缺失
+reason_unauthorized: 未授权使用
+reason_user: 缺失 USER
+refresh: 刷新群管列表
+status_joined: 已加入群组
+status_left: 已退出群组
+
+# More
+cannot_forward: 此类消息无法转发至频道
+privacy: 可能涉及隐私而未转发
+
+# Message Type
+gam: 游戏
+ser: 服务消息
+
+# Record
+contact: 联系方式
+from_name: 来源名称
+level: 操作等级
+project: 项目编号
+project_origin: 原始项目
+message_freq: 消息频率
+message_game: 游戏标识
+message_lang: 消息语言
+message_len: 消息长度
+message_type: 消息类别
+more: 附加信息
+rule: 规则
+status: 状态
+user_bio: 用户简介
+user_id: 用户 ID
+user_name: 用户昵称
+user_score: 用户得分
+
+# Special
+action_count: 核查统计
+action_flood: 检测到轰炸
+action_invite: 重新生成邀请链接
+action_normal: 轰炸已终止
+action_pass: 手动通过
+action_report: 发送报告
+action_static: 发送固定提示消息
+action_undo_pass: 撤销放行
+action_verified: 通过验证
+action_wait: 等待验证
+attention: 注意
+attention_invite: 如果提示链接无效，可能是因为链接正在更新，请多试几次
+captcha_check: 我需要验证吗
+captcha_go: 前往验证
+check_admin: 您为管理员，您可自由加入验证群组中查看机器人运行情况
+check_no: 您在本群中不需要验证即可发言
+check_pass: 您在本群中已通过验证
+check_yes: 您需要验证才能在本群发言
+description_again: 回答错误，请调整答案，再试一次
+description_ask: 请您尽快回答下方的问题以完成验证，您可以点击正确答案的按钮或直接发送正确答案。
+  注意，您共有 {} 次机会回答问题，答错将导致验证失败。您在本群的任何发言均将视为对问题的回答，请谨慎发言
+description_banned: 群管理封禁
+description_hint: 新入群用户，请您点击下方右侧按钮进行验证，请在 {} 秒内完成验证，否则您将被移出本群
+description_log: 日志核查
+description_manual: 请您点击下方右侧按钮进行验证，请在 {} 秒内完成验证，否则您将被移出本群。
+  本次验证为群组管理员的手动要求
+description_nospam: 请您点击下方右侧按钮进行验证，请在 {} 秒内完成验证，否则您将被移出本群。
+  您触发了防广告机器人的封禁规则，由于您入群时间较长，故未封禁您，但要求您完成一次验证
+description_pass: 群管理放行
+description_succeed: 验证成功，您可在相应群组中正常发言
+description_timeout: 验证超时
+description_wrong: 验证失败，回答错误
+flood_count: 核查移除
+flood_duration: 轰炸时长
+flood_static: 自动静态提示
+flood_total: 轰炸总人数
+invite_button: 加入验证群组
+invite_text: 请在专用群组中进行验证
+old_pinned: 原置顶消息
+question: 问题
+question_attention: 请确认哪个是对自己发出的问题再回答
+question_change: 更换问题
+question_chengyu: 请发送上图所显示的成语
+question_food: 正确答案在下方按钮中，请选择或发送上图所显示的名称
+question_letter: 请发送上图所显示的一串英文字母（无数字，全部为英文字母），不区分大小写
+question_math_pic: 正确答案在下方按钮中，请选择或发送上图中所显示的加减法算术题的正确答案
+question_number: 请发送上图所显示的一串数字（无英文字母，全部为数字）
+question_pic: 正确答案在下方按钮中，请选择或发送上图中所显示物体的正确名称
+suggestion: 建议
+suggestion_wrong: 请您等待 {} 秒后，再重新加入原始群组（非本群）触发新的验证请求
+triggered_time: 触发时间
+wait_user: 待验证用户
+
+# Symbol
+colon: "："
+
+# Terminate
+auto_ban: 自动封禁
+auto_delete: 自动删除
+auto_kick: 自动移除
+auto_restrict: 自动禁言
+global_delete: 全局删除
+name_ban: 名称封禁
+name_examine: 名称检查
+name_recheck: 名称复查
+op_downgrade: 操作降级
+op_upgrade: 操作升级
+rule_custom: 群组自定义
+rule_global: 全局规则
+score_ban: 评分封禁
+score_user: 用户评分
+watch_ban: 追踪封禁
+watch_delete: 追踪删除
+watch_user: 敏感追踪
+
+# Unit
+members: 名
+seconds: 秒

@@ -29,6 +29,7 @@ from unicodedata import normalize
 
 from cryptography.fernet import Fernet
 from opencc import convert
+from PIL import Image
 from pyrogram import Message, User
 from pyrogram.errors import FloodWait
 
@@ -40,20 +41,25 @@ logger = logging.getLogger(__name__)
 
 def bold(text: Any) -> str:
     # Get a bold text
-    try:
-        text = str(text).strip()
+    result = ""
 
-        if text:
-            return f"<b>{escape(text)}</b>"
+    try:
+        result = str(text).strip()
+
+        if not result:
+            return ""
+
+        result = f"<b>{escape(text)}</b>"
     except Exception as e:
         logger.warning(f"Bold error: {e}", exc_info=True)
 
-    return ""
+    return result
 
 
 def button_data(action: str, action_type: str = None, data: Union[int, str] = None) -> Optional[bytes]:
     # Get a button's bytes data
     result = None
+
     try:
         button = {
             "a": action,
@@ -69,33 +75,42 @@ def button_data(action: str, action_type: str = None, data: Union[int, str] = No
 
 def code(text: Any) -> str:
     # Get a code text
-    try:
-        text = str(text).strip()
+    result = ""
 
-        if text:
-            return f"<code>{escape(text)}</code>"
+    try:
+        result = str(text).strip()
+
+        if not result:
+            return ""
+
+        result = f"<code>{escape(result)}</code>"
     except Exception as e:
         logger.warning(f"Code error: {e}", exc_info=True)
 
-    return ""
+    return result
 
 
 def code_block(text: Any) -> str:
     # Get a code block text
-    try:
-        text = str(text).rstrip()
+    result = ""
 
-        if text:
-            return f"<pre>{escape(text)}</pre>"
+    try:
+        result = str(text).rstrip()
+
+        if not result:
+            return ""
+
+        result = f"<pre>{escape(result)}</pre>"
     except Exception as e:
         logger.warning(f"Code block error: {e}", exc_info=True)
 
-    return ""
+    return result
 
 
 def crypt_str(operation: str, text: str, key: bytes) -> str:
     # Encrypt or decrypt a string
     result = ""
+
     try:
         f = Fernet(key)
         text = text.encode("utf-8")
@@ -114,27 +129,30 @@ def crypt_str(operation: str, text: str, key: bytes) -> str:
 
 def delay(secs: int, target: Callable, args: list) -> bool:
     # Call a function with delay
+    result = False
+
     try:
         t = Timer(secs, target, args)
         t.daemon = True
-        t.start()
-
-        return True
+        result = t.start() or True
     except Exception as e:
         logger.warning(f"Delay error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 def general_link(text: Union[int, str], link: str) -> str:
     # Get a general link
     result = ""
+
     try:
         text = str(text).strip()
         link = link.strip()
 
-        if text and link:
-            result = f'<a href="{link}">{escape(text)}</a>'
+        if not (text and link):
+            return ""
+
+        result = f'<a href="{link}">{escape(text)}</a>'
     except Exception as e:
         logger.warning(f"General link error: {e}", exc_info=True)
 
@@ -143,28 +161,31 @@ def general_link(text: Union[int, str], link: str) -> str:
 
 def get_channel_link(message: Union[int, Message]) -> str:
     # Get a channel reference link
-    text = ""
+    result = ""
+
     try:
-        text = "https://t.me/"
+        result = "https://t.me/"
 
         if isinstance(message, int):
-            text += f"c/{str(message)[4:]}"
+            result += f"c/{str(message)[4:]}"
+            return result
+
+        if message.chat.username:
+            result += f"{message.chat.username}"
         else:
-            if message.chat.username:
-                text += f"{message.chat.username}"
-            else:
-                cid = message.chat.id
-                text += f"c/{str(cid)[4:]}"
+            cid = message.chat.id
+            result += f"c/{str(cid)[4:]}"
     except Exception as e:
         logger.warning(f"Get channel link error: {e}", exc_info=True)
 
-    return text
+    return result
 
 
 def get_command_context(message: Message) -> (str, str):
     # Get the type "a" and the context "b" in "/command a b"
     command_type = ""
     command_context = ""
+
     try:
         text = get_text(message)
         command_list = text.split()
@@ -189,6 +210,7 @@ def get_command_context(message: Message) -> (str, str):
 def get_command_type(message: Message) -> str:
     # Get the command type "a" in "/command a"
     result = ""
+
     try:
         text = get_text(message)
         command_list = list(filter(None, text.split()))
@@ -201,27 +223,46 @@ def get_command_type(message: Message) -> str:
 
 def get_full_name(user: User, normal: bool = False, printable: bool = False) -> str:
     # Get user's full name
-    text = ""
+    result = ""
+
     try:
         if not user or user.is_deleted:
             return ""
 
-        text = user.first_name
+        result = user.first_name
 
         if user.last_name:
-            text += f" {user.last_name}"
+            result += f" {user.last_name}"
 
-        if text and normal:
-            text = t2t(text, normal, printable)
+        if result and normal:
+            result = t2t(result, normal, printable)
     except Exception as e:
         logger.warning(f"Get full name error: {e}", exc_info=True)
 
-    return text
+    return result
+
+
+def get_image_size(path: str) -> (int, int):
+    # Get the image size
+    width = 0
+    height = 0
+
+    try:
+        if not path:
+            return 0, 0
+
+        with Image.open(path) as image:
+            width, height = image.size
+    except Exception as e:
+        logger.warning(f"Get image size error: {e}", exc_info=True)
+
+    return width, height
 
 
 def get_int(text: str) -> Optional[int]:
     # Get a int from a string
     result = None
+
     try:
         result = int(text)
     except Exception as e:
@@ -233,6 +274,7 @@ def get_int(text: str) -> Optional[int]:
 def get_now() -> int:
     # Get time for now
     result = 0
+
     try:
         result = int(time())
     except Exception as e:
@@ -244,6 +286,7 @@ def get_now() -> int:
 def get_readable_time(secs: int = 0) -> str:
     # Get a readable time string
     result = ""
+
     try:
         if secs:
             result = datetime.utcfromtimestamp(secs).strftime("%Y%m%d%H%M%S")
@@ -257,29 +300,57 @@ def get_readable_time(secs: int = 0) -> str:
 
 def get_text(message: Message, normal: bool = False, printable: bool = False) -> str:
     # Get message's text
-    text = ""
+    result = ""
+
     try:
         if not message:
             return ""
 
-        the_text = message.text or message.caption
+        message_text = message.text or message.caption
 
-        if the_text:
-            text += the_text
+        if message_text:
+            result += message_text
 
-        if text:
-            text = t2t(text, normal, printable)
+        if not result:
+            return ""
+
+        result = t2t(result, normal, printable)
     except Exception as e:
         logger.warning(f"Get text error: {e}", exc_info=True)
 
-    return text
+    return result
+
+
+def get_text_user(text: str, user: User) -> str:
+    # Get replaced user text
+    result = text
+
+    try:
+        # Basic data
+        uid = user.id
+        name = get_full_name(user)
+
+        # Check input
+        if not text.strip() or not user:
+            return text
+
+        # Replace
+        result = result.replace("$code_id", code(uid))
+        result = result.replace("$code_name", code(name))
+        result = result.replace("$mention_id", mention_id(uid))
+        result = result.replace("$mention_name", mention_name(user))
+    except Exception as e:
+        logger.warning(f"Get text user error: {e}", exc_info=True)
+
+    return result
 
 
 def lang(text: str) -> str:
     # Get the text
     result = ""
+
     try:
-        result = glovar.lang.get(text, text)
+        result = glovar.lang_dict.get(text, text)
     except Exception as e:
         logger.warning(f"Lang error: {e}", exc_info=True)
 
@@ -289,6 +360,7 @@ def lang(text: str) -> str:
 def mention_id(uid: int) -> str:
     # Get a ID mention string
     result = ""
+
     try:
         result = general_link(f"{uid}", f"tg://user?id={uid}")
     except Exception as e:
@@ -300,6 +372,7 @@ def mention_id(uid: int) -> str:
 def mention_name(user: User) -> str:
     # Get a name mention string
     result = ""
+
     try:
         name = get_full_name(user)
         uid = user.id
@@ -313,6 +386,7 @@ def mention_name(user: User) -> str:
 def mention_text(text: str, uid: int) -> str:
     # Get a text mention string
     result = ""
+
     try:
         result = general_link(f"{text}", f"tg://user?id={uid}")
     except Exception as e:
@@ -323,19 +397,21 @@ def mention_text(text: str, uid: int) -> str:
 
 def message_link(message: Message) -> str:
     # Get a message link in a channel
-    text = ""
+    result = ""
+
     try:
         mid = message.message_id
-        text = f"{get_channel_link(message)}/{mid}"
+        result = f"{get_channel_link(message)}/{mid}"
     except Exception as e:
         logger.warning(f"Message link error: {e}", exc_info=True)
 
-    return text
+    return result
 
 
 def random_str(i: int) -> str:
     # Get a random string
     text = ""
+
     try:
         text = "".join(choice(ascii_letters + digits) for _ in range(i))
     except Exception as e:
@@ -346,48 +422,50 @@ def random_str(i: int) -> str:
 
 def t2t(text: str, normal: bool, printable: bool) -> str:
     # Convert the string, text to text
+    result = text
+
     try:
-        if not text:
+        if not result:
             return ""
 
-        if normal:
+        if glovar.normalize and normal:
             for special in ["spc", "spe"]:
-                text = "".join(eval(f"glovar.{special}_dict").get(t, t) for t in text)
+                result = "".join(eval(f"glovar.{special}_dict").get(t, t) for t in result)
 
-            text = normalize("NFKC", text)
+            result = normalize("NFKC", result)
+
+        if glovar.normalize and normal and "Hans" in glovar.lang:
+            result = convert(result, config="t2s.json")
 
         if printable:
-            text = "".join(t for t in text if t.isprintable() or t in {"\n", "\r", "\t"})
-
-        if normal and glovar.zh_cn:
-            text = convert(text, config="t2s.json")
+            result = "".join(t for t in result if t.isprintable() or t in {"\n", "\r", "\t"})
     except Exception as e:
         logger.warning(f"T2T error: {e}", exc_info=True)
 
-    return text
+    return result
 
 
-def thread(target: Callable, args: tuple, daemon: bool = True) -> bool:
+def thread(target: Callable, args: tuple, kwargs: dict = None, daemon: bool = True) -> bool:
     # Call a function using thread
-    try:
-        t = Thread(target=target, args=args)
-        t.daemon = daemon
-        t.start()
+    result = False
 
-        return True
+    try:
+        t = Thread(target=target, args=args, kwargs=kwargs, daemon=daemon)
+        t.daemon = daemon
+        result = t.start() or True
     except Exception as e:
         logger.warning(f"Thread error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 def wait_flood(e: FloodWait) -> bool:
     # Wait flood secs
-    try:
-        sleep(e.x + uniform(0.5, 1.0))
+    result = False
 
-        return True
+    try:
+        result = sleep(e.x + uniform(0.5, 1.0)) or True
     except Exception as e:
         logger.warning(f"Wait flood error: {e}", exc_info=True)
 
-    return False
+    return result

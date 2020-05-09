@@ -17,12 +17,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from typing import Optional
+from typing import List, Optional
 
-from pyrogram import Chat, Client, Message
+from pyrogram import Chat, ChatMember, Client, Message, User
 
 from .. import glovar
-from .etc import code, get_now, lang, thread
+from .decorators import threaded
+from .etc import code, get_now, get_text_user, lang, mention_name, thread
 from .file import save
 from .telegram import delete_messages, get_chat, get_messages, leave_chat
 
@@ -30,11 +31,14 @@ from .telegram import delete_messages, get_chat, get_messages, leave_chat
 logger = logging.getLogger(__name__)
 
 
+@threaded()
 def clear_joined_messages(client: Client, gid: int, mid: int) -> bool:
     # Clear joined messages
+    result = False
+
     try:
-        if mid - glovar.limit_static * 4 > 0:
-            mids = range(mid - glovar.limit_static * 4, mid + 1)
+        if mid - glovar.limit_flood * 4 > 0:
+            mids = range(mid - glovar.limit_flood * 4, mid + 1)
         else:
             mids = range(1, mid + 1)
 
@@ -46,15 +50,17 @@ def clear_joined_messages(client: Client, gid: int, mid: int) -> bool:
 
             delete_message(client, gid, mid)
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Clear joined message error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 def delete_hint(client: Client) -> bool:
     # Delete hint messages
+    result = False
+
     try:
         # Basic data
         now = get_now()
@@ -78,14 +84,27 @@ def delete_hint(client: Client) -> bool:
                 glovar.message_ids[gid]["flood"] = set()
                 thread(delete_messages, (client, gid, mids))
 
+            # Manual hint
+            if not glovar.message_ids[gid].get("manual", {}):
+                glovar.message_ids[gid]["manual"] = {}
+
+            for mid in list(glovar.message_ids[gid]["manual"]):
+                time = glovar.message_ids[gid]["manual"][mid]
+
+                if now - time < glovar.time_captcha:
+                    continue
+
+                glovar.message_ids[gid]["nospam"].pop(mid, 0)
+                delete_message(client, gid, mid)
+
             # NOSPAM hint
-            if not glovar.message_ids[gid].get("nospam"):
-                continue
+            if not glovar.message_ids[gid].get("nospam", {}):
+                glovar.message_ids[gid]["nospam"] = {}
 
             for mid in list(glovar.message_ids[gid]["nospam"]):
                 time = glovar.message_ids[gid]["nospam"][mid]
 
-                if now - time < glovar.time_captcha / 2:
+                if now - time < glovar.time_captcha:
                     continue
 
                 glovar.message_ids[gid]["nospam"].pop(mid, 0)
@@ -94,32 +113,34 @@ def delete_hint(client: Client) -> bool:
         # Save the data
         save("message_ids")
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Delete hint error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
+@threaded()
 def delete_message(client: Client, gid: int, mid: int) -> bool:
     # Delete a single message
+    result = False
+
     try:
         if not gid or not mid:
             return True
 
         mids = [mid]
-        thread(delete_messages, (client, gid, mids))
-
-        return True
+        result = delete_messages(client, gid, mids)
     except Exception as e:
         logger.warning(f"Delete message error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 def get_config_text(config: dict) -> str:
-    # Get config text
+    # Get the group's config text
     result = ""
+
     try:
         # Basic
         default_text = (lambda x: lang("default") if x else lang("custom"))(config.get("default"))
@@ -142,6 +163,7 @@ def get_config_text(config: dict) -> str:
 def get_group(client: Client, gid: int, cache: bool = True) -> Optional[Chat]:
     # Get the group
     result = None
+
     try:
         the_cache = glovar.chats.get(gid)
 
@@ -150,10 +172,46 @@ def get_group(client: Client, gid: int, cache: bool = True) -> Optional[Chat]:
 
         result = get_chat(client, gid)
 
-        if result:
-            glovar.chats[gid] = result
+        if not result:
+            return result
+
+        glovar.chats[gid] = result
     except Exception as e:
         logger.warning(f"Get group error: {e}", exc_info=True)
+
+    return result
+
+
+def get_hint_text(gid: int, the_type: str, user: User = None) -> str:
+    # Get the group's hint text
+    result = ""
+
+    try:
+        custom_text = glovar.custom_texts[gid].get(the_type, "")
+
+        if custom_text:
+            return get_text_user(custom_text, user)
+
+        if the_type == "manual":
+            result = (f"{lang('user_name')}{lang('colon')}{mention_name(user)}\n"
+                      f"{lang('user_id')}{lang('colon')}{code(user.id)}\n")
+            description = lang("description_manual")
+        elif the_type == "nospam":
+            result = (f"{lang('user_name')}{lang('colon')}{mention_name(user)}\n"
+                      f"{lang('user_id')}{lang('colon')}{code(user.id)}\n")
+            description = lang("description_nospam")
+        elif the_type == "single":
+            result = (f"{lang('user_name')}{lang('colon')}{mention_name(user)}\n"
+                      f"{lang('user_id')}{lang('colon')}{code(user.id)}\n")
+            description = lang("description_hint")
+        elif the_type == "static":
+            description = lang("description_hint")
+        else:
+            description = ""
+
+        result += f"{lang('description')}{lang('colon')}{code(description)}\n"
+    except Exception as e:
+        logger.warning(f"Get hint text error: {e}", exc_info=True)
 
     return result
 
@@ -161,11 +219,14 @@ def get_group(client: Client, gid: int, cache: bool = True) -> Optional[Chat]:
 def get_pinned(client: Client, gid: int, cache: bool = True) -> Optional[Message]:
     # Get group's pinned message
     result = None
+
     try:
         group = get_group(client, gid, cache)
 
-        if group and group.pinned_message:
-            result = group.pinned_message
+        if not group or not group.pinned_message:
+            return None
+
+        result = group.pinned_message
     except Exception as e:
         logger.warning(f"Get pinned error: {e}", exc_info=True)
 
@@ -174,6 +235,8 @@ def get_pinned(client: Client, gid: int, cache: bool = True) -> Optional[Message
 
 def leave_group(client: Client, gid: int) -> bool:
     # Leave a group, clear it's data
+    result = False
+
     try:
         glovar.left_group_ids.add(gid)
         save("left_group_ids")
@@ -197,10 +260,40 @@ def leave_group(client: Client, gid: int) -> bool:
         glovar.configs.pop(gid, {})
         save("configs")
 
+        glovar.custom_texts.pop(gid, {})
+        save("custom_texts")
+
         glovar.declared_message_ids.pop(gid, set())
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Leave group error: {e}", exc_info=True)
 
-    return False
+    return result
+
+
+def save_admins(gid: int, admin_members: List[ChatMember]) -> bool:
+    # Save the group's admin list
+    result = False
+
+    try:
+        # Admin list
+        glovar.admin_ids[gid] = {admin.user.id for admin in admin_members
+                                 if (((not admin.user.is_bot and not admin.user.is_deleted)
+                                      and admin.can_delete_messages
+                                      and admin.can_restrict_members)
+                                     or admin.status == "creator"
+                                     or admin.user.id in glovar.bot_ids)}
+        save("admin_ids")
+
+        # Trust list
+        glovar.trust_ids[gid] = {admin.user.id for admin in admin_members
+                                 if ((not admin.user.is_bot and not admin.user.is_deleted)
+                                     or admin.user.id in glovar.bot_ids)}
+        save("trust_ids")
+
+        result = True
+    except Exception as e:
+        logger.warning(f"Save admins error: {e}", exc_info=True)
+
+    return result

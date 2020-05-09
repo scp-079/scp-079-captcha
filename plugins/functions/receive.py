@@ -30,11 +30,12 @@ from .channel import get_debug_text, send_debug, share_data
 from .etc import code, crypt_str, general_link, get_int, get_now, get_text, lang, thread, mention_id
 from .file import crypt_file, data_to_file, delete_file, get_new_path, get_downloaded_path, save
 from .filters import is_class_d_user, is_class_e_user
-from .group import delete_hint, delete_message, get_config_text, leave_group
+from .group import get_config_text, leave_group
 from .ids import init_group_id, init_user_id
 from .telegram import get_chat_member, send_message, send_report_message
 from .timers import update_admins
-from .user import change_member_status, get_level, kick_user, log_user, terminate_user, unban_user, unrestrict_user
+from .user import flood_end, flood_user, forgive_user, forgive_users, remove_failed_user, remove_new_users
+from .user import remove_wait_user, terminate_user_banned
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -42,73 +43,64 @@ logger = logging.getLogger(__name__)
 
 def receive_add_bad(client: Client, data: dict) -> bool:
     # Receive bad objects that other bots shared
+    result = False
+
     try:
         # Basic data
         the_id = data["id"]
         the_type = data["type"]
 
         # Receive bad user
-        if the_type == "user":
-            glovar.bad_ids["users"].add(the_id)
+        if the_type != "user":
+            return False
 
-            with glovar.locks["message"]:
-                if glovar.user_ids.get(the_id, {}):
-                    # Clear the user's wait status
-                    for gid in list(glovar.user_ids[the_id]["wait"]):
-                        level = get_level(gid)
-                        change_member_status(client, level, gid, the_id, True)
-                        glovar.user_ids[the_id]["failed"][gid] = 0
-
-                    glovar.user_ids[the_id]["wait"] and delete_hint(client)
-                    glovar.user_ids[the_id]["wait"] = {}
-
-                save("user_ids")
-
-            # Remove failed status
-            with glovar.locks["failed"]:
-                glovar.failed_ids.pop(the_id, {})
-                save("failed_ids")
-
+        glovar.bad_ids["users"].add(the_id)
         save("bad_ids")
 
-        return True
+        remove_wait_user(client, the_id)
+        remove_failed_user(the_id)
+
+        result = True
     except Exception as e:
         logger.warning(f"Receive add bad error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 def receive_check_log(client: Client, message: Message, data: int) -> bool:
     # Receive check log
+    result = False
+
+    glovar.locks["message"].acquire()
+
     try:
         # Basic data
         gid = data
         users = receive_file_data(client, message)
+        now = get_now()
         count = 0
 
-        # Kick user
-        with glovar.locks["message"]:
-            for uid in users:
-                if is_class_d_user(uid):
-                    continue
+        # Log the users
+        for uid in users:
+            if is_class_d_user(uid):
+                continue
 
-                if is_class_e_user(uid):
-                    continue
+            if is_class_e_user(uid):
+                continue
 
-                if not glovar.user_ids.get(uid, {}):
-                    log_user(client, gid, uid)
-                    count += 1
-                    continue
-
-                user_status = glovar.user_ids[uid]
-
-                if any(gid in user_status[the_type]
-                       for the_type in ["join", "pass", "wait", "succeeded", "failed",
-                                        "restricted", "banned", "manual"]):
-                    continue
-
-                log_user(client, gid, uid)
+            if not glovar.user_ids.get(uid, {}):
+                flood_user(gid, uid, now, "log")
                 count += 1
+                continue
+
+            user_status = glovar.user_ids[uid]
+
+            if any(gid in user_status[the_type]
+                   for the_type in ["join", "pass", "wait", "succeeded", "failed", "restricted", "banned", "manual"]):
+                continue
+
+            flood_user(gid, uid, now, "log")
+            count += 1
 
         # Send debug message
         send_debug(
@@ -119,56 +111,45 @@ def receive_check_log(client: Client, message: Message, data: int) -> bool:
             count=count
         )
 
-        return True
+        # Flood end
+        result = flood_end(client, gid)
     except Exception as e:
         logger.warning(f"Receive check log error: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
 
-    return False
+    return result
 
 
 def receive_clear_data(client: Client, data_type: str, data: dict) -> bool:
     # Receive clear data command
+    result = False
+
     glovar.locks["message"].acquire()
+
     try:
         # Basic data
         aid = data["admin_id"]
         the_type = data["type"]
 
         # Clear bad data
-        if data_type == "bad":
-            if the_type == "users":
-                glovar.bad_ids["users"] = set()
-
+        if (data_type == "bad"
+                and the_type == "users"):
+            glovar.bad_ids["users"] = set()
             save("bad_ids")
 
         # Clear user data
-        if data_type == "user":
+        elif data_type == "user":
             if the_type == "all":
-                for uid in list(glovar.user_ids):
-                    # Pass all waiting users
-                    for gid in list(glovar.user_ids[uid]["wait"]):
-                        unrestrict_user(client, gid, uid)
-
-                    # Unban all punished users
-                    for gid in list(glovar.user_ids[uid]["failed"]):
-                        if glovar.user_ids[uid]["failed"][gid]:
-                            unban_user(client, gid, uid)
-
-                    # Remove users from CAPTCHA group
-                    time = glovar.user_ids[uid]["time"]
-                    time and kick_user(client, glovar.captcha_group_id, uid)
-                    mid = glovar.user_ids[uid]["mid"]
-                    mid and delete_message(client, glovar.captcha_group_id, mid)
-
+                forgive_users(client)
                 glovar.user_ids = {}
             elif the_type == "new":
-                for uid in list(glovar.user_ids):
-                    glovar.user_ids[uid]["join"] = {}
+                remove_new_users()
 
             save("user_ids")
 
         # Clear watch data
-        if data_type == "watch":
+        elif data_type == "watch":
             if the_type == "all":
                 glovar.watch_ids = {
                     "ban": {},
@@ -186,17 +167,19 @@ def receive_clear_data(client: Client, data_type: str, data: dict) -> bool:
                 f"{lang('admin_project')}{lang('colon')}{mention_id(aid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('clear'))}\n"
                 f"{lang('more')}{lang('colon')}{code(f'{data_type} {the_type}')}\n")
-        thread(send_message, (client, glovar.debug_channel_id, text))
+        result = thread(send_message, (client, glovar.debug_channel_id, text))
     except Exception as e:
         logger.warning(f"Receive clear data: {e}", exc_info=True)
     finally:
         glovar.locks["message"].release()
 
-    return False
+    return result
 
 
 def receive_config_commit(data: dict) -> bool:
     # Receive config commit
+    result = False
+
     try:
         # Basic data
         gid = data["group_id"]
@@ -205,21 +188,24 @@ def receive_config_commit(data: dict) -> bool:
         glovar.configs[gid] = config
         save("configs")
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Receive config commit error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 def receive_config_reply(client: Client, data: dict) -> bool:
     # Receive config reply
+    result = False
+
     try:
         # Basic data
         gid = data["group_id"]
         uid = data["user_id"]
         link = data["config_link"]
 
+        # Send the report message
         text = (f"{lang('admin')}{lang('colon')}{code(uid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('config_change'))}\n"
                 f"{lang('description')}{lang('colon')}{code(lang('config_button'))}\n")
@@ -233,17 +219,17 @@ def receive_config_reply(client: Client, data: dict) -> bool:
                 ]
             ]
         )
-        thread(send_report_message, (180, client, gid, text, None, markup))
-
-        return True
+        result = send_report_message(180, client, gid, text, None, markup)
     except Exception as e:
         logger.warning(f"Receive config reply error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 def receive_config_show(client: Client, data: dict) -> bool:
     # Receive config show request
+    result = False
+
     try:
         # Basic Data
         aid = data["admin_id"]
@@ -263,7 +249,7 @@ def receive_config_show(client: Client, data: dict) -> bool:
 
         # Send the text data
         file = data_to_file(result)
-        share_data(
+        result = share_data(
             client=client,
             receivers=["MANAGE"],
             action="config",
@@ -275,16 +261,16 @@ def receive_config_show(client: Client, data: dict) -> bool:
             },
             file=file
         )
-
-        return True
     except Exception as e:
         logger.warning(f"Receive config show error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 def receive_declared_message(data: dict) -> bool:
     # Update declared message's id
+    result = False
+
     try:
         # Basic data
         gid = data["group_id"]
@@ -296,16 +282,17 @@ def receive_declared_message(data: dict) -> bool:
         if init_group_id(gid):
             glovar.declared_message_ids[gid].add(mid)
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Receive declared message error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 def receive_file_data(client: Client, message: Message, decrypt: bool = True) -> Any:
     # Receive file's data from exchange channel
-    data = None
+    result = None
+
     try:
         if not message.document:
             return None
@@ -328,19 +315,22 @@ def receive_file_data(client: Client, message: Message, decrypt: bool = True) ->
             path_final = path
 
         with open(path_final, "rb") as f:
-            data = pickle.load(f)
+            result = pickle.load(f)
 
         for f in {path, path_decrypted}:
-            thread(delete_file, (f,))
+            delete_file(f)
     except Exception as e:
         logger.warning(f"Receive file error: {e}", exc_info=True)
 
-    return data
+    return result
 
 
 def receive_help_captcha(client: Client, data: dict) -> bool:
     # Receive help captcha
+    result = False
+
     glovar.locks["message"].acquire()
+
     try:
         # Basic data
         gid = data["group_id"]
@@ -360,19 +350,19 @@ def receive_help_captcha(client: Client, data: dict) -> bool:
             return True
 
         # CAPTCHA request
-        user_captcha(client, None, gid, member.user, mid, now, glovar.nospam_id)
-
-        return True
+        result = user_captcha(client, None, gid, member.user, mid, now, glovar.nospam_id)
     except Exception as e:
         logger.warning(f"Receive help captcha error: {e}", exc_info=True)
     finally:
         glovar.locks["message"].release()
 
-    return False
+    return result
 
 
 def receive_leave_approve(client: Client, data: dict) -> bool:
     # Receive leave approve
+    result = False
+
     try:
         # Basic data
         admin_id = data["admin_id"]
@@ -396,15 +386,17 @@ def receive_leave_approve(client: Client, data: dict) -> bool:
         leave_group(client, the_id)
         thread(send_message, (client, glovar.debug_channel_id, text))
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Receive leave approve error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 def receive_refresh(client: Client, data: int) -> bool:
     # Receive refresh
+    result = False
+
     try:
         # Basic data
         aid = data
@@ -418,27 +410,30 @@ def receive_refresh(client: Client, data: int) -> bool:
                 f"{lang('action')}{lang('colon')}{code(lang('refresh'))}\n")
         thread(send_message, (client, glovar.debug_channel_id, text))
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Receive refresh error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 def receive_regex(client: Client, message: Message, data: str) -> bool:
     # Receive regex
+    result = False
+
     glovar.locks["regex"].acquire()
+
     try:
         file_name = data
         word_type = file_name.split("_")[0]
 
         if word_type not in glovar.regex:
-            return True
+            return False
 
         words_data = receive_file_data(client, message)
 
         if words_data is None:
-            return True
+            return False
 
         pop_set = set(eval(f"glovar.{file_name}")) - set(words_data)
         new_set = set(words_data) - set(eval(f"glovar.{file_name}"))
@@ -452,79 +447,80 @@ def receive_regex(client: Client, message: Message, data: str) -> bool:
         save(file_name)
 
         # Regenerate special characters dictionary if possible
-        if file_name in {"spc_words", "spe_words"}:
-            special = file_name.split("_")[0]
-            exec(f"glovar.{special}_dict = {{}}")
+        if file_name not in {"spc_words", "spe_words"}:
+            return False
 
-            for rule in words_data:
-                # Check keys
-                if "[" not in rule:
-                    continue
+        special = file_name.split("_")[0]
+        exec(f"glovar.{special}_dict = {{}}")
 
-                # Check value
-                if "?#" not in rule:
-                    continue
+        for rule in words_data:
+            # Check keys
+            if "[" not in rule:
+                continue
 
-                keys = rule.split("]")[0][1:]
-                value = rule.split("?#")[1][1]
+            # Check value
+            if "?#" not in rule:
+                continue
 
-                for k in keys:
-                    eval(f"glovar.{special}_dict")[k] = value
+            keys = rule.split("]")[0][1:]
+            value = rule.split("?#")[1][1]
 
-        return True
+            for k in keys:
+                eval(f"glovar.{special}_dict")[k] = value
+
+        result = True
     except Exception as e:
         logger.warning(f"Receive regex error: {e}", exc_info=True)
     finally:
         glovar.locks["regex"].release()
 
-    return False
+    return result
 
 
 def receive_remove_bad(client: Client, data: dict) -> bool:
     # Receive removed bad objects
+    result = False
+
+    glovar.locks["message"].acquire()
+
     try:
         # Basic data
         the_id = data["id"]
         the_type = data["type"]
 
         # Remove bad user
-        if the_type == "user":
-            glovar.bad_ids["users"].discard(the_id)
-            glovar.watch_ids["ban"].pop(the_id, {})
-            glovar.watch_ids["delete"].pop(the_id, {})
-            save("watch_ids")
+        if the_type != "user":
+            return False
 
-            with glovar.locks["message"]:
-                if glovar.user_ids.get(the_id, {}):
-                    # Pass in all waiting groups
-                    for gid in list(glovar.user_ids[the_id]["wait"]):
-                        unrestrict_user(client, gid, the_id)
-
-                    # Unban in all punished groups
-                    for gid in set(glovar.user_ids[the_id]["banned"]) | set(glovar.user_ids[the_id]["restricted"]):
-                        unban_user(client, gid, the_id)
-
-                    # Remove users from CAPTCHA group
-                    time = glovar.user_ids[the_id]["time"]
-                    time and kick_user(client, glovar.captcha_group_id, the_id)
-                    mid = glovar.user_ids[the_id]["mid"]
-                    mid and delete_message(client, glovar.captcha_group_id, mid)
-            
-            glovar.user_ids[the_id] = deepcopy(glovar.default_user_status)
-            save("user_ids")
-
+        glovar.bad_ids["users"].discard(the_id)
         save("bad_ids")
+        glovar.watch_ids["ban"].pop(the_id, {})
+        glovar.watch_ids["delete"].pop(the_id, {})
+        save("watch_ids")
 
-        return True
+        if not glovar.user_ids.get(the_id, {}):
+            return True
+
+        forgive_user(client, the_id)
+
+        glovar.user_ids[the_id] = deepcopy(glovar.default_user_status)
+        save("user_ids")
+
+        result = True
     except Exception as e:
         logger.warning(f"Receive remove bad error: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
 
-    return False
+    return result
 
 
 def receive_remove_score(client: Client, data: int) -> bool:
     # Receive remove user's score
+    result = False
+
     glovar.locks["message"].acquire()
+
     try:
         # Basic data
         uid = data
@@ -532,34 +528,24 @@ def receive_remove_score(client: Client, data: int) -> bool:
         if not glovar.user_ids.get(uid, {}):
             return True
 
-        # Pass all waiting users
-        for gid in list(glovar.user_ids[uid]["wait"]):
-            unrestrict_user(client, gid, uid)
-
-        # Unban in all punished groups
-        for gid in set(glovar.user_ids[uid]["banned"]) | set(glovar.user_ids[uid]["restricted"]):
-            unban_user(client, gid, uid)
-
-        # Remove users from CAPTCHA group
-        time = glovar.user_ids[uid]["time"]
-        time and kick_user(client, glovar.captcha_group_id, uid)
-        mid = glovar.user_ids[uid]["mid"]
-        mid and delete_message(client, glovar.captcha_group_id, mid)
+        forgive_user(client, uid)
 
         glovar.user_ids[uid] = deepcopy(glovar.default_user_status)
         save("user_ids")
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Receive remove score error: {e}", exc_info=True)
     finally:
         glovar.locks["message"].release()
 
-    return False
+    return result
 
 
 def receive_remove_watch(data: int) -> bool:
     # Receive removed watching users
+    result = False
+
     try:
         # Basic data
         uid = data
@@ -569,15 +555,17 @@ def receive_remove_watch(data: int) -> bool:
         glovar.watch_ids["delete"].pop(uid, 0)
         save("watch_ids")
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Receive remove watch error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 def receive_remove_white(data: int) -> bool:
     # Receive removed withe users
+    result = False
+
     try:
         # Basic data
         uid = data
@@ -589,23 +577,25 @@ def receive_remove_white(data: int) -> bool:
         glovar.white_ids.discard(uid)
         save("white_ids")
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Receive remove white error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 def receive_rollback(client: Client, message: Message, data: dict) -> bool:
     # Receive rollback data
+    result = False
+
     try:
         # Basic data
         aid = data["admin_id"]
         the_type = data["type"]
         the_data = receive_file_data(client, message)
 
-        if not the_data:
-            return True
+        if the_data is None:
+            return False
 
         exec(f"glovar.{the_type} = the_data")
         save(the_type)
@@ -616,54 +606,62 @@ def receive_rollback(client: Client, message: Message, data: dict) -> bool:
                 f"{lang('action')}{lang('colon')}{code(lang('rollback'))}\n"
                 f"{lang('more')}{lang('colon')}{code(the_type)}\n")
         thread(send_message, (client, glovar.debug_channel_id, text))
+
+        result = True
     except Exception as e:
         logger.warning(f"Receive rollback error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 def receive_text_data(message: Message) -> dict:
     # Receive text's data from exchange channel
-    data = {}
+    result = {}
+
     try:
         text = get_text(message)
 
         if not text:
             return {}
 
-        data = loads(text)
+        result = loads(text)
     except Exception as e:
         logger.warning(f"Receive text data error: {e}")
 
-    return data
+    return result
 
 
 def receive_user_score(project: str, data: dict) -> bool:
     # Receive and update user's score
+    result = False
+
     glovar.locks["message"].acquire()
+
     try:
         # Basic data
         project = project.lower()
         uid = data["id"]
 
         if not init_user_id(uid):
-            return True
+            return False
 
         score = data["score"]
         glovar.user_ids[uid]["score"][project] = score
         save("user_ids")
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Receive user score error: {e}", exc_info=True)
     finally:
         glovar.locks["message"].release()
 
-    return False
+    return result
 
 
-def receive_kicked_user(client: Client, data: dict) -> bool:
+def receive_warn_kicked_user(client: Client, data: dict) -> bool:
     # Receive WARN banned user
+    result = False
+
     glovar.locks["message"].acquire()
 
     try:
@@ -675,9 +673,9 @@ def receive_kicked_user(client: Client, data: dict) -> bool:
         if not glovar.user_ids.get(uid, {}):
             return True
 
-        terminate_user(
+        # Terminate the user
+        result = terminate_user_banned(
             client=client,
-            the_type="banned",
             uid=uid,
             gid=gid
         )
@@ -686,11 +684,13 @@ def receive_kicked_user(client: Client, data: dict) -> bool:
     finally:
         glovar.locks["message"].release()
 
-    return False
+    return result
 
 
 def receive_watch_user(data: dict) -> bool:
     # Receive watch users that other bots shared
+    result = False
+
     try:
         # Basic data
         the_type = data["type"]
@@ -711,24 +711,28 @@ def receive_watch_user(data: dict) -> bool:
 
         save("watch_ids")
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Receive watch user error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 def receive_white_users(client: Client, message: Message) -> bool:
     # Receive white users
+    result = False
+
     try:
         the_data = receive_file_data(client, message)
 
         if not the_data:
-            return True
+            return False
 
         glovar.white_ids = the_data
         save("white_ids")
+
+        result = False
     except Exception as e:
         logger.warning(f"Receive white users error: {e}", exc_info=True)
 
-    return False
+    return result

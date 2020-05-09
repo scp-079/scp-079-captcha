@@ -1,0 +1,192 @@
+# English
+
+# Admin
+admin: Admin
+admin_group: Group Admin
+admin_project: Project Admin
+
+# Basic
+action: Action
+clear: Clear Data
+description: Description
+disabled: Disabled
+enabled: Enabled
+name: Name
+reason: Reason
+reset: Reset Data
+rollback: Rollback
+score: Score
+status_failed: Failed
+status_succeeded: Succeeded
+version: Version
+
+# Config
+config: Settings
+config_button: Press the Button to Config
+config_change: Change Config
+config_create: Create Config Session
+config_go: Go to Config
+config_locked: Config is Locked
+config_show: Show Config
+config_updated: Updated
+custom: Custom
+default: Default
+delete: Help Delete
+restrict: Restriction Mode
+ban: Ban Mode
+forgive: Auto Forgive
+hint: Hint for New Joined User
+pass: Auto Pass
+pin: Auto Pin
+manual: Manual Only
+
+# Command
+command_lack: Lack of Parameter
+command_para: Incorrect Command Parameter
+command_type: Incorrect Command Type
+command_usage: Incorrect Usage
+
+# Debug
+evidence: Evidence
+triggered_by: Triggered By
+
+# Emergency
+auto_fix: Auto Fix
+emergency_channel: Emergency Channel
+exchange_invalid: Exchange Channel Invalid
+issue: Issue
+protocol_1: Initiate Protocol 1
+transfer_channel: Transfer Channel
+
+# Group
+group_id: Group ID
+group_name: Group Name
+inviter: Inviter
+leave_approve: Approve to Leave the Group
+leave_auto: Leave automatically
+reason_admin: Failed to Fetch Admin List
+reason_leave: Not Admin in Group
+reason_none: No Data
+reason_permissions: Missing Permissions
+reason_unauthorized: Unauthorized
+reason_user: Missing USER
+refresh: Refresh Admin Lists
+status_joined: Joined the Group
+status_left: Left the Group
+
+# More
+cannot_forward: The Message Cannot be Forwarded to Channel
+privacy: Not Forwarded Due to Privacy Reason
+
+# Message Type
+gam: Game
+ser: Service
+
+# Record
+contact: Contact Info
+from_name: Forward Name
+level: Level
+project: Project
+project_origin: Original Project
+message_freq: Message Frequency
+message_game: Game Short Name
+message_lang: Message Language
+message_len: Message Length
+message_type: Message Type
+more: Extra Info
+rule: Rule
+status: Status
+user_bio: User Bio
+user_id: User ID
+user_name: User Name
+user_score: User Score
+
+# Special
+action_count: Log Count
+action_flood: Flood Detected
+action_invite: Generate New Invite Link
+action_normal: Flood Stopped
+action_pass: Pass Manually
+action_report: Send Report
+action_static: Send Static Hint
+action_undo_pass: Undo Pass
+action_verified: Verified
+action_wait: Wait for Verification
+attention: Attention
+attention_invite: If it prompts that the link is invalid, it may be because the link
+  is being updated, please try a few more times
+captcha_check: Should I Verify
+captcha_go: Go to Verify
+check_admin: You are an admin, you are free to join the verification group to see how the bot works
+check_no: You can send messages without verification in this group
+check_pass: You have passed the verification in this group
+check_yes: You need to verify to send messages in this group
+description_again: Wrong answer, please adjust the answer and try again
+description_ask: Please answer the question below to complete the verification as
+  soon as possible. You can click the right answer's button or send the right answer
+  directly. Note that you have {} chances to answer the question, and incorrect answers
+  will cause the verification to fail. Any message you send in this group will be
+  considered as an answer to the question, please send carefully
+description_banned: Group admin passed your verification
+description_hint: For new joined users, please click the button below to verify. Please
+  complete verification within {} seconds, or you will be removed from the group
+description_log: Log check
+description_manual: Please click the button below to verify. Please complete
+  verification within {} seconds, or you will be removed from the group.
+  This verification is a manual request by the group admin
+description_nospam: Please click the button below to verify. Please complete verification
+  within {} seconds, or you will be removed from the group. You triggered the rules
+  of the anti-ad bot. Because you have been in the group for a long time, the
+  bot does not ban You, but requires you to complete a verification
+description_pass: Group admin banned you
+description_succeed: The verification is successful and you can speak in corresponding groups
+description_timeout: Verification Timeout
+description_wrong: Verification failed. Wrong answer
+flood_count: Check Count
+flood_duration: Flood Duration
+flood_static: Auto Static Hint
+flood_total: Flood Total
+invite_button: Join CAPTCHA Group
+invite_text: Please verify in a private group
+old_pinned: Old Pinned Message
+question: Question
+question_attention: Please confirm which question is yours before answering
+question_change: Change the Question
+question_chengyu: Please send the idiom shown in the above picture
+question_food: The correct answer is in the buttons below, please select or send the name shown in the above image
+question_letter: Please send a string of English letters (no numbers) as shown above, not case sensitive
+question_math_pic: The correct answer is in the buttons below, please select or send
+  the correct answer to the addition or subtraction arithmetic question shown in the figure above
+question_number: Please send a string of numbers as shown above
+question_pic: The correct answer is in the buttons below, please select or send the
+  correct name of the object shown in the picture above
+suggestion: Suggestion
+suggestion_wrong: Please wait {} seconds before re-joining the original group for verification
+triggered_time: Triggered Time
+wait_user: Users Need to Be Verified
+
+# Symbol
+colon: ": "
+
+# Terminate
+auto_ban: Auto Ban
+auto_delete: Auto Delete
+auto_kick: Auto Kick
+auto_restrict: Auto Restrict
+global_delete: Global Delete
+name_ban: Ban by Name
+name_examine: Name Examination
+name_recheck: Name Recheck
+op_downgrade: Operation Downgrade
+op_upgrade: Operation Upgrade
+rule_custom: Custom Rule
+rule_global: Global Rule
+score_ban: Ban by Score
+score_user: High Score
+watch_ban: Watch Ban
+watch_delete: Watch Delete
+watch_user: Watched User
+
+# Unit
+members: member(s)
+seconds: second(s)
