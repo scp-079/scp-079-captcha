@@ -41,6 +41,7 @@ pin: Auto Pin
 manual: Manual Only
 
 # Command
+command_flood: Commands are sent frequently, please try again later
 command_lack: Lack of Parameter
 command_para: Incorrect Command Parameter
 command_type: Incorrect Command Type

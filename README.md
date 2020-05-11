@@ -30,6 +30,7 @@ This bot is used to provide challenges for newly joined members.
     - functions
         - `captcha.py` : Functions about CAPTCHA
         - `channel.py` : Functions about channel
+        - `command.py` : Functions about command
         - `decorators.py` : Some decorators
         - `etc.py` : Miscellaneous
         - `file.py` : Save files

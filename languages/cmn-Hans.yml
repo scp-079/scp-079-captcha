@@ -41,6 +41,7 @@ pin: 自动置顶
 manual: 仅手动
 
 # Command
+command_flood: 命令发送频繁，请稍后重试
 command_lack: 命令参数缺失
 command_para: 命令参数有误
 command_type: 命令类别有误

@@ -25,8 +25,9 @@ from pyrogram import Client, Filters, Message
 from .. import glovar
 from ..functions.captcha import send_static, user_captcha
 from ..functions.channel import get_debug_text, share_data
+from ..functions.command import delete_normal_command, delete_shared_command, command_flood
 from ..functions.decorators import threaded
-from ..functions.etc import bold, code, delay, get_command_context, get_command_type, get_int, get_now, get_text, lang
+from ..functions.etc import bold, code, get_command_context, get_int, get_now, get_text, lang
 from ..functions.etc import mention_id, thread
 from ..functions.file import save
 from ..functions.filters import authorized_group, captcha_group, class_e, from_user
@@ -46,18 +47,20 @@ logger = logging.getLogger(__name__)
                    & from_user)
 def captcha(client: Client, message: Message) -> bool:
     # Send CAPTCHA request manually
+    result = False
 
     if not message or not message.chat:
-        return True
+        return False
 
-    # Basic data
-    gid = message.chat.id
-    mid = message.message_id
+    glovar.locks["message"].acquire()
 
     try:
+        # Basic data
+        gid = message.chat.id
+
         # Check permission
         if not is_class_c(None, message):
-            return True
+            return False
 
         # Basic data
         now = message.date or get_now()
@@ -65,18 +68,18 @@ def captcha(client: Client, message: Message) -> bool:
         aid = message.from_user.id
 
         if not r_message or not is_from_user(None, r_message):
-            return True
+            return False
 
         # Check pass
         if is_class_c(None, r_message) or is_class_e(None, r_message):
-            return True
+            return False
 
         if r_message.new_chat_members:
             user = r_message.new_chat_members[0]
         else:
             user = r_message.from_user
 
-        user_captcha(
+        result = user_captcha(
             client=client,
             message=r_message,
             gid=gid,
@@ -85,14 +88,13 @@ def captcha(client: Client, message: Message) -> bool:
             now=now,
             aid=aid
         )
-
-        return True
     except Exception as e:
         logger.warning(f"Captcha error: {e}", exc_info=True)
     finally:
-        delete_message(client, gid, mid)
+        glovar.locks["message"].release()
+        delete_normal_command(client, message)
 
-    return False
+    return result
 
 
 @Client.on_message(Filters.incoming & Filters.group & Filters.command(["config"], glovar.prefix)
@@ -100,30 +102,30 @@ def captcha(client: Client, message: Message) -> bool:
                    & from_user)
 def config(client: Client, message: Message) -> bool:
     # Request CONFIG session
+    result = False
 
     if not message or not message.chat:
-        return True
-
-    # Basic data
-    gid = message.chat.id
-    mid = message.message_id
+        return False
 
     try:
+        # Basic data
+        gid = message.chat.id
+
         # Check permission
         if not is_class_c(None, message):
-            return True
+            return False
 
         # Check command format
-        command_type = get_command_type(message)
+        command_type, command_context = get_command_context(message)
 
         if not command_type or not re.search(f"^{glovar.sender}$", command_type, re.I):
-            return True
+            return False
 
         now = get_now()
 
         # Check the config lock
         if now - glovar.configs[gid]["lock"] < 310:
-            return True
+            return command_flood(client, message)
 
         # Set lock
         glovar.configs[gid]["lock"] = now
@@ -154,13 +156,13 @@ def config(client: Client, message: Message) -> bool:
                  f"{lang('action')}{lang('colon')}{code(lang('config_create'))}\n")
         thread(send_message, (client, glovar.debug_channel_id, text))
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Config error: {e}", exc_info=True)
     finally:
-        delay(3, delete_message, [client, gid, mid]) if is_class_c(None, message) else delete_message(client, gid, mid)
+        delete_shared_command(client, message)
 
-    return False
+    return result
 
 
 @Client.on_message(Filters.incoming & Filters.group
