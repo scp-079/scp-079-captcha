@@ -145,6 +145,7 @@ def config(client: Client, message: Message) -> bool:
                 "group_name": group_name,
                 "group_link": group_link,
                 "user_id": message.from_user.id,
+                "private": command_context == "private",
                 "config": glovar.configs[gid],
                 "default": glovar.default_config
             }
