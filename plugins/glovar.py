@@ -75,6 +75,7 @@ critical_channel_id: int = 0
 debug_channel_id: int = 0
 exchange_channel_id: int = 0
 hide_channel_id: int = 0
+logging_channel_id: int = 0
 test_group_id: int = 0
 
 # [custom]
@@ -160,6 +161,7 @@ try:
     debug_channel_id = int(config["channels"].get("debug_channel_id", str(debug_channel_id)))
     exchange_channel_id = int(config["channels"].get("exchange_channel_id", str(exchange_channel_id)))
     hide_channel_id = int(config["channels"].get("hide_channel_id", str(hide_channel_id)))
+    logging_channel_id = int(config["channels"].get("logging_channel_id", str(logging_channel_id)))
     test_group_id = int(config["channels"].get("test_group_id", str(test_group_id)))
 
     # [custom]
@@ -253,6 +255,7 @@ if (False
         or debug_channel_id == 0
         or exchange_channel_id == 0
         or hide_channel_id == 0
+        or logging_channel_id == 0
         or test_group_id == 0
 
         # [custom]
@@ -321,7 +324,6 @@ all_commands: List[str] = [
     "captcha",
     "config",
     "config_captcha",
-    "invite",
     "pass",
     "static",
     "version"

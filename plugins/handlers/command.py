@@ -26,15 +26,14 @@ from .. import glovar
 from ..functions.captcha import send_static, user_captcha
 from ..functions.channel import get_debug_text, share_data
 from ..functions.command import delete_normal_command, delete_shared_command, command_flood
-from ..functions.decorators import threaded
-from ..functions.etc import bold, code, get_command_context, get_int, get_now, get_text, lang
-from ..functions.etc import mention_id, thread
+from ..functions.etc import bold, code, general_link, get_command_context, get_int, get_now, get_text, lang
+from ..functions.etc import mention_id, message_link, thread
 from ..functions.file import save
 from ..functions.filters import authorized_group, captcha_group, class_e, from_user
 from ..functions.filters import is_class_c, is_class_e, is_from_user, test_group
 from ..functions.group import delete_message, get_config_text
-from ..functions.telegram import get_group_info, get_messages, resolve_username, send_message, send_report_message
-from ..functions.timers import new_invite_link
+from ..functions.telegram import forward_messages, get_group_info, get_messages, resolve_username, send_message
+from ..functions.telegram import send_report_message
 from ..functions.user import terminate_user_pass, terminate_user_succeed, terminate_user_undo_pass
 
 # Enable logging
@@ -110,6 +109,8 @@ def config(client: Client, message: Message) -> bool:
     try:
         # Basic data
         gid = message.chat.id
+        aid = message.from_user.id
+        mid = message.from_user.id
 
         # Check permission
         if not is_class_c(None, message):
@@ -126,6 +127,26 @@ def config(client: Client, message: Message) -> bool:
         # Check the config lock
         if now - glovar.configs[gid]["lock"] < 310:
             return command_flood(client, message)
+
+        # Private check
+        if command_context == "private":
+            result = forward_messages(
+                client=client,
+                cid=glovar.logging_channel_id,
+                fid=gid,
+                mids=[mid]
+            )
+
+            if not result:
+                return False
+
+            text = (f"{lang('project')}{lang('colon')}{code(glovar.sender)}\n"
+                    f"{lang('user_id')}{lang('colon')}{code(aid)}\n"
+                    f"{lang('level')}{lang('colon')}{code(lang('config_create'))}\n"
+                    f"{lang('rule')}{lang('colon')}{code(lang('rule_custom'))}\n")
+            result = send_message(client, glovar.logging_channel_id, text, result.message_id)
+        else:
+            result = None
 
         # Set lock
         glovar.configs[gid]["lock"] = now
@@ -144,7 +165,7 @@ def config(client: Client, message: Message) -> bool:
                 "group_id": gid,
                 "group_name": group_name,
                 "group_link": group_link,
-                "user_id": message.from_user.id,
+                "user_id": aid,
                 "private": command_context == "private",
                 "config": glovar.configs[gid],
                 "default": glovar.default_config
@@ -155,6 +176,10 @@ def config(client: Client, message: Message) -> bool:
         text = get_debug_text(client, message.chat)
         text += (f"{lang('admin_group')}{lang('colon')}{code(message.from_user.id)}\n"
                  f"{lang('action')}{lang('colon')}{code(lang('config_create'))}\n")
+
+        if result:
+            text += f"{lang('evidence')}{lang('colon')}{general_link(result.message_id, message_link(result))}\n"
+
         thread(send_message, (client, glovar.debug_channel_id, text))
 
         result = True
@@ -172,15 +197,15 @@ def config(client: Client, message: Message) -> bool:
                    & from_user)
 def config_directly(client: Client, message: Message) -> bool:
     # Config the bot directly
+    result = False
 
     if not message or not message.chat:
         return True
 
-    # Basic data
-    gid = message.chat.id
-    mid = message.message_id
-
     try:
+        # Basic data
+        gid = message.chat.id
+
         # Check permission
         if not is_class_c(None, message):
             return True
@@ -257,47 +282,13 @@ def config_directly(client: Client, message: Message) -> bool:
                  f"{lang('status')}{lang('colon')}{code(reason)}\n")
         thread(send_report_message, ((lambda x: 10 if x else 5)(success), client, gid, text))
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Config directly error: {e}", exc_info=True)
     finally:
-        delete_message(client, gid, mid)
+        delete_normal_command(client, message)
 
-    return False
-
-
-@Client.on_message(Filters.incoming & Filters.group & Filters.command(["invite"], glovar.prefix)
-                   & captcha_group & ~test_group
-                   & from_user & class_e)
-def invite(client: Client, message: Message) -> bool:
-    # Send a new invite link to CAPTCHA channel
-    try:
-        # Basic data
-        cid = message.chat.id
-        aid = message.from_user.id
-        mid = message.message_id
-
-        # Text prefix
-        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
-                f"{lang('action')}{lang('colon')}{code(lang('action_invite'))}\n")
-
-        # Generate a new invite link
-        result = new_invite_link(client, True)
-
-        # Check the result
-        if result:
-            text += f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n"
-        else:
-            text = f"{lang('status')}{lang('colon')}{code(lang('status_error'))}\n"
-
-        # Send the report message
-        thread(send_message, (client, cid, text, mid))
-
-        return True
-    except Exception as e:
-        logger.warning(f"Invite error: {e}", exc_info=True)
-
-    return False
+    return result
 
 
 @Client.on_message(Filters.incoming & Filters.group & Filters.command(["pass"], glovar.prefix)
@@ -493,7 +484,6 @@ def static(client: Client, message: Message) -> bool:
 @Client.on_message(Filters.incoming & Filters.group & Filters.command(["version"], glovar.prefix)
                    & test_group
                    & from_user)
-@threaded()
 def version(client: Client, message: Message) -> bool:
     # Check the program's version
     result = False

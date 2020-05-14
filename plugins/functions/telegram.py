@@ -187,6 +187,29 @@ def export_chat_invite_link(client: Client, cid: int) -> Union[bool, str, None]:
 
 
 @retry
+def forward_messages(client: Client, cid: int, fid: int,
+                     mids: Iterable[int]) -> Union[bool, Message, List[Message], None]:
+    # Forward messages of any kind
+    result = None
+
+    try:
+        result = client.forward_messages(
+            chat_id=cid,
+            from_chat_id=fid,
+            message_ids=mids,
+            disable_notification=True
+        )
+    except FloodWait as e:
+        raise e
+    except (ChannelInvalid, ChannelPrivate, ChatAdminRequired, PeerIdInvalid):
+        return False
+    except Exception as e:
+        logger.warning(f"Forward messages error: {e}", exc_info=True)
+
+    return result
+
+
+@retry
 def get_admins(client: Client, cid: int) -> Union[bool, List[ChatMember], None]:
     # Get a group's admins
     result = None

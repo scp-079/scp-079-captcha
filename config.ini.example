@@ -45,6 +45,7 @@ critical_channel_id = [DATA EXPUNGED]
 debug_channel_id = [DATA EXPUNGED]
 exchange_channel_id = [DATA EXPUNGED]
 hide_channel_id = [DATA EXPUNGED]
+logging_channel_id = [DATA EXPUNGED]
 test_group_id = [DATA EXPUNGED]
 
 [custom]
