@@ -27,10 +27,11 @@ from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 from .. import glovar
 from .captcha import user_captcha
 from .channel import get_debug_text, send_debug, share_data
+from .config import get_config_text
 from .etc import code, crypt_str, general_link, get_int, get_now, get_text, lang, thread, mention_id
 from .file import crypt_file, data_to_file, delete_file, get_new_path, get_downloaded_path, save
 from .filters import is_class_d_user, is_class_e_user
-from .group import get_config_text, leave_group
+from .group import leave_group
 from .ids import init_group_id, init_user_id
 from .telegram import get_chat_member, send_message, send_report_message
 from .timers import update_admins

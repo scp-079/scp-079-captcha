@@ -9,6 +9,7 @@ admin_project: Project Admin
 action: Action
 clear: Clear Data
 description: Description
+detail: Detail
 disabled: Disabled
 enabled: Enabled
 name: Name

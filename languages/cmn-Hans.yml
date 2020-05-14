@@ -9,6 +9,7 @@ admin_project: 项目管理员
 action: 执行操作
 clear: 清空数据
 description: 说明
+detail: 详情
 disabled: 禁用
 enabled: 启用
 name: 名称

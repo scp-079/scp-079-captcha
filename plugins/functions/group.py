@@ -137,29 +137,6 @@ def delete_message(client: Client, gid: int, mid: int) -> bool:
     return result
 
 
-def get_config_text(config: dict) -> str:
-    # Get the group's config text
-    result = ""
-
-    try:
-        # Basic
-        default_text = (lambda x: lang("default") if x else lang("custom"))(config.get("default"))
-        delete_text = (lambda x: lang("enabled") if x else lang("disabled"))(config.get("delete"))
-        restrict_text = (lambda x: lang("enabled") if x else lang("disabled"))(config.get("restrict"))
-        result += (f"{lang('config')}{lang('colon')}{code(default_text)}\n"
-                   f"{lang('delete')}{lang('colon')}{code(delete_text)}\n"
-                   f"{lang('restrict')}{lang('colon')}{code(restrict_text)}\n")
-
-        # Others
-        for the_type in ["ban", "forgive", "hint", "pass", "pin", "manual"]:
-            the_text = (lambda x: lang("enabled") if x else lang("disabled"))(config.get(the_type))
-            result += f"{lang(the_type)}{lang('colon')}{code(the_text)}\n"
-    except Exception as e:
-        logger.warning(f"Get config text error: {e}", exc_info=True)
-
-    return result
-
-
 def get_group(client: Client, gid: int, cache: bool = True) -> Optional[Chat]:
     # Get the group
     result = None

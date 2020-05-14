@@ -570,7 +570,7 @@ def send_photo(client: Client, cid: int, photo: str, file_ref: str = None, capti
 @threaded()
 @retry
 def send_report_message(secs: int, client: Client, cid: int, text: str, mid: int = None,
-                        markup: InlineKeyboardMarkup = None) -> Optional[Message]:
+                        markup: InlineKeyboardMarkup = None) -> Optional[bool]:
     # Send a message that will be auto deleted to a chat
     result = None
 

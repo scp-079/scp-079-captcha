@@ -25,13 +25,14 @@ from pyrogram import Client, Filters, Message
 from .. import glovar
 from ..functions.captcha import send_static, user_captcha
 from ..functions.channel import get_debug_text, share_data
-from ..functions.command import delete_normal_command, delete_shared_command, command_flood
+from ..functions.command import delete_normal_command, delete_shared_command, command_error
+from ..functions.config import conflict_config, get_config_text, update_config
 from ..functions.etc import bold, code, general_link, get_command_context, get_int, get_now, get_text, lang
 from ..functions.etc import mention_id, message_link, thread
 from ..functions.file import save
 from ..functions.filters import authorized_group, captcha_group, class_e, from_user
 from ..functions.filters import is_class_c, is_class_e, is_from_user, test_group
-from ..functions.group import delete_message, get_config_text
+from ..functions.group import delete_message
 from ..functions.telegram import forward_messages, get_group_info, get_messages, resolve_username, send_message
 from ..functions.telegram import send_report_message
 from ..functions.user import terminate_user_pass, terminate_user_succeed, terminate_user_undo_pass
@@ -47,9 +48,6 @@ logger = logging.getLogger(__name__)
 def captcha(client: Client, message: Message) -> bool:
     # Send CAPTCHA request manually
     result = False
-
-    if not message or not message.chat:
-        return False
 
     glovar.locks["message"].acquire()
 
@@ -103,8 +101,7 @@ def config(client: Client, message: Message) -> bool:
     # Request CONFIG session
     result = False
 
-    if not message or not message.chat:
-        return False
+    glovar.locks["config"].acquire()
 
     try:
         # Basic data
@@ -126,7 +123,7 @@ def config(client: Client, message: Message) -> bool:
 
         # Check the config lock
         if now - glovar.configs[gid]["lock"] < 310:
-            return command_flood(client, message)
+            return command_error(client, message, lang("config_change"), lang("config_flood"))
 
         # Private check
         if command_context == "private":
@@ -186,6 +183,7 @@ def config(client: Client, message: Message) -> bool:
     except Exception as e:
         logger.warning(f"Config error: {e}", exc_info=True)
     finally:
+        glovar.locks["config"].release()
         delete_shared_command(client, message)
 
     return result
@@ -199,93 +197,68 @@ def config_directly(client: Client, message: Message) -> bool:
     # Config the bot directly
     result = False
 
-    if not message or not message.chat:
-        return True
+    glovar.locks["config"].acquire()
 
     try:
         # Basic data
         gid = message.chat.id
+        aid = message.from_user.id
+        now = get_now()
 
         # Check permission
         if not is_class_c(None, message):
-            return True
+            return False
 
-        aid = message.from_user.id
-        success = True
-        reason = lang("config_updated")
-        new_config = deepcopy(glovar.configs[gid])
-        text = f"{lang('admin_group')}{lang('colon')}{code(aid)}\n"
-
-        # Check command format
+        # Get get the command
         command_type, command_context = get_command_context(message)
 
-        if command_type:
-            if command_type == "show":
-                text += f"{lang('action')}{lang('colon')}{code(lang('config_show'))}\n"
-                text += get_config_text(new_config)
-                thread(send_report_message, (30, client, gid, text))
-                return True
+        # Check the command
+        if not command_type:
+            return command_error(client, message, lang("config_change"), lang("command_lack"))
 
-            now = get_now()
+        # Get the config
+        new_config = deepcopy(glovar.configs[gid])
 
-            # Check the config lock
-            if now - new_config["lock"] > 310:
-                if command_type == "default":
-                    new_config = deepcopy(glovar.default_config)
-                else:
-                    if command_context:
-                        if command_type in {"delete", "restrict", "ban", "forgive", "hint", "pass", "pin", "manual"}:
-                            if command_context == "off":
-                                new_config[command_type] = False
-                            elif command_context == "on":
-                                new_config[command_type] = True
-                            else:
-                                success = False
-                                reason = lang("command_para")
+        # Show the config
+        if command_type == "show":
+            text = (f"{lang('admin_group')}{lang('colon')}{code(aid)}\n"
+                    f"{lang('action')}{lang('colon')}{code(lang('config_show'))}\n"
+                    f"{get_config_text(new_config)}\n")
+            return send_report_message(30, client, gid, text)
 
-                            config_list = ["restrict", "ban"]
+        # Check the config lock
+        if now - new_config["lock"] < 310:
+            return command_error(client, message, lang("config_change"), lang("config_flood"))
 
-                            if command_type in config_list and new_config[command_type]:
-                                config_list.remove(command_type)
+        # Set the config to default status
+        if command_type == "default":
+            new_config = deepcopy(glovar.default_config)
+            new_config["lock"] = now
+            return update_config(client, message, new_config, "default")
 
-                                for other in config_list:
-                                    new_config[other] = False
-                        else:
-                            success = False
-                            reason = lang("command_type")
-                    else:
-                        success = False
-                        reason = lang("command_lack")
+        # Check the command format
+        if not command_context:
+            return command_error(client, message, lang("config_change"), lang("command_lack"))
 
-                    if success:
-                        new_config["default"] = False
-            else:
-                success = False
-                reason = lang("config_locked")
+        # Check the command type
+        if command_type not in {"delete", "restrict", "ban", "forgive", "hint", "pass", "pin", "manual"}:
+            return command_error(client, message, lang("config_change"), lang("command_type"))
+
+        # New settings
+        if command_context == "off":
+            new_config[command_type] = False
+        elif command_context == "on":
+            new_config[command_type] = True
         else:
-            success = False
-            reason = lang("command_usage")
+            return command_error(client, message, lang("config_change"), lang("command_para"))
 
-        if success and new_config != glovar.configs[gid]:
-            # Save new config
-            glovar.configs[gid] = new_config
-            save("configs")
-
-            # Send debug message
-            debug_text = get_debug_text(client, message.chat)
-            debug_text += (f"{lang('admin_group')}{lang('colon')}{code(message.from_user.id)}\n"
-                           f"{lang('action')}{lang('colon')}{code(lang('config_change'))}\n"
-                           f"{lang('more')}{lang('colon')}{code(f'{command_type} {command_context}')}\n")
-            thread(send_message, (client, glovar.debug_channel_id, debug_text))
-
-        text += (f"{lang('action')}{lang('colon')}{code(lang('config_change'))}\n"
-                 f"{lang('status')}{lang('colon')}{code(reason)}\n")
-        thread(send_report_message, ((lambda x: 10 if x else 5)(success), client, gid, text))
-
-        result = True
+        new_config = conflict_config(new_config, ["restrict", "ban"], command_type)
+        new_config["default"] = False
+        result = update_config(client, message, new_config, f"{command_type} {command_context}")
     except Exception as e:
         logger.warning(f"Config directly error: {e}", exc_info=True)
     finally:
+        glovar.locks["config"].release()
         delete_normal_command(client, message)
 
     return result

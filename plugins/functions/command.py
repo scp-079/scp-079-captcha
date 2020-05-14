@@ -20,10 +20,10 @@ import logging
 
 from pyrogram import Client, Message
 
-from .etc import code, delay, lang
+from .etc import code, delay, lang, thread
 from .filters import is_class_c
 from .group import delete_message
-from .telegram import send_report_message
+from .telegram import send_message, send_report_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -57,7 +57,7 @@ def delete_shared_command(client: Client, message: Message) -> bool:
 
         # Delete the command
         if is_class_c(None, message):
-            delay(3, delete_message, [client, gid, mid])
+            delay(5, delete_message, [client, gid, mid])
         else:
             delete_message(client, gid, mid)
 
@@ -68,22 +68,34 @@ def delete_shared_command(client: Client, message: Message) -> bool:
     return result
 
 
-def command_flood(client: Client, message: Message) -> bool:
-    # Command flood
+def command_error(client: Client, message: Message, action: str, error: str,
+                  detail: str = "", report: bool = True) -> bool:
+    # Command error
     result = False
 
     try:
         # Basic data
-        gid = message.chat.id
-        aid = message.from_user.id
+        cid = message.chat.id
+        uid = message.from_user.id
+        mid = message.message_id
 
-        # Send the report message
-        text = (f"{lang('admin_group')}{lang('colon')}{code(aid)}\n"
-                f"{lang('action')}{lang('colon')}{code(lang('config_change'))}\n"
+        # Generate the text
+        text = (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
+                f"{lang('action')}{lang('colon')}{code(action)}\n"
                 f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                f"{lang('reason')}{lang('colon')}{code(lang('command_flood'))}\n")
-        result = send_report_message(10, client, gid, text)
+                f"{lang('reason')}{lang('colon')}{code(error)}\n")
+
+        if detail:
+            text += f"{lang('detail')}{lang('colon')}{code(detail)}\n"
+
+        # Send the message
+        if report:
+            send_report_message(10, client, cid, text, mid)
+        else:
+            thread(send_message, (client, cid, text, mid))
+
+        result = True
     except Exception as e:
-        logger.warning(f"Command flood error: {e}", exc_info=True)
+        logger.warning(f"Command error: {e}", exc_info=True)
 
     return result
