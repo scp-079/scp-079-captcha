@@ -269,20 +269,20 @@ def config_directly(client: Client, message: Message) -> bool:
                    & from_user & class_e)
 def pass_captcha(client: Client, message: Message) -> bool:
     # Pass in CAPTCHA
+    result = False
+
     glovar.locks["message"].acquire()
+
     try:
         # Basic data
         cid = message.chat.id
         aid = message.from_user.id
         mid = message.message_id
 
-        # Proceed
-        if not message.reply_to_message:
-            return True
+        if not message.reply_to_message or not message.reply_to_message.from_user:
+            return False
 
-        if not message.reply_to_message.from_user:
-            return True
-
+        # Get the user id
         user = message.reply_to_message.from_user
         uid = user.id
 
@@ -290,31 +290,34 @@ def pass_captcha(client: Client, message: Message) -> bool:
             message_text = get_text(message.reply_to_message)
             uid = get_int(message_text.split("\n")[1].split(lang("colon"))[1])
 
-        if (uid and uid != aid
+        # Check the user status
+        if not (uid
+                and uid != aid
                 and glovar.user_ids.get(uid, {})
-                and (glovar.user_ids[uid]["wait"]
-                     or glovar.user_ids[uid]["failed"]
-                     or glovar.user_ids[uid]["restricted"]
-                     or glovar.user_ids[uid]["banned"])):
-            terminate_user_succeed(
-                client=client,
-                uid=uid
-            )
-            text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
-                    f"{lang('action')}{lang('colon')}{code(lang('action_pass'))}\n"
-                    f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
-                    f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
-            thread(send_message, (client, cid, text, mid))
-        else:
-            delete_message(client, cid, mid)
+                and glovar.user_ids[uid]["wait"]
+                and glovar.user_ids[uid]["mid"]):
+            return delete_message(client, cid, mid)
 
-        return True
+        # Let user pass
+        terminate_user_succeed(
+            client=client,
+            uid=uid
+        )
+
+        # Send the report message
+        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('action_pass'))}\n"
+                f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
+                f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
+        thread(send_message, (client, cid, text, mid))
+
+        result = True
     except Exception as e:
         logger.warning(f"Pass captcha error: {e}", exc_info=True)
     finally:
         glovar.locks["message"].release()
 
-    return False
+    return result
 
 
 @Client.on_message(Filters.incoming & Filters.group & Filters.command(["pass"], glovar.prefix)
