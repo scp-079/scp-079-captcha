@@ -23,6 +23,7 @@ from pyrogram import Client, Filters, Message
 from .. import glovar
 from ..functions.captcha import question_answer, question_ask, user_captcha
 from ..functions.channel import ask_help_welcome, get_debug_text
+from ..functions.command import delete_normal_command
 from ..functions.etc import code, general_link, get_now, lang, thread, mention_id
 from ..functions.file import save
 from ..functions.filters import authorized_group, captcha_group, class_c, class_d, class_e, declared_message
@@ -136,7 +137,10 @@ def check(client: Client, message: Message) -> bool:
                    & ~declared_message)
 def verify_ask(client: Client, message: Message) -> bool:
     # Check the messages sent from groups
+    result = False
+
     glovar.locks["message"].acquire()
+
     try:
         # Basic data
         gid = message.chat.id
@@ -177,13 +181,13 @@ def verify_ask(client: Client, message: Message) -> bool:
             # Ask a new question
             question_ask(client, new, mid)
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Verify ask error: {e}", exc_info=True)
     finally:
         glovar.locks["message"].release()
 
-    return False
+    return result
 
 
 @Client.on_message(Filters.incoming & Filters.group & ~Filters.new_chat_members
@@ -191,15 +195,10 @@ def verify_ask(client: Client, message: Message) -> bool:
                    & from_user)
 def verify_check(client: Client, message: Message) -> bool:
     # Check the messages sent from the CAPTCHA group
-
-    if not message or not message.chat:
-        return True
-
-    # Basic data
-    gid = message.chat.id
-    mid = message.message_id
+    result = False
 
     glovar.locks["message"].acquire()
+
     try:
         # Basic data
         uid = message.from_user.id
@@ -233,44 +232,22 @@ def verify_check(client: Client, message: Message) -> bool:
             return True
 
         # Answer the question
-        question_answer(client, uid, message.text or message.caption)
-
-        return True
+        result = question_answer(client, uid, message.text or message.caption)
     except Exception as e:
         logger.warning(f"Verify check error: {e}", exc_info=True)
     finally:
         glovar.locks["message"].release()
-        delete_message(client, gid, mid)
+        delete_normal_command(client, message)
 
-    return False
-
-
-@Client.on_message(Filters.incoming & Filters.group & Filters.pinned_message
-                   & ~captcha_group & ~test_group & authorized_group
-                   & from_user)
-def delete_service(client: Client, message: Message) -> bool:
-    # Delete service messages sent by SCP-079-USER
-    try:
-        # Basic data
-        gid = message.chat.id
-        uid = message.from_user.id
-        mid = message.message_id
-
-        # Check if the message is sent by SCP-079-USER
-        if uid == glovar.user_id:
-            delete_message(client, gid, mid)
-
-        return True
-    except Exception as e:
-        logger.warning(f"Delete service error: {e}", exc_info=True)
-
-    return False
+    return result
 
 
 @Client.on_message(Filters.incoming & Filters.channel & ~Filters.command(glovar.all_commands, glovar.prefix)
                    & hide_channel, group=-1)
 def exchange_emergency(client: Client, message: Message) -> bool:
     # Sent emergency channel transfer request
+    result = False
+
     try:
         # Read basic information
         data = receive_text_data(message)
@@ -305,11 +282,11 @@ def exchange_emergency(client: Client, message: Message) -> bool:
                 f"{lang('emergency_channel')}{lang('colon')}{code(hide_text)}\n")
         thread(send_message, (client, glovar.debug_channel_id, text))
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Exchange emergency error: {e}", exc_info=True)
 
-    return False
+    return result
 
 
 @Client.on_message(Filters.incoming & Filters.group
