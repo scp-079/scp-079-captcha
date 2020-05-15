@@ -50,7 +50,10 @@ logger = logging.getLogger(__name__)
                    & ~declared_message)
 def hint(client: Client, message: Message) -> bool:
     # Check new joined user
+    result = False
+
     glovar.locks["message"].acquire()
+
     try:
         # Basic data
         gid = message.chat.id
@@ -58,10 +61,9 @@ def hint(client: Client, message: Message) -> bool:
         now = message.date or get_now()
 
         # Check config
-        if glovar.configs[gid].get("manual") or is_class_e_user(message.from_user):
-            uid = message.new_chat_members[0].id
-            ask_help_welcome(client, uid, [gid], mid)
-            return True
+        if glovar.configs[gid].get("manual", False) or is_class_e_user(message.from_user):
+            return bool([ask_help_welcome(client, new.id, [gid], mid)
+                         for new in message.new_chat_members])
 
         for new in message.new_chat_members:
             # Basic data
@@ -78,19 +80,19 @@ def hint(client: Client, message: Message) -> bool:
             )
 
             if not result:
-                return True
+                continue
 
             # Update user's join status
             glovar.user_ids[uid]["join"][gid] = now
             save("user_ids")
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Hint error: {e}", exc_info=True)
     finally:
         glovar.locks["message"].release()
 
-    return False
+    return result
 
 
 @Client.on_message(Filters.incoming & Filters.group & ~Filters.new_chat_members
@@ -99,7 +101,10 @@ def hint(client: Client, message: Message) -> bool:
                    & ~declared_message)
 def check(client: Client, message: Message) -> bool:
     # Check the messages sent from groups
+    result = False
+
     glovar.locks["message"].acquire()
+
     try:
         # Basic data
         gid = message.chat.id
@@ -107,22 +112,22 @@ def check(client: Client, message: Message) -> bool:
         mid = message.message_id
 
         # Check wait list
-        if (glovar.user_ids.get(uid, {})
-                and (glovar.user_ids[uid]["wait"].get(gid, 0)
-                     or glovar.user_ids[uid]["failed"].get(gid, 0))):
-            terminate_user_delete(
-                client=client,
-                gid=gid,
-                mid=mid
-            )
+        if not (glovar.user_ids.get(uid, {})
+                and (glovar.user_ids[uid]["wait"].get(gid, 0) or glovar.user_ids[uid]["failed"].get(gid, 0))):
+            return False
 
-        return True
+        # Delete the message
+        result = terminate_user_delete(
+            client=client,
+            gid=gid,
+            mid=mid
+        )
     except Exception as e:
         logger.warning(f"Check error: {e}", exc_info=True)
     finally:
         glovar.locks["message"].release()
 
-    return False
+    return result
 
 
 @Client.on_message(Filters.incoming & Filters.group & Filters.new_chat_members

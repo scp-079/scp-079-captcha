@@ -182,46 +182,6 @@ def get_channel_link(message: Union[int, Message]) -> str:
     return result
 
 
-def get_command_context(message: Message) -> (str, str):
-    # Get the type "a" and the context "b" in "/command a b"
-    command_type = ""
-    command_context = ""
-
-    try:
-        text = get_text(message)
-        command_list = text.split()
-
-        if len(list(filter(None, command_list))) <= 1:
-            return "", ""
-
-        i = 1
-        command_type = command_list[i]
-
-        while command_type == "" and i < len(command_list):
-            i += 1
-            command_type = command_list[i]
-
-        command_context = text[1 + len(command_list[0]) + i + len(command_type):].strip()
-    except Exception as e:
-        logger.warning(f"Get command context error: {e}", exc_info=True)
-
-    return command_type, command_context
-
-
-def get_command_type(message: Message) -> str:
-    # Get the command type "a" in "/command a"
-    result = ""
-
-    try:
-        text = get_text(message)
-        command_list = list(filter(None, text.split()))
-        result = text[len(command_list[0]):].strip()
-    except Exception as e:
-        logger.warning(f"Get command type error: {e}", exc_info=True)
-
-    return result
-
-
 def get_full_name(user: User, normal: bool = False, printable: bool = False, pure: bool = False) -> str:
     # Get user's full name
     result = ""

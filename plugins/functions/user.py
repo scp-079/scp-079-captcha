@@ -20,17 +20,19 @@ import logging
 from time import sleep
 from typing import Union
 
-from pyrogram import ChatPermissions, Client, InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram import ChatPermissions, Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 from pyrogram.api.types import User
 
 from .. import glovar
 from .channel import ask_for_help, ask_help_welcome, declare_message, send_debug, share_data, update_score
+from .command import get_command_type
 from .decorators import threaded
-from .etc import code, delay, get_now, get_readable_time, lang, mention_text, thread
+from .etc import code, delay, get_int, get_now, get_readable_time, get_text, lang, mention_text, thread
 from .file import data_to_file, file_tsv, save
+from .filters import is_from_user
 from .group import delete_hint, delete_message
-from .telegram import edit_message_photo, edit_message_text, get_user_full, kick_chat_member
-from .telegram import restrict_chat_member, unban_chat_member
+from .telegram import edit_message_photo, edit_message_text, get_messages, get_user_full, kick_chat_member
+from .telegram import resolve_username, restrict_chat_member, unban_chat_member
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -274,6 +276,144 @@ def get_level(gid: int) -> str:
             return "ban"
     except Exception as e:
         logger.warning(f"Get level status: {e}", exc_info=True)
+
+    return result
+
+
+def get_uid(client: Client, message: Message) -> int:
+    # Get user id from the message
+    result = 0
+
+    try:
+        # Basic data
+        r_msg = message.reply_to_message
+
+        # Get the user id
+        if r_msg and is_from_user(None, r_msg):
+            result = get_uid_from_reply(client, message)
+        else:
+            result = get_uid_from_command(client, message)
+    except Exception as e:
+        logger.warning(f"Get uid error: {e}", exc_info=True)
+
+    return result
+
+
+def get_uid_from_command(client: Client, message: Message) -> int:
+    # Get user id from message command
+    result = 0
+
+    try:
+        # Basic data
+        text = get_command_type(message)
+
+        # ID text
+        result = get_int(text)
+
+        if result > 0:
+            return result
+
+        # Username text
+        result, peer_type = resolve_username(client, text)
+
+        if peer_type == "user":
+            return result
+
+        # Mention text
+        result = get_uid_from_mention(message)
+    except Exception as e:
+        logger.warning(f"Get uid from command error: {e}", exc_info=True)
+
+    return result
+
+
+def get_uid_from_mention(message: Message) -> int:
+    # Get user id from mention
+    result = 0
+
+    try:
+        if not message.entities:
+            return 0
+
+        valid = [en.user for en in message.entities if en.user]
+
+        if not valid:
+            return 0
+
+        result = valid[0].id
+    except Exception as e:
+        logger.warning(f"Get uid from mention error: {e}", exc_info=True)
+
+    return result
+
+
+def get_uid_from_reply(client: Client, message: Message) -> int:
+    # Get user id from the replied to message
+    result = 0
+
+    try:
+        # Basic data
+        cid = message.chat.id
+        mid = message.message_id
+
+        # Get the message
+        message = get_messages(client, cid, mid)
+
+        if not message:
+            return 0
+
+        # Further
+        if message.reply_to_message:
+            return get_uid_from_reply(client, message.reply_to_message)
+
+        # Get the uid
+        if message.from_user.is_self:
+            result = get_uid_from_self(message)
+        elif message.new_chat_members:
+            result = message.new_chat_members[0].id
+        else:
+            result = message.from_user.id
+    except Exception as e:
+        logger.warning(f"Get uid from reply error: {e}", exc_info=True)
+
+    return result
+
+
+def get_uid_from_self(message: Message) -> int:
+    # Get user id from self
+    result = 0
+
+    try:
+        result = get_uid_from_text(message)
+
+        if result:
+            return result
+
+        result = get_uid_from_mention(message)
+    except Exception as e:
+        logger.warning(f"Get uid from self error: {e}", exc_info=True)
+
+    return result
+
+
+def get_uid_from_text(message: Message) -> int:
+    # Get user id from message text
+    result = 0
+
+    try:
+        # Basic data
+        message_text = get_text(message)
+
+        # Get the uid
+        text_list = [text for text in message_text.split("\n")
+                     if text.startswith(f"{lang('user_id')}{lang('colon')}")]
+
+        if not text_list:
+            return 0
+
+        result = get_int(text_list[0].split(lang("colon"))[1])
+    except Exception as e:
+        logger.warning(f"Get uid from text error: {e}", exc_info=True)
 
     return result
 

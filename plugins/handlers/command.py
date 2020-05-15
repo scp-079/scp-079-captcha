@@ -25,17 +25,16 @@ from pyrogram import Client, Filters, Message
 from .. import glovar
 from ..functions.captcha import send_static, user_captcha
 from ..functions.channel import get_debug_text, share_data
-from ..functions.command import delete_normal_command, delete_shared_command, command_error
+from ..functions.command import delete_normal_command, delete_shared_command, command_error, get_command_context
 from ..functions.config import conflict_config, get_config_text, update_config
-from ..functions.etc import bold, code, general_link, get_command_context, get_int, get_now, get_text, lang
+from ..functions.etc import bold, code, general_link, get_int, get_now, get_text, lang
 from ..functions.etc import mention_id, message_link, thread
 from ..functions.file import save
 from ..functions.filters import authorized_group, captcha_group, class_e, from_user
 from ..functions.filters import is_class_c, is_class_e, is_from_user, test_group
 from ..functions.group import delete_message
-from ..functions.telegram import forward_messages, get_group_info, get_messages, resolve_username, send_message
-from ..functions.telegram import send_report_message
-from ..functions.user import terminate_user_pass, terminate_user_succeed, terminate_user_undo_pass
+from ..functions.telegram import forward_messages, get_group_info, send_message, send_report_message
+from ..functions.user import get_uid, terminate_user_pass, terminate_user_succeed, terminate_user_undo_pass
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -325,93 +324,65 @@ def pass_captcha(client: Client, message: Message) -> bool:
                    & from_user)
 def pass_group(client: Client, message: Message) -> bool:
     # Pass in group
-
-    if not message or not message.chat:
-        return True
-
-    # Basic data
-    gid = message.chat.id
-    mid = message.message_id
+    result = False
 
     glovar.locks["message"].acquire()
+
     try:
+        # Basic data
+        gid = message.chat.id
+
         # Check permission
         if not is_class_c(None, message):
             return True
-
-        r_message = message.reply_to_message
 
         # Generate the report message's text
         aid = message.from_user.id
         text = f"{lang('admin')}{lang('colon')}{code(aid)}\n"
 
         # Proceed
-        if r_message and is_from_user(None, r_message):
-            if r_message.from_user.is_self:
-                r_message = get_messages(client, gid, r_message.message_id)
+        uid = get_uid(client, message)
 
-                if r_message and r_message.reply_to_message:
-                    uid = r_message.reply_to_message.from_user.id
-                else:
-                    return True
-            elif r_message.new_chat_members:
-                uid = r_message.new_chat_members[0].id
-            else:
-                uid = r_message.from_user.id
-        else:
-            uid = 0
-            id_text, _ = get_command_context(message)
+        if not uid:
+            return command_error(client, message, lang("action_pass"), lang("command_usage"))
 
-            if id_text:
-                uid = get_int(id_text)
-
-            if not uid and id_text:
-                peer_id, peer_type = resolve_username(client, id_text)
-
-                if peer_type == "user":
-                    uid = peer_id
-
-        if uid:
-            if glovar.user_ids.get(uid, {}) and glovar.user_ids[uid]["wait"].get(gid, 0):
-                terminate_user_pass(
-                    client=client,
-                    uid=uid,
-                    gid=gid,
-                    aid=aid
-                )
-                text += (f"{lang('action')}{lang('colon')}{code(lang('action_pass'))}\n"
-                         f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
-                         f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
-            elif glovar.user_ids[uid]["pass"].get(gid, 0):
-                terminate_user_undo_pass(
-                    client=client,
-                    uid=uid,
-                    gid=gid,
-                    aid=aid
-                )
-                text += (f"{lang('action')}{lang('colon')}{code(lang('action_undo_pass'))}\n"
-                         f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
-                         f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
-            else:
-                text += (f"{lang('action')}{lang('colon')}{code(lang('action_pass'))}\n"
-                         f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                         f"{lang('reason')}{lang('colon')}{code(lang('reason_none'))}\n")
+        # Terminate the user
+        if glovar.user_ids.get(uid, {}) and glovar.user_ids[uid]["wait"].get(gid, 0):
+            terminate_user_pass(
+                client=client,
+                uid=uid,
+                gid=gid,
+                aid=aid
+            )
+            text += (f"{lang('action')}{lang('colon')}{code(lang('action_pass'))}\n"
+                     f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
+                     f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
+        elif glovar.user_ids[uid]["pass"].get(gid, 0):
+            terminate_user_undo_pass(
+                client=client,
+                uid=uid,
+                gid=gid,
+                aid=aid
+            )
+            text += (f"{lang('action')}{lang('colon')}{code(lang('action_undo_pass'))}\n"
+                     f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
+                     f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
         else:
             text += (f"{lang('action')}{lang('colon')}{code(lang('action_pass'))}\n"
                      f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                     f"{lang('reason')}{lang('colon')}{code(lang('command_usage'))}\n")
+                     f"{lang('reason')}{lang('colon')}{code(lang('reason_none'))}\n")
 
         # Send the report message
-        thread(send_report_message, (30, client, gid, text))
+        send_report_message(30, client, gid, text)
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Pass group error: {e}", exc_info=True)
     finally:
         glovar.locks["message"].release()
-        delete_message(client, gid, mid)
+        delete_normal_command(client, message)
 
-    return False
+    return result
 
 
 @Client.on_message(Filters.incoming & Filters.group & Filters.command(["static"], glovar.prefix)
@@ -419,42 +390,37 @@ def pass_group(client: Client, message: Message) -> bool:
                    & from_user)
 def static(client: Client, message: Message) -> bool:
     # Send a new static hint message
-
-    if not message or not message.chat:
-        return True
-
-    # Basic data
-    gid = message.chat.id
-    mid = message.message_id
+    result = False
 
     glovar.locks["message"].acquire()
 
     try:
+        # Basic data
+        gid = message.chat.id
+        aid = message.from_user.id
+
         # Check permission
         if not is_class_c(None, message):
             return True
-
-        # Generate the report message's text
-        aid = message.from_user.id
-        text = (f"{lang('admin')}{lang('colon')}{code(aid)}\n"
-                f"{lang('action')}{lang('colon')}{code(lang('action_static'))}\n"
-                f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
 
         # Proceed
         hint_text = f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n"
         send_static(client, gid, hint_text)
 
         # Send the report message
-        thread(send_report_message, (15, client, gid, text))
+        text = (f"{lang('admin')}{lang('colon')}{code(aid)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('action_static'))}\n"
+                f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
+        send_report_message(15, client, gid, text)
 
-        return True
+        result = True
     except Exception as e:
         logger.warning(f"Static error: {e}", exc_info=True)
     finally:
         glovar.locks["message"].release()
-        delete_message(client, gid, mid)
+        delete_normal_command(client, message)
 
-    return False
+    return result
 
 
 @Client.on_message(Filters.incoming & Filters.group & Filters.command(["version"], glovar.prefix)
