@@ -163,6 +163,12 @@ def receive_clear_data(client: Client, data_type: str, data: dict) -> bool:
 
             save("watch_ids")
 
+        # Clear white data
+        elif (data_type == "white"
+              and the_type == "all"):
+            glovar.white_ids = set()
+            save("white_ids")
+
         # Send debug message
         text = (f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
                 f"{lang('admin_project')}{lang('colon')}{mention_id(aid)}\n"
@@ -220,7 +226,7 @@ def receive_config_reply(client: Client, data: dict) -> bool:
                 ]
             ]
         )
-        result = send_report_message(180, client, gid, text, None, markup)
+        result = send_report_message(60, client, gid, text, None, markup)
     except Exception as e:
         logger.warning(f"Receive config reply error: {e}", exc_info=True)
 
@@ -351,7 +357,15 @@ def receive_help_captcha(client: Client, data: dict) -> bool:
             return True
 
         # CAPTCHA request
-        result = user_captcha(client, None, gid, member.user, mid, now, glovar.nospam_id)
+        result = user_captcha(
+            client=client,
+            message=None,
+            gid=gid,
+            user=member.user,
+            mid=mid,
+            now=now,
+            aid=glovar.nospam_id
+        )
     except Exception as e:
         logger.warning(f"Receive help captcha error: {e}", exc_info=True)
     finally:
