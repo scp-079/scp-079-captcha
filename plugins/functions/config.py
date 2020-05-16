@@ -93,6 +93,10 @@ def update_config(client: Client, message: Message, config: dict, more: str = ""
         text = (f"{lang('admin_group')}{lang('colon')}{code(aid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('config_change'))}\n"
                 f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
+
+        if more:
+            text += f"{lang('more')}{lang('colon')}{code(more)}\n"
+
         send_report_message(15, client, gid, text)
 
         # Send the debug message

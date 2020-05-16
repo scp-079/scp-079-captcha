@@ -15,10 +15,12 @@ enabled: Enabled
 name: Name
 reason: Reason
 reset: Reset Data
+result: Result
 rollback: Rollback
 score: Score
 status_failed: Failed
 status_succeeded: Succeeded
+type: Type
 version: Version
 
 # Config

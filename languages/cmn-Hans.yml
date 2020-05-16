@@ -15,10 +15,12 @@ enabled: 启用
 name: 名称
 reason: 原因
 reset: 重置数据
+result: 结果
 rollback: 数据回滚
 score: 评分
 status_failed: 未执行
 status_succeeded: 成功执行
+type: 类别
 version: 版本
 
 # Config
