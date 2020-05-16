@@ -323,7 +323,7 @@ def custom(client: Client, message: Message) -> bool:
                              and any(mention in command_context for mention in mention_all_list))
 
         # Set the custom text
-        if mention_lack or mention_redundant:
+        if command_context != "off" and (mention_lack or mention_redundant):
             detail = (mention_lack and lang("mention_lack")) or lang("mention_redundant")
             return command_error(client, message, lang("action_custom"), lang("command_usage"), detail)
         elif command_context != "off":
