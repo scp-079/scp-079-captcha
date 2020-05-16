@@ -769,7 +769,8 @@ def question_status(client: Client, uid: int, the_type: str) -> bool:
 
         # Add suggestion
         if the_type == "wrong":
-            text += f"{lang('suggestion')}{lang('colon')}{code(lang('suggestion_wrong'))}\n"
+            suggestion = lang("suggestion_wrong").format(glovar.time_punish)
+            text += f"{lang('suggestion')}{lang('colon')}{code(suggestion)}\n"
 
         # Get the markup
         if the_type == "succeed" and glovar.more:

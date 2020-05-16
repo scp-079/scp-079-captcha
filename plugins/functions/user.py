@@ -1159,10 +1159,11 @@ def terminate_user_wrong(client: Client, uid: int) -> bool:
             return True
 
         # Get the captcha status text
+        suggestion = lang("suggestion_wrong").format(glovar.time_punish)
         text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
                 f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
                 f"{lang('description')}{lang('colon')}{code(lang('description_wrong'))}\n"
-                f"{lang('suggestion')}{lang('colon')}{code(lang('suggestion_wrong'))}\n")
+                f"{lang('suggestion')}{lang('colon')}{code(suggestion)}\n")
 
         # Edit the message
         question_type = glovar.user_ids[uid]["type"]
