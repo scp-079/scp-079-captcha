@@ -188,7 +188,7 @@ def export_chat_invite_link(client: Client, cid: int) -> Union[bool, str, None]:
 
 @retry
 def forward_messages(client: Client, cid: int, fid: int,
-                     mids: Iterable[int]) -> Union[bool, Message, List[Message], None]:
+                     mids: Union[int, Iterable[int]]) -> Union[bool, Message, List[Message], None]:
     # Forward messages of any kind
     result = None
 

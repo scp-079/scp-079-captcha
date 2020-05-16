@@ -106,7 +106,7 @@ def config(client: Client, message: Message) -> bool:
         # Basic data
         gid = message.chat.id
         aid = message.from_user.id
-        mid = message.from_user.id
+        mid = message.message_id
 
         # Check permission
         if not is_class_c(None, message):
@@ -130,7 +130,7 @@ def config(client: Client, message: Message) -> bool:
                 client=client,
                 cid=glovar.logging_channel_id,
                 fid=gid,
-                mids=[mid]
+                mids=mid
             )
 
             if not result:
