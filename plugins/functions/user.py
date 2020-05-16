@@ -29,7 +29,7 @@ from .command import get_command_type
 from .decorators import threaded
 from .etc import code, delay, get_int, get_now, get_readable_time, get_text, lang, mention_text, thread
 from .file import data_to_file, file_tsv, save
-from .filters import is_flooded, is_from_user
+from .filters import is_class_d_user, is_flooded, is_from_user
 from .group import delete_hint, delete_message
 from .ids import init_user_id
 from .telegram import edit_message_photo, edit_message_text, get_messages, get_user_full, kick_chat_member
@@ -616,15 +616,68 @@ def remove_wait_user(client: Client, uid: int) -> bool:
         if not glovar.user_ids.get(uid, {}):
             return False
 
+        # Get the group list
+        wait_group_list = list(glovar.user_ids[uid]["wait"])
+
+        if not wait_group_list:
+            return False
+
         # Clear the user's wait status
-        for gid in list(glovar.user_ids[uid]["wait"]):
+        for gid in wait_group_list:
+            if gid in glovar.ignore_ids["user"]:
+                continue
+
             level = get_level(gid)
             change_member_status(client, level, gid, uid, True)
+            glovar.user_ids[uid]["wait"].pop(gid, 0)
+            glovar.user_ids[uid]["manual"].discard(gid)
             glovar.user_ids[uid]["failed"][gid] = 0
 
-        glovar.user_ids[uid]["wait"] and delete_hint(client)
-        glovar.user_ids[uid]["wait"] = {}
+        delete_hint(client)
         save("user_ids")
+
+        # Check the groups
+        if glovar.user_ids[uid]["wait"]:
+            return True
+
+        # Reset status
+        glovar.user_ids[uid]["answer"] = ""
+        glovar.user_ids[uid]["limit"] = 0
+        glovar.user_ids[uid]["try"] = 0
+        save("user_ids")
+
+        # Collect data
+        name = glovar.user_ids[uid]["name"]
+        mid = glovar.user_ids[uid]["mid"]
+
+        # Reset message id
+        glovar.user_ids[uid]["mid"] = 0
+        save("user_ids")
+
+        # Remove from CAPTCHA group
+        delay(10, remove_captcha_group, [client, uid])
+
+        if not mid:
+            return True
+
+        # Get the captcha status text
+        text = (f"{lang('user_name')}{lang('colon')}{mention_text(name, uid)}\n"
+                f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
+                f"{lang('description')}{lang('colon')}{code(lang('description_bad'))}\n")
+
+        # Edit the message
+        question_type = glovar.user_ids[uid]["type"]
+
+        if question_type in glovar.question_types["image"]:
+            thread(
+                target=edit_message_photo,
+                args=(client, glovar.captcha_group_id, mid, "assets/fail.png", None, text)
+            )
+        elif question_type in glovar.question_types["text"]:
+            thread(
+                target=edit_message_text,
+                args=(client, glovar.captcha_group_id, mid, text)
+            )
 
         result = True
     except Exception as e:
@@ -641,7 +694,7 @@ def restrict_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
     result = False
 
     try:
-        if uid in glovar.bad_ids["users"]:
+        if uid in glovar.bad_ids["users"] and gid not in glovar.ignore_ids["user"]:
             return True
 
         result = restrict_chat_member(client, gid, uid, ChatPermissions())
@@ -848,6 +901,9 @@ def terminate_user_succeed(client: Client, uid: int) -> bool:
         failed_group_list = list(glovar.user_ids[uid]["failed"])
 
         for gid in failed_group_list:
+            if is_class_d_user(uid):
+                continue
+
             if not glovar.configs[gid].get("forgive"):
                 continue
 
@@ -858,6 +914,9 @@ def terminate_user_succeed(client: Client, uid: int) -> bool:
         restricted_group_list = list(glovar.user_ids[uid]["restricted"])
 
         for gid in restricted_group_list:
+            if is_class_d_user(uid):
+                continue
+
             if not glovar.configs[gid].get("forgive"):
                 continue
 
@@ -868,6 +927,9 @@ def terminate_user_succeed(client: Client, uid: int) -> bool:
         banned_group_list = list(glovar.user_ids[uid]["banned"])
 
         for gid in banned_group_list:
+            if is_class_d_user(uid):
+                continue
+
             if not glovar.configs[gid].get("forgive"):
                 continue
 

@@ -136,6 +136,7 @@ description_ask: Please answer the question below to complete verification as so
   directly. Note that you have {} chances to answer the question, and incorrect answers
   will fail the verification. Any message you send in this group will be considered
   as an answer to the question, please send carefully
+description_bad: Global Blacklist
 description_banned: Group admin banned you
 description_hint: For newly joined users, please click the button below to verify. Please
   complete verification within {} seconds, or you will be removed from the group

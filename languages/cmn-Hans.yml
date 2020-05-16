@@ -133,6 +133,7 @@ custom_static: 静态提示
 description_again: 回答错误，请调整答案，再试一次
 description_ask: 请您尽快回答下方的问题以完成验证，您可以点击正确答案的按钮或直接发送正确答案。
   注意，您共有 {} 次机会回答问题，答错将导致验证失败。您在本群的任何发言均将视为对问题的回答，请谨慎发言
+description_bad: 全局黑名单
 description_banned: 群管理封禁
 description_hint: 新入群用户，请您点击下方右侧按钮进行验证，请在 {} 秒内完成验证，否则您将被移出本群
 description_log: 日志核查

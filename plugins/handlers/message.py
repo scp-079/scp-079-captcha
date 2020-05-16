@@ -150,12 +150,6 @@ def verify_ask(client: Client, message: Message) -> bool:
             # Basic data
             uid = new.id
 
-            # Check if the user is Class D personnel
-            if is_class_d_user(new):
-                kick_user(client, gid, uid)
-                delete_message(client, gid, mid)
-                continue
-
             # Check if the user is Class E personnel
             if is_class_e_user(new):
                 delete_message(client, gid, mid)
@@ -167,8 +161,17 @@ def verify_ask(client: Client, message: Message) -> bool:
                 delete_message(client, gid, mid)
                 continue
 
+            # User wait list
+            wait_group_list = list(glovar.user_ids[uid]["wait"])
+
             # Check wait list
-            if not glovar.user_ids[uid]["wait"]:
+            if not wait_group_list:
+                kick_user(client, gid, uid)
+                delete_message(client, gid, mid)
+                continue
+
+            # Check if the user is Class D personnel
+            if is_class_d_user(new) and all(gid not in glovar.ignore_ids["user"] for gid in wait_group_list):
                 kick_user(client, gid, uid)
                 delete_message(client, gid, mid)
                 continue
@@ -207,10 +210,6 @@ def verify_check(client: Client, message: Message) -> bool:
         if message.service:
             return True
 
-        # Check if the user is Class D personnel
-        if is_class_d_user(message.from_user):
-            return True
-
         # Check if the user is Class E personnel
         if is_class_e_user(message.from_user):
             return True
@@ -219,8 +218,15 @@ def verify_check(client: Client, message: Message) -> bool:
         if not glovar.user_ids.get(uid, {}):
             return True
 
+        # User wait list
+        wait_group_list = list(glovar.user_ids[uid]["wait"])
+
         # Check wait list
-        if not glovar.user_ids[uid]["wait"]:
+        if not wait_group_list:
+            return True
+
+        # Check if the user is Class D personnel
+        if is_class_d_user(message.from_user) and all(gid not in glovar.ignore_ids["user"] for gid in wait_group_list):
             return True
 
         # Check the question status
