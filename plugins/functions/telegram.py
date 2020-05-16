@@ -270,9 +270,9 @@ def get_group_info(client: Client, chat: Union[int, Chat], cache: bool = True) -
             the_cache = glovar.chats.get(chat)
 
             if cache and the_cache:
-                return the_cache
-
-            result = get_chat(client, chat)
+                result = the_cache
+            else:
+                result = get_chat(client, chat)
 
             if result:
                 glovar.chats[chat] = result
