@@ -403,13 +403,14 @@ def pass_captcha(client: Client, message: Message) -> bool:
                 f"{lang('action')}{lang('colon')}{code(lang('action_pass'))}\n"
                 f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
                 f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
-        thread(send_message, (client, cid, text, mid))
+        send_report_message(30, client, cid, text)
 
         result = True
     except Exception as e:
         logger.warning(f"Pass captcha error: {e}", exc_info=True)
     finally:
         glovar.locks["message"].release()
+        delete_normal_command(client, message)
 
     return result
 
