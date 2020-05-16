@@ -992,7 +992,7 @@ def user_captcha(client: Client, message: Optional[Message], gid: int, user: Use
         wb_name = is_wb_text(name, False)
 
         # Succeeded auto pass
-        succeeded_time = max(user_status["succeeded"].values()) if user_status["succeeded_time"] else 0
+        succeeded_time = max(user_status["succeeded"].values()) if user_status["succeeded"] else 0
 
         still_in_captcha_group = (succeeded_time
                                   and not (ban_name or wb_name)
