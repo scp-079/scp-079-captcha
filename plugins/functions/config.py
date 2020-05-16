@@ -18,20 +18,21 @@
 
 import logging
 from copy import deepcopy
+from typing import List
 
 from pyrogram import Client, Message
 
 from .. import glovar
-from .channel import get_debug_text
-from .etc import code, lang, thread
+from .channel import send_debug
+from .etc import code, lang
 from .file import save
-from .telegram import send_message, send_report_message
+from .telegram import send_report_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
 
 
-def conflict_config(config: dict, config_list, master: str) -> dict:
+def conflict_config(config: dict, config_list: List[str], master: str) -> dict:
     # Conflict config
     result = config
 
@@ -96,14 +97,13 @@ def update_config(client: Client, message: Message, config: dict, more: str = ""
         send_report_message(15, client, gid, text, mid)
 
         # Send the debug message
-        text = get_debug_text(client, message.chat)
-        text += (f"{lang('admin_group')}{lang('colon')}{code(message.from_user.id)}\n"
-                 f"{lang('action')}{lang('colon')}{code(lang('config_change'))}\n")
-
-        if more:
-            text += f"{lang('more')}{lang('colon')}{code(more)}\n"
-
-        thread(send_message, (client, glovar.debug_channel_id, text))
+        send_debug(
+            client=client,
+            gids=[gid],
+            action=lang("config_change"),
+            aid=aid,
+            more=more
+        )
 
         result = True
     except Exception as e:
