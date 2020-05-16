@@ -18,7 +18,7 @@
 
 import logging
 from time import sleep
-from typing import Union
+from typing import Dict, Union
 
 from pyrogram import ChatPermissions, Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 from pyrogram.api.types import User
@@ -31,6 +31,7 @@ from .etc import code, delay, get_int, get_now, get_readable_time, get_text, lan
 from .file import data_to_file, file_tsv, save
 from .filters import is_flooded, is_from_user
 from .group import delete_hint, delete_message
+from .ids import init_user_id
 from .telegram import edit_message_photo, edit_message_text, get_messages, get_user_full, kick_chat_member
 from .telegram import resolve_username, restrict_chat_member, unban_chat_member
 
@@ -193,9 +194,40 @@ def flood_end(client: Client, gid: int) -> bool:
         share_data(
             client=client,
             receivers=["USER"],
-            action="special",
+            action="flood",
             action_type="delete",
             data=gid,
+            file=file
+        )
+
+        # Share flood users score
+        users: Dict[int, float] = {}
+
+        for user in glovar.flood_logs[gid]:
+            uid = user["user id"]
+            action = user["action"]
+
+            if action not in {"timeout", "wrong"}:
+                continue
+
+            if not init_user_id(uid):
+                continue
+
+            pass_count = len(glovar.user_ids[uid]["pass"])
+            succeeded_count = len(glovar.user_ids[uid]["succeeded"])
+            failed_count = len(glovar.user_ids[uid]["failed"])
+            score = pass_count * -0.2 + succeeded_count * -0.3 + failed_count * 0.6
+            glovar.user_ids[uid]["score"][glovar.sender.lower()] = score
+
+            users[uid] = score
+
+        save("user_ids")
+        file = data_to_file(users)
+        share_data(
+            client=client,
+            receivers=glovar.receivers["score"],
+            action="flood",
+            action_type="score",
             file=file
         )
 
@@ -942,7 +974,7 @@ def terminate_user_timeout(client: Client, uid: int) -> bool:
 
             # Limit the user
             change_member_status(client, level, gid, uid)
-            ask_for_help(client, "delete", gid, uid)
+            not is_flooded(gid) and ask_for_help(client, "delete", gid, uid)
 
             # Modify the status
             glovar.user_ids[uid]["wait"].pop(gid, 0)
@@ -982,7 +1014,7 @@ def terminate_user_timeout(client: Client, uid: int) -> bool:
         delay(10, remove_captcha_group, [client, uid])
 
         # Update the score
-        update_score(client, uid)
+        not any(is_flooded(gid) for gid in wait_group_list) and update_score(client, uid)
 
         # Add failed user
         failed_user(client, uid, "timeout")
@@ -1066,7 +1098,7 @@ def terminate_user_wrong(client: Client, uid: int) -> bool:
         for gid in wait_group_list:
             # Ban the user temporarily
             ban_user(client, gid, uid)
-            ask_for_help(client, "delete", gid, uid)
+            not is_flooded(gid) and ask_for_help(client, "delete", gid, uid)
 
             # Modify the status
             glovar.user_ids[uid]["wait"] = {}
@@ -1095,7 +1127,7 @@ def terminate_user_wrong(client: Client, uid: int) -> bool:
         delay(15, remove_captcha_group, [client, uid])
 
         # Update the score
-        update_score(client, uid)
+        not any(is_flooded(gid) for gid in wait_group_list) and update_score(client, uid)
 
         # Send debug message
         send_debug(
