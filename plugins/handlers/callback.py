@@ -63,6 +63,7 @@ def check_wait(client: Client, callback_query: CallbackQuery) -> bool:
         else:
             text = lang("check_no")
 
+        # Answer the callback
         result = answer_callback(client, callback_query.id, text, True)
     except Exception as e:
         logger.warning(f"Check wait error: {e}", exc_info=True)
