@@ -193,7 +193,7 @@ def interval_min_01(client: Client) -> bool:
                 flood=True
             )
 
-            # Require joined members
+            # Require to check recent actions
             share_data(
                 client=client,
                 receivers=["USER"],
@@ -261,13 +261,13 @@ def new_invite_link(client: Client, manual: bool = False) -> bool:
         # Basic data
         now = get_now()
 
-        # Copy the data
         with glovar.locks["message"]:
+            # Copy the data
             user_ids = deepcopy(glovar.user_ids)
 
-        # Check if there is a waiting
-        if any(user_ids[uid]["wait"] for uid in user_ids):
-            return False
+            # Check if there is a waiting
+            if any(user_ids[uid]["wait"] for uid in user_ids):
+                return False
 
         # Check the link time
         if not manual and now - glovar.invite.get("time", 0) < glovar.time_invite:
@@ -355,6 +355,7 @@ def send_count(client: Client) -> bool:
     return result
 
 
+@threaded()
 def share_failed_users(client: Client, data: Dict[str, int] = None) -> bool:
     # Share failed users
     result = False

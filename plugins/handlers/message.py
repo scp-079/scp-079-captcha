@@ -538,7 +538,7 @@ def process_data(client: Client, message: Message) -> bool:
 
                 if action == "captcha":
                     if action_type == "ask":
-                        thread(share_failed_users, (client, data))
+                        share_failed_users(client, data)
 
                 elif action == "regex":
                     if action_type == "update":

@@ -29,7 +29,7 @@ from .command import get_command_type
 from .decorators import threaded
 from .etc import code, delay, get_int, get_now, get_readable_time, get_text, lang, mention_text, thread
 from .file import data_to_file, file_tsv, save
-from .filters import is_from_user
+from .filters import is_flooded, is_from_user
 from .group import delete_hint, delete_message
 from .telegram import edit_message_photo, edit_message_text, get_messages, get_user_full, kick_chat_member
 from .telegram import resolve_username, restrict_chat_member, unban_chat_member
@@ -202,7 +202,7 @@ def flood_user(gid: int, uid: int, time: int, action: str, mid: int = 0, aid: in
     result = False
 
     try:
-        if not glovar.pinned_ids[gid]["start"]:
+        if not is_flooded(gid):
             return False
 
         if glovar.flood_logs.get(gid) is None:
