@@ -247,7 +247,7 @@ def flood_end(client: Client, gid: int) -> bool:
             file=file
         )
 
-        # Reset flood log
+        # Reset flood logs
         glovar.flood_logs.pop(gid, [])
         save("flood_logs")
     except Exception as e:
