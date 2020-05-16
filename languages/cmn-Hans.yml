@@ -119,7 +119,6 @@ action_undo_pass: 撤销放行
 action_verified: 通过验证
 action_wait: 等待验证
 attention: 注意
-attention_invite: 如果提示链接无效，可能是因为链接正在更新，请多试几次
 captcha_check: 我需要验证吗
 captcha_go: 前往验证
 check_admin: 您为管理员，您可自由加入验证群组中查看机器人运行情况

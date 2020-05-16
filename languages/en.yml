@@ -119,8 +119,6 @@ action_undo_pass: Undo Pass
 action_verified: Verified
 action_wait: Wait for Verification
 attention: Attention
-attention_invite: If it prompts that the link is invalid, it may be because the link
-  is being updated, please try a few more times
 captcha_check: Should I Verify
 captcha_go: Go to Verify
 check_admin: You are an admin, you are free to join the verification group to see how the bot works
