@@ -105,11 +105,13 @@ user_score: 用户得分
 
 # Special
 action_count: 核查统计
+action_custom: 设定自定义提示
 action_flood: 检测到轰炸
 action_invite: 重新生成邀请链接
 action_normal: 轰炸已终止
 action_pass: 手动通过
 action_report: 发送报告
+action_show: 查看自定义提示
 action_static: 发送固定提示消息
 action_undo_pass: 撤销放行
 action_verified: 通过验证
@@ -142,6 +144,8 @@ flood_static: 自动静态提示
 flood_total: 轰炸总人数
 invite_button: 加入验证群组
 invite_text: 请在专用群组中进行验证
+mention_lack: $mention_*** 代号缺失
+mention_redundant: $mention_*** 代号冗余
 old_pinned: 原置顶消息
 question: 问题
 question_attention: 请确认哪个是对自己发出的问题再回答

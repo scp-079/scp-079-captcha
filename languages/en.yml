@@ -105,11 +105,13 @@ user_score: User Score
 
 # Special
 action_count: Log Count
+action_custom: Set Custom Hint
 action_flood: Flood Detected
 action_invite: Generate New Invite Link
 action_normal: Flood Stopped
 action_pass: Pass Manually
 action_report: Send Report
+action_show: Show the Custom Hint
 action_static: Send Static Hint
 action_undo_pass: Undo Pass
 action_verified: Verified
@@ -150,6 +152,8 @@ flood_static: Auto Static Hint
 flood_total: Flood Total
 invite_button: Join CAPTCHA Group
 invite_text: Please verify in a private group
+mention_lack: $mention_*** Code is Missing
+mention_redundant: $mention_*** Code is Redundant
 old_pinned: Old Pinned Message
 question: Question
 question_attention: Please confirm which question is yours before answering

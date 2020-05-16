@@ -24,10 +24,10 @@ from pyrogram import Client, Filters, Message
 
 from .. import glovar
 from ..functions.captcha import send_static, user_captcha
-from ..functions.channel import get_debug_text, share_data
+from ..functions.channel import get_debug_text, send_debug, share_data
 from ..functions.command import delete_normal_command, delete_shared_command, command_error, get_command_context
 from ..functions.config import conflict_config, get_config_text, update_config
-from ..functions.etc import bold, code, general_link, get_int, get_now, get_text, lang
+from ..functions.etc import bold, code, code_block, general_link, get_int, get_now, get_text, lang
 from ..functions.etc import mention_id, message_link, thread
 from ..functions.file import save
 from ..functions.filters import authorized_group, captcha_group, class_e, from_user
@@ -258,6 +258,99 @@ def config_directly(client: Client, message: Message) -> bool:
         logger.warning(f"Config directly error: {e}", exc_info=True)
     finally:
         glovar.locks["config"].release()
+        delete_normal_command(client, message)
+
+    return result
+
+
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["custom"], glovar.prefix)
+                   & ~captcha_group & ~test_group & authorized_group
+                   & from_user)
+def custom(client: Client, message: Message) -> bool:
+    # Set custom text
+    result = False
+
+    glovar.locks["message"].acquire()
+
+    try:
+        # Basic data
+        gid = message.chat.id
+        aid = message.from_user.id
+
+        # Check permission
+        if not is_class_c(None, message):
+            return True
+
+        # Get the command
+        command_type, command_context = get_command_context(message)
+
+        # Text prefix
+        text = (f"{lang('admin')}{lang('colon')}{code(aid)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('action_custom'))}\n")
+
+        # Check command format
+        if command_type not in {"flood", "manual", "nospam", "single", "static"}:
+            return command_error(client, message, lang("action_custom"), lang("command_usage"))
+
+        # Show the config
+        if not command_context:
+            # Text prefix
+            text = (f"{lang('admin')}{lang('colon')}{code(aid)}\n"
+                    f"{lang('action')}{lang('colon')}{code(lang('action_show'))}\n")
+
+            # Get the config
+            result = glovar.custom_texts[gid].get(command_type) or lang("reason_none")
+            text += (f"{lang('result')}{lang('colon')}" + "-" * 24 + "\n\n"
+                     f"{code_block(result)}\n")
+
+            # Check the text
+            if len(text) > 4000:
+                text = code_block(result)
+
+            # Send the report message
+            return send_report_message(20, client, gid, text)
+
+        # Config welcome
+        command_context = command_context.strip()
+
+        # Check the command_context
+        mention_only_list = ["$mention_name", "$mention_id"]
+        mention_all_list = ["$mention_name", "$mention_id", "$code_name", "$code_id"]
+        mention_lack = (command_type in {"manual", "nospam", "single"}
+                        and all(mention not in command_context for mention in mention_only_list))
+        mention_redundant = (command_type in {"flood", "static"}
+                             and any(mention in command_context for mention in mention_all_list))
+
+        # Set the custom text
+        if mention_lack or mention_redundant:
+            detail = (mention_lack and lang("mention_lack")) or lang("mention_redundant")
+            return command_error(client, message, lang("action_custom"), lang("command_usage"), detail)
+        elif command_context != "off":
+            glovar.custom_texts[gid][command_type] = command_context
+        else:
+            glovar.custom_texts[gid][command_type] = ""
+
+        # Save the data
+        save("custom_texts")
+
+        # Send the debug message
+        send_debug(
+            client=client,
+            gids=[gid],
+            action=lang("action_custom"),
+            aid=aid,
+            more=command_type
+        )
+
+        # Send the report message
+        text += f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n"
+        send_report_message(20, client, gid, text)
+
+        result = True
+    except Exception as e:
+        logger.warning(f"Custom error: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
         delete_normal_command(client, message)
 
     return result

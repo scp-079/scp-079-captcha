@@ -324,6 +324,7 @@ all_commands: List[str] = [
     "captcha",
     "config",
     "config_captcha",
+    "custom",
     "pass",
     "static",
     "version"

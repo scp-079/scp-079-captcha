@@ -338,7 +338,7 @@ def init_group(client: Client, message: Message) -> bool:
             save_admins(gid, admin_members)
             text += f"{lang('status')}{lang('colon')}{code(lang('status_joined'))}\n"
         else:
-            thread(leave_group, (client, gid))
+            leave_group(client, gid)
             text += (f"{lang('status')}{lang('colon')}{code(lang('status_left'))}\n"
                      f"{lang('reason')}{lang('colon')}{code(lang('reason_admin'))}\n")
 
@@ -447,7 +447,7 @@ def process_data(client: Client, message: Message) -> bool:
 
                 elif action == "backup":
                     if action_type == "now":
-                        thread(backup_files, (client,))
+                        backup_files(client)
                     elif action_type == "rollback":
                         receive_rollback(client, message, data)
 

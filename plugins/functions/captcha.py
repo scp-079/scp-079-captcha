@@ -880,9 +880,7 @@ def send_pin(client: Client, gid: int) -> bool:
         if glovar.pinned_ids[gid]["new_id"]:
             return True
 
-        text = (f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n"
-                f"{lang('auto_fix')}{lang('colon')}{code(lang('pin'))}\n"
-                f"{lang('reason')}{lang('colon')}{code(lang('action_flood'))}\n")
+        text = get_hint_text(gid, "flood")
         pinned_message = get_pinned(client, gid, False)
         markup = get_markup_hint(static=True, pinned=pinned_message)
         result = send_message(client, gid, text, None, markup)
