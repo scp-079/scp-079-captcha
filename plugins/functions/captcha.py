@@ -91,7 +91,8 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
             # Send the hint message
             text += f"{lang('message_type')}{lang('colon')}{code(lang('flood_static'))}\n"
             text += mention_users_text
-            text += f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n"
+            description = lang("description_hint").format(glovar.time_captcha)
+            text += f"{lang('description')}{lang('colon')}{code(description)}\n"
             send_hint(
                 client=client,
                 text=text,
@@ -829,7 +830,8 @@ def send_hint(client: Client, the_type: str, gid: int,
         elif the_type == "single":
             text = get_hint_text(gid, "single", user)
         else:
-            text += f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n"
+            description = lang("description_hint").format(glovar.time_captcha)
+            text += f"{lang('description')}{lang('colon')}{code(description)}\n"
 
         # Regular hint markup
         markup = get_markup_hint(single=the_type in {"manual", "nospam", "single"})

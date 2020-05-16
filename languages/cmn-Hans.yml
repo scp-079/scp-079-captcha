@@ -130,11 +130,12 @@ description_ask: 请您尽快回答下方的问题以完成验证，您可以点
 description_banned: 群管理封禁
 description_hint: 新入群用户，请您点击下方右侧按钮进行验证，请在 {} 秒内完成验证，否则您将被移出本群
 description_log: 日志核查
-description_manual: 请您点击下方右侧按钮进行验证，请在 {} 秒内完成验证，否则您将被移出本群。
+description_manual: 请您点击下方按钮进行验证，请在 {} 秒内完成验证，否则您将被移出本群。
   本次验证为群组管理员的手动要求
-description_nospam: 请您点击下方右侧按钮进行验证，请在 {} 秒内完成验证，否则您将被移出本群。
+description_nospam: 请您点击下方按钮进行验证，请在 {} 秒内完成验证，否则您将被移出本群。
   您触发了防广告机器人的封禁规则，由于您入群时间较长，故未封禁您，但要求您完成一次验证
 description_pass: 群管理放行
+description_single: 请您点击下方按钮进行验证，请在 {} 秒内完成验证，否则您将被移出本群
 description_succeed: 验证成功，您可在相应群组中正常发言
 description_timeout: 验证超时
 description_wrong: 验证失败，回答错误

@@ -186,10 +186,11 @@ def interval_min_01(client: Client) -> bool:
             glovar.pinned_ids[gid]["last"] = 0
 
             # Resend regular hint
+            description = lang("description_hint").format(glovar.time_captcha)
             wait_user_list and not glovar.message_ids[gid]["hint"] and send_static(
                 client=client,
                 gid=gid,
-                text=f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n",
+                text=f"{lang('description')}{lang('colon')}{code(description)}\n",
                 flood=True
             )
 

@@ -497,7 +497,8 @@ def static(client: Client, message: Message) -> bool:
             return True
 
         # Proceed
-        hint_text = f"{lang('description')}{lang('colon')}{code(lang('description_hint'))}\n"
+        description = lang("description_hint").format(glovar.time_captcha)
+        hint_text = f"{lang('description')}{lang('colon')}{code(description)}\n"
         send_static(client, gid, hint_text)
 
         # Send the report message

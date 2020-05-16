@@ -184,7 +184,7 @@ def get_hint_text(gid: int, the_type: str, user: User = None) -> str:
         elif the_type == "single":
             result = (f"{lang('user_name')}{lang('colon')}{mention_name(user)}\n"
                       f"{lang('user_id')}{lang('colon')}{code(user.id)}\n")
-            description = lang("description_hint").format(glovar.time_captcha)
+            description = lang("description_single").format(glovar.time_captcha)
         elif the_type == "static":
             description = lang("description_hint").format(glovar.time_captcha)
         else:

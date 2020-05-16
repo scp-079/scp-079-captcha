@@ -143,6 +143,8 @@ description_nospam: Please click the button below to verify. Please complete ver
   of the anti-ad bot. Because you have been in the group for a long time, the
   bot does not ban You, but requires you to complete a verification
 description_pass: Group admin banned you
+description_single: Please click the button below to verify. Please
+  complete verification within {} seconds, or you will be removed from the group
 description_succeed: The verification is successful and you can speak in corresponding groups
 description_timeout: Verification Timeout
 description_wrong: Verification failed. Wrong answer
