@@ -506,6 +506,18 @@ def is_emoji(the_type: str, text: str, message: Message = None) -> bool:
     return result
 
 
+def is_flooded(gid: int) -> bool:
+    # Check if the group is flooded
+    result = False
+
+    try:
+        result = init_group_id(gid) and glovar.pinned_ids[gid]["start"]
+    except Exception as e:
+        logger.warning(f"Is flooded error: {e}", exc_info=True)
+
+    return result
+
+
 def is_high_score_user(user: Union[int, User], high: bool = True) -> float:
     # Check if the message is sent by a high score user
     result = 0.0
@@ -678,7 +690,7 @@ def is_should_ignore(gid: int, user: User, aid: int = 0) -> bool:
                 or gid in glovar.ignore_ids["nospam"]):
             return False
 
-        if glovar.pinned_ids[gid]["start"]:
+        if is_flooded(gid):
             return False
 
         name = get_full_name(user, True, True, True)

@@ -31,7 +31,8 @@ from .decorators import threaded
 from .etc import button_data, code, get_channel_link, get_full_name, get_image_size, get_now, lang, mention_name
 from .etc import mention_text, t2t
 from .file import delete_file, get_new_path, save
-from .filters import is_declared_message, is_limited_user, is_nm_text, is_should_ignore, is_watch_user, is_wb_text
+from .filters import is_declared_message, is_flooded, is_limited_user, is_nm_text, is_should_ignore, is_watch_user
+from .filters import is_wb_text
 from .group import clear_joined_messages, delete_message, get_hint_text, get_pinned
 from .ids import init_user_id
 from .user import flood_user, restrict_user, terminate_user_punish, terminate_user_succeed, terminate_user_wrong
@@ -108,11 +109,11 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
             delete_message(client, gid, mid)
 
         # Flood situation ongoing
-        elif glovar.pinned_ids[gid]["start"]:
+        elif is_flooded(gid):
             delete_message(client, gid, mid)
 
         # Log flood user
-        if glovar.pinned_ids[gid]["start"]:
+        if is_flooded(gid):
             return flood_user(gid, uid, now, "challenge", mid, aid)
 
         # Check the group's hint config
@@ -206,7 +207,7 @@ def add_flood(client: Client, gid: int, mid: int, now: int) -> bool:
         save("pinned_ids")
 
         # Activate flood mode
-        if glovar.pinned_ids[gid]["start"]:
+        if is_flooded(gid):
             return True
 
         glovar.pinned_ids[gid]["start"] = now
