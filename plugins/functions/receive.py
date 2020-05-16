@@ -374,6 +374,26 @@ def receive_help_captcha(client: Client, data: dict) -> bool:
     return result
 
 
+def receive_ignore_ids(client: Client, message: Message, sender: str) -> bool:
+    # Receive ignore ids
+    result = False
+
+    try:
+        data = receive_file_data(client, message)
+
+        if data is None:
+            return False
+
+        glovar.ignore_ids[sender.lower()] = data
+        save("ignore_ids")
+
+        result = True
+    except Exception as e:
+        logger.warning(f"Receive ignore ids error: {e}", exc_info=True)
+
+    return result
+
+
 def receive_leave_approve(client: Client, data: dict) -> bool:
     # Receive leave approve
     result = False
