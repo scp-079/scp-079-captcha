@@ -148,6 +148,7 @@ def failed_user(client: Client, uid: int, reason: str) -> bool:
     return result
 
 
+@threaded()
 def flood_end(client: Client, gid: int) -> bool:
     # Flood end, terminate users
     result = False
