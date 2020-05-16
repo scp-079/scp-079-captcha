@@ -405,6 +405,13 @@ def pass_captcha(client: Client, message: Message) -> bool:
                 f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
         send_report_message(30, client, cid, text)
 
+        # Send the debug message
+        text = (f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
+                f"{lang('admin_project')}{lang('colon')}{mention_id(aid)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('action_pass'))}\n"
+                f"{lang('user_id')}{lang('colon')}{code(uid)}\n")
+        thread(send_message, (client, glovar.debug_channel_id, text))
+
         result = True
     except Exception as e:
         logger.warning(f"Pass captcha error: {e}", exc_info=True)
