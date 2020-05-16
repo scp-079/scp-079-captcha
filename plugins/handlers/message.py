@@ -520,20 +520,6 @@ def process_data(client: Client, message: Message) -> bool:
                     elif action_type == "score":
                         receive_user_score(sender, data)
 
-            elif sender == "RECHECK":
-
-                if action == "add":
-                    if action_type == "bad":
-                        receive_add_bad(client, data)
-                    elif action_type == "watch":
-                        receive_watch_user(data)
-
-                elif action == "update":
-                    if action_type == "declare":
-                        receive_declared_message(data)
-                    elif action_type == "score":
-                        receive_user_score(sender, data)
-
             elif sender == "REGEX":
 
                 if action == "captcha":
