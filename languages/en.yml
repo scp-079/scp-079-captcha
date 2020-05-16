@@ -121,40 +121,39 @@ action_wait: Wait for Verification
 attention: Attention
 captcha_check: Should I Verify
 captcha_go: Go to Verify
-check_admin: You are an admin, you are free to join the verification group to see how the bot works
+check_admin: As an admin, you are free to join the verification group to see how the bots work
 check_no: You can send messages without verification in this group
 check_pass: You have passed the verification in this group
-check_yes: You need to verify to send messages in this group
+check_yes: You need verification to send messages in this group
 custom_flood: Flood New Members
 custom_manual: Manaual CAPTCHA
 custom_nospam: NOSPAM CAPTCHA
 custom_single: Single User
 custom_static: Static Hint
 description_again: Wrong answer, please adjust the answer and try again
-description_ask: Please answer the question below to complete the verification as
-  soon as possible. You can click the right answer's button or send the right answer
+description_ask: Please answer the question below to complete verification as soon
+  as possible. You can click the button to the right answer or send the right answer
   directly. Note that you have {} chances to answer the question, and incorrect answers
-  will cause the verification to fail. Any message you send in this group will be
-  considered as an answer to the question, please send carefully
-description_banned: Group admin passed your verification
-description_hint: For new joined users, please click the button below to verify. Please
+  will fail the verification. Any message you send in this group will be considered
+  as an answer to the question, please send carefully
+description_banned: Group admin banned you
+description_hint: For newly joined users, please click the button below to verify. Please
   complete verification within {} seconds, or you will be removed from the group
 description_log: Log check
-description_manual: Please click the button below to verify. Please complete
-  verification within {} seconds, or you will be removed from the group.
-  This verification is a manual request by the group admin
-description_nospam: Please click the button below to verify. Please complete verification
-  within {} seconds, or you will be removed from the group. You triggered the rules
-  of the anti-ad bot. Because you have been in the group for a long time, the
-  bot does not ban You, but requires you to complete a verification
-description_pass: Group admin banned you
-description_single: This group has turned on CAPTCHA. You need to pass verification
-  before you can send message. Please click the button below to verify, you need to
-  complete the verification within {} seconds, otherwise you will be removed
-  out of this group
-description_succeed: The verification is successful and you can speak in corresponding groups
+description_manual: Click the button below to verify. Please complete
+  Verification within {} seconds, or you will be removed from the group.
+  This verification is manually requested by the group admin
+description_nospam: Click the button below to verify. Please complete verification
+  within {} seconds, or you will be removed from the group. You are required to
+  complete this as you triggered the rules of the anti-ad bot. Since you have
+  been in the group for long, the bot did not ban you
+description_pass: Group admin passed your verification
+description_single: This group has enabled CAPTCHA. You need to pass verification before
+  sending messages. Please click the button below to verify within {} seconds,
+  otherwise you will be removed from this group
+description_succeed: The verification is successful and you can speak in certain groups
 description_timeout: Verification Timeout
-description_wrong: Verification failed. Wrong answer
+description_wrong: Wrong answer. Verification failed
 flood_count: Check Count
 flood_duration: Flood Duration
 flood_static: Auto Static Hint
@@ -163,22 +162,22 @@ invite_button: Join CAPTCHA Group
 invite_text: Please verify in a private group
 mention_lack: Lack of the Mentioning User Code
 mention_redundant: Should not Contain User-Related Codes
-old_pinned: Old Pinned Message
+old_pinned: Previous Pinned Message
 question: Question
 question_attention: Please confirm which question is yours before answering
 question_change: Change the Question
-question_chengyu: Please send the idiom shown in the above picture
-question_food: The correct answer is in the buttons below, please select or send the name shown in the above image
-question_letter: Please send a string of English letters (no numbers) as shown above, not case sensitive
+question_chengyu: Please send the idiom shown in the image above
+question_food: The correct answer is in the buttons below, please select or send the name shown in the image above
+question_letter: Please send a string of English letters (no numbers) as shown above, case insensitive
 question_math_pic: The correct answer is in the buttons below, please select or send
-  the correct answer to the addition or subtraction arithmetic question shown in the figure above
+  the correct sum or difference to the arithmetic question shown in the figure above
 question_number: Please send a string of numbers as shown above
 question_pic: The correct answer is in the buttons below, please select or send the
-  correct name of the object shown in the picture above
+  correct name of the object shown in the image above
 suggestion: Suggestion
 suggestion_wrong: Please wait {} seconds before re-joining the original group for verification
 triggered_time: Triggered Time
-wait_user: Users Need to Be Verified
+wait_user: Users Required Verification
 
 # Symbol
 colon: ": "

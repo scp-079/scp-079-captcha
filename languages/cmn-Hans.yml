@@ -144,7 +144,7 @@ description_pass: 群管理放行
 description_single: 本群开启了入群验证，您需要通过验证后才能发言。请您点击下方按钮进行验证，您需在 {} 秒内完成验证，否则您将被移出本群
 description_succeed: 验证成功，您可在相应群组中正常发言
 description_timeout: 验证超时
-description_wrong: 验证失败，回答错误
+description_wrong: 回答错误，验证失败
 flood_count: 核查移除
 flood_duration: 轰炸时长
 flood_static: 自动静态提示
