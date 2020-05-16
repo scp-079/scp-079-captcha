@@ -84,7 +84,6 @@ def update_config(client: Client, message: Message, config: dict, more: str = ""
         # Basic data
         gid = message.chat.id
         aid = message.from_user.id
-        mid = message.message_id
 
         # Update the config
         glovar.configs[gid] = deepcopy(config)
@@ -94,7 +93,7 @@ def update_config(client: Client, message: Message, config: dict, more: str = ""
         text = (f"{lang('admin_group')}{lang('colon')}{code(aid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('config_change'))}\n"
                 f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
-        send_report_message(15, client, gid, text, mid)
+        send_report_message(15, client, gid, text)
 
         # Send the debug message
         send_debug(
