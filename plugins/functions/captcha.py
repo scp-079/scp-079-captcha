@@ -957,13 +957,13 @@ def user_captcha(client: Client, message: Optional[Message], gid: int, user: Use
         # Basic data
         uid = user.id
 
-        # Check if the user should be added to the wait list
-        if is_should_ignore(gid, user, aid):
-            return True
-
         # Init the user's status
         if not init_user_id(uid):
             return False
+
+        # Check if the user should be added to the wait list
+        if is_should_ignore(gid, user, aid):
+            return True
 
         # Get user status
         user_status = glovar.user_ids[uid]

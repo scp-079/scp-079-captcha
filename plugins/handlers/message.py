@@ -30,7 +30,7 @@ from ..functions.filters import authorized_group, captcha_group, class_c, class_
 from ..functions.filters import exchange_channel, from_user, hide_channel, is_class_d_user, is_class_e_user
 from ..functions.filters import new_group, test_group
 from ..functions.group import delete_message, save_admins, leave_group
-from ..functions.ids import init_group_id
+from ..functions.ids import init_group_id, init_user_id
 from ..functions.receive import receive_add_bad, receive_check_log, receive_clear_data, receive_config_commit
 from ..functions.receive import receive_config_reply, receive_config_show, receive_declared_message
 from ..functions.receive import receive_help_captcha, receive_warn_kicked_user, receive_ignore_ids
