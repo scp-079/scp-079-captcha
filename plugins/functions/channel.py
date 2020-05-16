@@ -44,11 +44,11 @@ def ask_for_help(client: Client, level: str, gid: int, uid: int, group: str = "s
         }
 
         if level == "ban":
-            data["type"] = (glovar.configs[gid].get("restrict") and "restrict") or "ban"
+            data["type"] = (glovar.configs[gid].get("restrict", False) and "restrict") or "ban"
         elif level == "delete":
             data["type"] = group
 
-        data["delete"] = glovar.configs[gid].get("delete")
+        data["delete"] = glovar.configs[gid].get("delete", True)
 
         result = share_data(
             client=client,
@@ -132,7 +132,9 @@ def exchange_to_hide(client: Client) -> bool:
         text = (f"{lang('project')}{lang('colon')}{code(glovar.sender)}\n"
                 f"{lang('issue')}{lang('colon')}{code(lang('exchange_invalid'))}\n"
                 f"{lang('auto_fix')}{lang('colon')}{code(lang('protocol_1'))}\n")
-        result = thread(send_message, (client, glovar.critical_channel_id, text))
+        thread(send_message, (client, glovar.critical_channel_id, text))
+
+        result = True
     except Exception as e:
         logger.warning(f"Exchange to hide error: {e}", exc_info=True)
 
@@ -303,7 +305,7 @@ def share_data(client: Client, receivers: List[str], action: str, action_type: s
 
         # Delete the tmp file
         for f in {file, file_path}:
-            f.startswith("tmp/") and thread(delete_file, (f,))
+            f.startswith("tmp/") and delete_file(f)
 
         result = bool(result)
     except Exception as e:
