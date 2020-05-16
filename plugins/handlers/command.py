@@ -296,8 +296,8 @@ def custom(client: Client, message: Message) -> bool:
         if not command_context:
             # Text prefix
             text = (f"{lang('admin')}{lang('colon')}{code(aid)}\n"
-                    f"{lang('type')}{lang('colon')}{code(command_type)}\n"
-                    f"{lang('action')}{lang('colon')}{code(lang('action_show'))}\n")
+                    f"{lang('action')}{lang('colon')}{code(lang('action_show'))}\n"
+                    f"{lang('type')}{lang('colon')}{code(lang(f'custom_{command_type}'))}\n")
 
             # Get the config
             result = glovar.custom_texts[gid].get(command_type) or lang("reason_none")
@@ -344,7 +344,7 @@ def custom(client: Client, message: Message) -> bool:
         )
 
         # Send the report message
-        text += (f"{lang('type')}{lang('colon')}{code(command_type)}\n"
+        text += (f"{lang('type')}{lang('colon')}{code(lang(f'custom_{command_type}'))}\n"
                  f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
         send_report_message(20, client, gid, text)
 

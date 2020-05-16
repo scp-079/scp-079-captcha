@@ -127,6 +127,11 @@ check_admin: You are an admin, you are free to join the verification group to se
 check_no: You can send messages without verification in this group
 check_pass: You have passed the verification in this group
 check_yes: You need to verify to send messages in this group
+custom_flood: Flood New Members
+custom_manual: Manaual CAPTCHA
+custom_nospam: NOSPAM CAPTCHA
+custom_single: Single User
+custom_static: Static Hint
 description_again: Wrong answer, please adjust the answer and try again
 description_ask: Please answer the question below to complete the verification as
   soon as possible. You can click the right answer's button or send the right answer
