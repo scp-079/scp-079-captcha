@@ -173,6 +173,7 @@ def get_debug_text(client: Client, context: Union[int, Chat, List[int]]) -> str:
         gids = context if isinstance(context, list) else []
 
         for group_id in gids:
+            logger.warning(group_id)
             group_name, group_link = get_group_info(client, group_id)
             result += (f"{lang('group_name')}{lang('colon')}{general_link(group_name, group_link)}\n"
                        f"{lang('group_id')}{lang('colon')}{code(group_id)}\n")
