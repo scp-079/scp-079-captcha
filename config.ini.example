@@ -73,8 +73,8 @@ lang = cmn-Hans
 normalize = True
 
 [limit]
+limit_flood = 10
 limit_mention = 20
-limit_static = 10
 limit_track = [DATA EXPUNGED]
 limit_try = 2
 
