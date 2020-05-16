@@ -340,7 +340,7 @@ def custom(client: Client, message: Message) -> bool:
             gids=[gid],
             action=lang("action_custom"),
             aid=aid,
-            more=command_type
+            more=lang(f"custom_{command_type}")
         )
 
         # Send the report message
