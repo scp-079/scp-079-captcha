@@ -29,7 +29,7 @@ from .. import glovar
 from .channel import ask_help_welcome, send_debug
 from .decorators import threaded
 from .etc import button_data, code, get_channel_link, get_full_name, get_image_size, get_now, lang, mention_name
-from .etc import mention_text, t2t, thread
+from .etc import mention_text, t2t
 from .file import delete_file, get_new_path, save
 from .filters import is_declared_message, is_limited_user, is_nm_text, is_should_ignore, is_watch_user, is_wb_text
 from .group import clear_joined_messages, delete_message, get_hint_text, get_pinned
@@ -116,7 +116,7 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
             return flood_user(gid, uid, now, "challenge", mid, aid)
 
         # Check the group's hint config
-        if not aid and not glovar.configs[gid].get("hint"):
+        if not aid and not glovar.configs[gid].get("hint", True):
             return send_debug(
                 client=client,
                 gids=[gid],
@@ -519,14 +519,14 @@ def get_markup_hint(single: bool = False, static: bool = False,
         if static:
             captcha_link = glovar.captcha_link
         elif glovar.locks["invite"].acquire(blocking=False):
-            captcha_link = glovar.invite["link"]
+            captcha_link = glovar.invite.get("link", glovar.captcha_link)
             glovar.locks["invite"].release()
         else:
             captcha_link = glovar.captcha_link
 
         markup_list = [[]]
 
-        if single:
+        if not single:
             markup_list[0].append(
                 InlineKeyboardButton(
                     text=lang("captcha_check"),
@@ -587,8 +587,7 @@ def question_answer(client: Client, uid: int, text: str) -> bool:
         save("user_ids")
 
         if glovar.user_ids[uid]["try"] < limit:
-            question_status(client, uid, "again")
-            return True
+            return question_status(client, uid, "again")
 
         question_status(client, uid, "wrong")
         result = terminate_user_wrong(
@@ -646,7 +645,7 @@ def question_ask(client: Client, user: User, mid: int) -> bool:
                 mid=mid,
                 markup=markup
             )
-            image_path.startswith("tmp/") and thread(delete_file, (image_path,))
+            image_path.startswith("tmp/") and delete_file(image_path)
         else:
             result = send_message(
                 client=client,
@@ -673,6 +672,7 @@ def question_ask(client: Client, user: User, mid: int) -> bool:
             glovar.user_ids[uid]["wait"] = {}
 
         save("user_ids")
+
         result = True
     except Exception as e:
         logger.warning(f"Ask question error: {e}", exc_info=True)
@@ -723,7 +723,7 @@ def question_change(client: Client, uid: int, mid: int) -> bool:
         markup = get_markup_ask(captcha)
 
         # Get the image
-        image_path = captcha.get("image") or "assets/none.png"
+        image_path = captcha.get("image", "") or "assets/none.png"
 
         # Edit the question message
         result = edit_message_photo(
@@ -734,7 +734,7 @@ def question_change(client: Client, uid: int, mid: int) -> bool:
             caption=text,
             markup=markup
         )
-        image_path.startswith("tmp/") and thread(delete_file, (image_path,))
+        image_path.startswith("tmp/") and delete_file(image_path)
 
         # Check if the message was edited successfully
         if not result:
@@ -765,11 +765,12 @@ def question_status(client: Client, uid: int, the_type: str) -> bool:
                 f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
                 f"{lang('description')}{lang('colon')}{code(lang(f'description_{the_type}'))}\n")
 
+        # Add suggestion
         if the_type == "wrong":
             text += f"{lang('suggestion')}{lang('colon')}{code(lang('suggestion_wrong'))}\n"
 
         # Get the markup
-        if glovar.more and the_type == "succeed":
+        if the_type == "succeed" and glovar.more:
             markup = InlineKeyboardMarkup(
                 [
                     [
@@ -808,7 +809,7 @@ def send_hint(client: Client, the_type: str, gid: int,
 
     try:
         # Flood and static hint
-        if the_type == "flood" and glovar.configs[gid].get("pin"):
+        if the_type == "flood" and glovar.configs[gid].get("pin", True):
             result = send_pin(client, gid)
         elif the_type == "flood":
             result = send_static(client, gid, text, True)
@@ -940,6 +941,7 @@ def send_static(client: Client, gid: int, text: str, flood: bool = False) -> boo
             glovar.message_ids[gid]["static"] = new_id
 
         save("message_ids")
+
         result = True
     except Exception as e:
         logger.warning(f"Send static error: {e}", exc_info=True)
@@ -1004,7 +1006,7 @@ def user_captcha(client: Client, message: Optional[Message], gid: int, user: Use
 
         do_not_need_recheck = (succeeded_time
                                and not (ban_name or wb_name)
-                               and glovar.configs[gid].get("pass")
+                               and glovar.configs[gid].get("pass", True)
                                and succeeded_time and now - succeeded_time < glovar.time_recheck
                                and not is_watch_user(user, "ban", now)
                                and not is_watch_user(user, "delete", now)
@@ -1015,14 +1017,14 @@ def user_captcha(client: Client, message: Optional[Message], gid: int, user: Use
             return True
 
         # White list auto pass
-        if glovar.configs[gid].get("pass") and uid in glovar.white_ids:
+        if glovar.configs[gid].get("pass", True) and uid in glovar.white_ids:
             not aid and ask_help_welcome(client, uid, [gid], mid)
             return True
 
         # Check failed list
         failed_time = user_status["failed"].get(gid, 0)
 
-        if now - failed_time < glovar.time_punish:
+        if now - failed_time <= glovar.time_punish:
             terminate_user_punish(
                 client=client,
                 uid=uid,
