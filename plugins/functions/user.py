@@ -152,6 +152,8 @@ def flood_end(client: Client, gid: int) -> bool:
     # Flood end, terminate users
     result = False
 
+    glovar.locks["flood"].acquire()
+
     try:
         if not glovar.flood_logs.get(gid, []):
             return False
@@ -244,15 +246,24 @@ def flood_end(client: Client, gid: int) -> bool:
             action=lang(f"action_report"),
             file=file
         )
+
+        # Reset flood log
+        glovar.flood_logs.pop(gid, [])
+        save("flood_logs")
     except Exception as e:
         logger.warning(f"Flood end error: {e}", exc_info=True)
+    finally:
+        glovar.locks["flood"].release()
 
     return result
 
 
+@threaded()
 def flood_user(gid: int, uid: int, time: int, action: str, mid: int = 0, aid: int = 0) -> bool:
     # Log the flood user
     result = False
+
+    glovar.locks["flood"].acquire()
 
     try:
         if not is_flooded(gid):
@@ -275,6 +286,8 @@ def flood_user(gid: int, uid: int, time: int, action: str, mid: int = 0, aid: in
         result = True
     except Exception as e:
         logger.warning(f"Flood user error: {e}", exc_info=True)
+    finally:
+        glovar.locks["flood"].release()
 
     return result
 

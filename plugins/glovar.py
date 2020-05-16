@@ -416,6 +416,7 @@ locks: Dict[str, Lock] = {
     "admin": Lock(),
     "config": Lock(),
     "failed": Lock(),
+    "flood": Lock(),
     "invite": Lock(),
     "message": Lock(),
     "pin": Lock(),
