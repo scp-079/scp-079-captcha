@@ -92,10 +92,9 @@ def check_timeout_user(client: Client, uid: int, now: int) -> bool:
             if not time or now - time <= glovar.time_captcha:
                 continue
 
-            terminate_user_timeout(
+            return terminate_user_timeout(
                 client=client,
-                uid=uid,
-                gid=gid
+                uid=uid
             )
 
         result = True
@@ -156,6 +155,7 @@ def flood_end(client: Client, gid: int) -> bool:
         if not glovar.flood_logs.get(gid, []):
             return False
 
+        # Ask help to kick users
         kick_list = set()
 
         for user in glovar.flood_logs[gid]:
@@ -167,13 +167,34 @@ def flood_end(client: Client, gid: int) -> bool:
 
             kick_list.add(uid)
 
-        # Ask help to kick users
         file = data_to_file(kick_list)
         share_data(
             client=client,
             receivers=["USER"],
             action="help",
             action_type="kick",
+            data=gid,
+            file=file
+        )
+
+        # Ask help to clear messages
+        delete_list = set()
+
+        for user in glovar.flood_logs[gid]:
+            uid = user["user id"]
+            action = user["action"]
+
+            if action not in {"timeout", "wrong"}:
+                continue
+
+            delete_list.add(uid)
+
+        file = data_to_file(delete_list)
+        share_data(
+            client=client,
+            receivers=["USER"],
+            action="special",
+            action_type="delete",
             data=gid,
             file=file
         )
@@ -497,6 +518,7 @@ def remove_failed_user(uid: int) -> bool:
     try:
         glovar.failed_ids.pop(uid, {})
         save("failed_ids")
+        result = True
     except Exception as e:
         logger.warning(f"Remove failed user error: {e}", exc_info=True)
     finally:
@@ -895,7 +917,7 @@ def terminate_user_succeed(client: Client, uid: int) -> bool:
     return result
 
 
-def terminate_user_timeout(client: Client, uid: int, gid: int = 0) -> bool:
+def terminate_user_timeout(client: Client, uid: int) -> bool:
     # Verification timeout
     result = False
 
@@ -903,31 +925,50 @@ def terminate_user_timeout(client: Client, uid: int, gid: int = 0) -> bool:
         # Basic data
         now = get_now()
 
-        # Decide level
-        if glovar.user_ids[uid]["failed"].get(gid) is not None:
-            level = "ban"
-        else:
-            level = get_level(gid)
-
-        # Limit the user
-        change_member_status(client, level, gid, uid)
-        ask_for_help(client, "delete", gid, uid)
+        # Get the group list
+        wait_group_list = list(glovar.user_ids[uid]["wait"])
 
         # Modify the status
         glovar.user_ids[uid]["answer"] = ""
         glovar.user_ids[uid]["limit"] = 0
         glovar.user_ids[uid]["try"] = 0
-        glovar.user_ids[uid]["wait"].pop(gid, 0)
-        glovar.user_ids[uid]["manual"].discard(gid)
 
-        if glovar.user_ids[uid]["succeeded"].get(gid, 0):
-            glovar.user_ids[uid]["succeeded"][gid] = 0
+        for gid in wait_group_list:
+            # Decide level
+            if glovar.user_ids[uid]["failed"].get(gid) is not None:
+                level = "ban"
+            else:
+                level = get_level(gid)
 
-        # Decide the unban pending
-        if level in {"ban", "restrict"}:
-            glovar.user_ids[uid]["failed"][gid] = 0
-        else:
-            glovar.user_ids[uid]["failed"][gid] = now
+            # Limit the user
+            change_member_status(client, level, gid, uid)
+            ask_for_help(client, "delete", gid, uid)
+
+            # Modify the status
+            glovar.user_ids[uid]["wait"].pop(gid, 0)
+            glovar.user_ids[uid]["manual"].discard(gid)
+
+            if glovar.user_ids[uid]["succeeded"].get(gid, 0):
+                glovar.user_ids[uid]["succeeded"][gid] = 0
+
+            # Decide the unban pending
+            if level in {"ban", "restrict"}:
+                glovar.user_ids[uid]["failed"][gid] = 0
+            else:
+                glovar.user_ids[uid]["failed"][gid] = now
+
+            # Send debug message
+            if is_flooded(gid):
+                flood_user(gid, uid, now, "timeout")
+            else:
+                send_debug(
+                    client=client,
+                    gids=[gid],
+                    action=lang(f"auto_{level}"),
+                    uid=uid,
+                    time=now,
+                    more=lang("description_timeout")
+                )
 
         # Collect data
         name = glovar.user_ids[uid]["name"]
@@ -942,16 +983,6 @@ def terminate_user_timeout(client: Client, uid: int, gid: int = 0) -> bool:
 
         # Update the score
         update_score(client, uid)
-
-        # Send debug message
-        send_debug(
-            client=client,
-            gids=[gid],
-            action=lang(f"auto_{level}"),
-            uid=uid,
-            time=now,
-            more=lang("description_timeout")
-        )
 
         # Add failed user
         failed_user(client, uid, "timeout")
@@ -1026,23 +1057,28 @@ def terminate_user_wrong(client: Client, uid: int) -> bool:
         # Get the group list
         wait_group_list = list(glovar.user_ids[uid]["wait"])
 
-        # Kick the user
-        for gid in wait_group_list:
-            ban_user(client, gid, uid)
-            ask_for_help(client, "delete", gid, uid)
-
         # Modify the status
         glovar.user_ids[uid]["answer"] = ""
         glovar.user_ids[uid]["limit"] = 0
         glovar.user_ids[uid]["try"] = 0
-        glovar.user_ids[uid]["wait"] = {}
-        glovar.user_ids[uid]["manual"] = set()
 
-        # Give the user one more chance
+        # Kick the user
         for gid in wait_group_list:
+            # Ban the user temporarily
+            ban_user(client, gid, uid)
+            ask_for_help(client, "delete", gid, uid)
+
+            # Modify the status
+            glovar.user_ids[uid]["wait"] = {}
+            glovar.user_ids[uid]["manual"] = set()
+
+            # Give the user one more chance
             glovar.user_ids[uid]["failed"][gid] = now
             glovar.user_ids[uid]["restricted"].discard(gid)
             glovar.user_ids[uid]["banned"].discard(gid)
+
+            # Flood log
+            is_flooded(gid) and flood_user(gid, uid, now, "wrong")
 
         # Collect data
         name = glovar.user_ids[uid]["name"]
@@ -1064,7 +1100,7 @@ def terminate_user_wrong(client: Client, uid: int) -> bool:
         # Send debug message
         send_debug(
             client=client,
-            gids=wait_group_list,
+            gids=[gid for gid in wait_group_list if not is_flooded(gid)],
             action=lang(f"auto_kick"),
             uid=uid,
             time=now,

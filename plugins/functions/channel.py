@@ -206,6 +206,9 @@ def send_debug(client: Client, gids: List[int], action: str,
     result = False
 
     try:
+        if not gids:
+            return False
+
         text = get_debug_text(client, gids)
 
         if uid:
