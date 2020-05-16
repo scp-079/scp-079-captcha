@@ -163,8 +163,8 @@ flood_static: Auto Static Hint
 flood_total: Flood Total
 invite_button: Join CAPTCHA Group
 invite_text: Please verify in a private group
-mention_lack: $mention_*** Code is Missing
-mention_redundant: $mention_*** Code is Redundant
+mention_lack: Lack of the Mentioning User Code
+mention_redundant: Should not Contain User-Related Codes
 old_pinned: Old Pinned Message
 question: Question
 question_attention: Please confirm which question is yours before answering
