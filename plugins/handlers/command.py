@@ -317,7 +317,7 @@ def custom(client: Client, message: Message) -> bool:
         # Check the command_context
         mention_only_list = ["$mention_name", "$mention_id"]
         mention_all_list = ["$mention_name", "$mention_id", "$code_name", "$code_id"]
-        mention_lack = (command_type in {"manual", "nospam", "single"}
+        mention_lack = (command_type in {"nospam"}
                         and all(mention not in command_context for mention in mention_only_list))
         mention_redundant = (command_type in {"flood", "static"}
                              and any(mention in command_context for mention in mention_all_list))
