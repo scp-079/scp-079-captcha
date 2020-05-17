@@ -23,7 +23,7 @@ from pyrogram import Chat, ChatMember, Client, Message, User
 
 from .. import glovar
 from .decorators import threaded
-from .etc import code, get_now, get_text_user, lang, mention_id, mention_name, thread
+from .etc import code, get_now, get_text_user, lang, mention_id, mention_name, mention_text, thread
 from .file import save
 from .telegram import delete_messages, get_chat, get_messages, leave_chat
 
@@ -190,6 +190,11 @@ def get_hint_text(gid: int, the_type: str, user: User = None) -> str:
             description = ""
 
         result += f"{lang('description')}{lang('colon')}{code(description)}\n"
+
+        if not user or not user.id:
+            return result
+
+        result += mention_text("\U00002060", user.id)
     except Exception as e:
         logger.warning(f"Get hint text error: {e}", exc_info=True)
 

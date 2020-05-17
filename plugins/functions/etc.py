@@ -300,6 +300,11 @@ def get_text_user(text: str, user: User) -> str:
         result = result.replace("$code_name", code(name))
         result = result.replace("$mention_id", mention_id(uid))
         result = result.replace("$mention_name", mention_name(user))
+
+        if not user or not user.id:
+            return result
+
+        result += mention_text("\U00002060", user.id)
     except Exception as e:
         logger.warning(f"Get text user error: {e}", exc_info=True)
 
