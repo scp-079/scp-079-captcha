@@ -159,8 +159,6 @@ flood_count: Check Count
 flood_duration: Flood Duration
 flood_static: Auto Static Hint
 flood_total: Flood Total
-invite_button: Join CAPTCHA Group
-invite_text: Please verify in a private group
 mention_lack: Lack of the Mentioning User Code
 mention_redundant: Should not Contain User-Related Codes
 old_pinned: Previous Pinned Message
