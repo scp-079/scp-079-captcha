@@ -146,12 +146,10 @@ description_single: 本群开启了入群验证，您需要通过验证才能发
 description_succeed: 验证成功，您可在相应群组中正常发言
 description_timeout: 验证超时
 description_wrong: 回答错误，验证失败
-flood_count: 核查移除
+flood_count: 轰炸移除
 flood_duration: 轰炸时长
 flood_static: 自动静态提示
 flood_total: 轰炸总人数
-invite_button: 加入验证群组
-invite_text: 请在专用群组中进行验证
 mention_lack: 缺少提及用户的代号
 mention_redundant: 不应包含用户相关的代号
 old_pinned: 原置顶消息
