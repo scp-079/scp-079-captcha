@@ -25,6 +25,7 @@ This bot is used to provide challenges for newly joined members.
     - `succeed.png` : Image for success
 - languages
    - `cmn-Hans.yml` : Mandarin Chinese (Simplified)
+   - `cmn-Hant-TW.yml` : Mandarin Chinese in Taiwan (Traditional)
    - `en.yml` : English
 - plugins
     - functions
