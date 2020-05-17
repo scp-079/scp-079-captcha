@@ -407,7 +407,7 @@ def pass_captcha(client: Client, message: Message) -> bool:
 
         # Send the debug message
         text = (f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
-                f"{lang('admin_project')}{lang('colon')}{mention_id(aid)}\n"
+                f"{lang('admin')}{lang('colon')}{code(aid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('action_pass'))}\n"
                 f"{lang('user_id')}{lang('colon')}{code(uid)}\n")
         thread(send_message, (client, glovar.debug_channel_id, text))
