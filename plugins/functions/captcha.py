@@ -115,7 +115,7 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
 
         # Log flood user
         if is_flooded(gid):
-            return flood_user(gid, uid, now, "challenge", mid, aid)
+            return flood_user(gid, uid, now, "challenge", None, mid, aid)
 
         # Check the group's hint config
         if not aid and not glovar.configs[gid].get("hint", True):

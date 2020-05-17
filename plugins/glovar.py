@@ -704,9 +704,10 @@ flood_logs: Dict[int, List[Dict[str, Union[int, str]]]] = {}
 #         {
 #             "user id": 12345678,
 #             "time": 205001011200,
-#             "action": "timeout",
-#             "message id": 0,
-#             "admin id": 0
+#             "action": "kick",
+#             "reason": "timeout",
+#             "message id": None,
+#             "admin id": None
 #         }
 #     ]
 # }

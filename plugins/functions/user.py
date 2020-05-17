@@ -164,9 +164,9 @@ def flood_end(client: Client, gid: int) -> bool:
 
         for user in glovar.flood_logs[gid]:
             uid = user["user id"]
-            action = user["action"]
+            reason = user["reason"]
 
-            if action != "log":
+            if reason != "log":
                 continue
 
             kick_list.add(uid)
@@ -186,9 +186,9 @@ def flood_end(client: Client, gid: int) -> bool:
 
         for user in glovar.flood_logs[gid]:
             uid = user["user id"]
-            action = user["action"]
+            reason = user["reason"]
 
-            if action not in {"timeout", "wrong"}:
+            if reason not in {"timeout", "wrong"}:
                 continue
 
             delete_list.add(uid)
@@ -208,9 +208,9 @@ def flood_end(client: Client, gid: int) -> bool:
 
         for user in glovar.flood_logs[gid]:
             uid = user["user id"]
-            action = user["action"]
+            reason = user["reason"]
 
-            if action not in {"timeout", "wrong"}:
+            if reason not in {"timeout", "wrong"}:
                 continue
 
             if not init_user_id(uid):
@@ -260,7 +260,8 @@ def flood_end(client: Client, gid: int) -> bool:
 
 
 @threaded()
-def flood_user(gid: int, uid: int, time: int, action: str, mid: int = 0, aid: int = 0) -> bool:
+def flood_user(gid: int, uid: int, time: int, action: str, reason: str = None,
+               mid: int = None, aid: int = None) -> bool:
     # Log the flood user
     result = False
 
@@ -278,6 +279,7 @@ def flood_user(gid: int, uid: int, time: int, action: str, mid: int = 0, aid: in
                 "user id": uid,
                 "time": get_readable_time(time),
                 "action": action,
+                "reason": reason,
                 "message id": mid,
                 "admin id": aid
             }
@@ -1067,7 +1069,7 @@ def terminate_user_timeout(client: Client, uid: int) -> bool:
 
             # Send debug message
             if is_flooded(gid):
-                flood_user(gid, uid, now, "timeout")
+                flood_user(gid, uid, now, level, "timeout")
             else:
                 send_debug(
                     client=client,
@@ -1186,7 +1188,7 @@ def terminate_user_wrong(client: Client, uid: int) -> bool:
             glovar.user_ids[uid]["banned"].discard(gid)
 
             # Flood log
-            is_flooded(gid) and flood_user(gid, uid, now, "wrong")
+            is_flooded(gid) and flood_user(gid, uid, now, "kick", "wrong")
 
         # Collect data
         name = glovar.user_ids[uid]["name"]

@@ -90,7 +90,7 @@ def receive_check_log(client: Client, message: Message, data: int) -> bool:
                 continue
 
             if not glovar.user_ids.get(uid, {}):
-                flood_user(gid, uid, now, "log")
+                flood_user(gid, uid, now, "kick", "log")
                 count += 1
                 continue
 
@@ -100,7 +100,7 @@ def receive_check_log(client: Client, message: Message, data: int) -> bool:
                    for the_type in ["join", "pass", "wait", "succeeded", "failed", "restricted", "banned", "manual"]):
                 continue
 
-            flood_user(gid, uid, now, "log")
+            flood_user(gid, uid, now, "kick", "log")
             count += 1
 
         # Send debug message
