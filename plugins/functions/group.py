@@ -23,7 +23,7 @@ from pyrogram import Chat, ChatMember, Client, Message, User
 
 from .. import glovar
 from .decorators import threaded
-from .etc import code, get_now, get_text_user, lang, mention_name, thread
+from .etc import code, get_now, get_text_user, lang, mention_id, mention_name, thread
 from .file import save
 from .telegram import delete_messages, get_chat, get_messages, leave_chat
 
@@ -182,8 +182,7 @@ def get_hint_text(gid: int, the_type: str, user: User = None) -> str:
                       f"{lang('user_id')}{lang('colon')}{code(user.id)}\n")
             description = lang("description_nospam").format(glovar.time_captcha)
         elif the_type == "single":
-            result = (f"{lang('user_name')}{lang('colon')}{mention_name(user)}\n"
-                      f"{lang('user_id')}{lang('colon')}{code(user.id)}\n")
+            result = f"{lang('user_id')}{lang('colon')}{mention_id(user.id)}\n"
             description = lang("description_single").format(glovar.time_captcha)
         elif the_type == "static":
             description = lang("description_hint").format(glovar.time_captcha)
