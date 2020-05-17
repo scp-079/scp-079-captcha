@@ -122,7 +122,7 @@ def config(client: Client, message: Message) -> bool:
 
         # Check the config lock
         if now - glovar.configs[gid]["lock"] < 310:
-            return command_error(client, message, lang("config_change"), lang("config_flood"))
+            return command_error(client, message, lang("config_change"), lang("command_flood"))
 
         # Private check
         if command_context == "private":
@@ -227,7 +227,7 @@ def config_directly(client: Client, message: Message) -> bool:
 
         # Check the config lock
         if now - new_config["lock"] < 310:
-            return command_error(client, message, lang("config_change"), lang("config_flood"))
+            return command_error(client, message, lang("config_change"), lang("command_flood"))
 
         # Set the config to default status
         if command_type == "default":
