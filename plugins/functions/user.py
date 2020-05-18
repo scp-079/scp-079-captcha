@@ -523,6 +523,9 @@ def lift_ban(client: Client, uid: int, now: int) -> bool:
         group_list = list(glovar.user_ids[uid]["failed"])
 
         for gid in group_list:
+            if is_flooded(gid):
+                continue
+
             time = glovar.user_ids[uid]["failed"][gid]
 
             if not time or now - time <= glovar.time_punish:
