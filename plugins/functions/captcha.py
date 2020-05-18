@@ -85,6 +85,9 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
 
         # Flood situation detected
         if len(wait_user_list) > glovar.limit_flood:
+            # Delete the joined service message
+            not is_flooded(gid) and delete_message(client, gid, mid)
+
             # Add flood status
             add_flood(client, gid, mid, now)
 
@@ -105,9 +108,6 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
             glovar.message_ids[gid]["hint"] = 0
             old_id and delete_message(client, gid, old_id)
             old_id and save("message_ids")
-
-            # Delete the joined service message
-            delete_message(client, gid, mid)
 
         # Flood situation ongoing
         elif is_flooded(gid):

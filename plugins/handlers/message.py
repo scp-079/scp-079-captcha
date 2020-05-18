@@ -28,7 +28,7 @@ from ..functions.etc import code, general_link, get_now, lang, thread, mention_i
 from ..functions.file import save
 from ..functions.filters import authorized_group, captcha_group, class_c, class_d, class_e, declared_message
 from ..functions.filters import exchange_channel, from_user, hide_channel, is_class_d_user, is_class_e_user
-from ..functions.filters import new_group, test_group
+from ..functions.filters import is_flooded, new_group, test_group
 from ..functions.group import delete_message, save_admins, leave_group
 from ..functions.ids import init_group_id
 from ..functions.receive import receive_add_bad, receive_check_log, receive_clear_data, receive_config_commit
@@ -60,6 +60,10 @@ def hint(client: Client, message: Message) -> bool:
         gid = message.chat.id
         mid = message.message_id
         now = message.date or get_now()
+
+        # Check the group status
+        if is_flooded(gid):
+            delete_message(client, gid, mid)
 
         # Check config
         if glovar.configs[gid].get("manual", False) or is_class_e_user(message.from_user):

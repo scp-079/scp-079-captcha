@@ -37,6 +37,9 @@ def clear_joined_messages(client: Client, gid: int, mid: int) -> bool:
     result = False
 
     try:
+        if glovar.clean_id in glovar.admin_ids.get(gid, set()):
+            return False
+
         if mid - glovar.limit_flood * 4 > 0:
             mids = range(mid - glovar.limit_flood * 4, mid + 1)
         else:
