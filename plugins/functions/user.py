@@ -391,7 +391,7 @@ def get_uid_from_command(client: Client, message: Message) -> int:
         # ID text
         result = get_int(text)
 
-        if result > 0:
+        if result and result > 0:
             return result
 
         # Username text
