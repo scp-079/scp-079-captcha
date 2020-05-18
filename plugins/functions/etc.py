@@ -171,6 +171,9 @@ def get_channel_link(message: Union[int, Message]) -> str:
             result += f"c/{str(message)[4:]}"
             return result
 
+        if not message.chat:
+            return result
+
         if message.chat.username:
             result += f"{message.chat.username}"
         else:

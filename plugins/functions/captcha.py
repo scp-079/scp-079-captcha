@@ -511,7 +511,7 @@ def get_markup_ask(captcha: dict, question_type: str = "") -> Optional[InlineKey
 
 
 def get_markup_hint(single: bool = False, static: bool = False,
-                    pinned: Message = None) -> Optional[InlineKeyboardMarkup]:
+                    pinned: Message = None, gid: int = None) -> Optional[InlineKeyboardMarkup]:
     # Get the hint message's markup
     result = None
 
@@ -543,14 +543,14 @@ def get_markup_hint(single: bool = False, static: bool = False,
             )
         )
 
-        if not pinned:
+        if not pinned or not pinned.message_id or not gid:
             return InlineKeyboardMarkup(markup_list)
 
         markup_list.append(
             [
                 InlineKeyboardButton(
                     text=lang("old_pinned"),
-                    url=get_channel_link(pinned)
+                    url=f"{get_channel_link(gid)}/{pinned.message_id}"
                 )
             ]
         )
@@ -885,7 +885,7 @@ def send_pin(client: Client, gid: int) -> bool:
 
         text = get_hint_text(gid, "flood")
         pinned_message = get_pinned(client, gid, False)
-        markup = get_markup_hint(static=True, pinned=pinned_message)
+        markup = get_markup_hint(static=True, pinned=pinned_message, gid=gid)
         result = send_message(client, gid, text, None, markup)
 
         if not result:
