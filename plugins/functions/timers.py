@@ -27,7 +27,7 @@ from .. import glovar
 from .captcha import send_static
 from .channel import send_debug, share_data, share_regex_count
 from .decorators import threaded
-from .etc import code, general_link, get_now, get_readable_time, lang, thread
+from .etc import code, delay, general_link, get_now, get_readable_time, lang, thread
 from .file import file_tsv, save
 from .filters import is_class_e_user
 from .group import delete_hint, delete_message, leave_group, save_admins
@@ -178,7 +178,7 @@ def interval_min_01(client: Client) -> bool:
             old_id and thread(pin_chat_message, (client, gid, old_id))
 
             # Delete newly pinned message
-            new_id and delete_message(client, gid, new_id)
+            new_id and delay(30, delete_message, [client, gid, new_id])
             glovar.pinned_ids[gid]["new_id"] = 0
 
             # Reset time status
