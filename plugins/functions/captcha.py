@@ -26,7 +26,7 @@ from claptcha import Claptcha
 from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message, User
 
 from .. import glovar
-from .channel import ask_help_welcome, send_debug
+from .channel import ask_help_welcome, send_debug, share_data
 from .decorators import threaded
 from .etc import button_data, code, get_channel_link, get_full_name, get_image_size, get_now, lang, mention_name
 from .etc import mention_text, t2t
@@ -213,6 +213,17 @@ def add_flood(client: Client, gid: int, mid: int, now: int) -> bool:
 
         glovar.pinned_ids[gid]["start"] = now
         clear_joined_messages(client, gid, mid)
+
+        # Share the flood status
+        share_data(
+            client=client,
+            receivers=glovar.receivers["flood"],
+            action="flood",
+            action_type="begin",
+            data=gid
+        )
+
+        # Send the debug message
         result = send_debug(
             client=client,
             gids=[gid],

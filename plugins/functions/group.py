@@ -170,7 +170,7 @@ def get_hint_text(gid: int, the_type: str, user: User = None) -> str:
             return get_text_user(custom_text, user)
 
         if the_type == "flood":
-            result = (f"{lang('auto_fix')}{lang('colon')}{code(lang('pin'))}\n"
+            result = (f"{lang('action')}{lang('colon')}{code(lang('pin'))}\n"
                       f"{lang('reason')}{lang('colon')}{code(lang('action_flood'))}\n")
             description = lang("description_hint").format(glovar.time_captcha)
         elif the_type == "manual":

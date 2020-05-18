@@ -251,6 +251,15 @@ def flood_end(client: Client, gid: int) -> bool:
         # Reset flood logs
         glovar.flood_logs.pop(gid, [])
         save("flood_logs")
+
+        # Share flood end status
+        share_data(
+            client=client,
+            receivers=glovar.receivers["flood"],
+            action="flood",
+            action_type="end",
+            data=gid
+        )
     except Exception as e:
         logger.warning(f"Flood end error: {e}", exc_info=True)
     finally:

@@ -449,6 +449,8 @@ for question_type in replace_types:
     question_types[question_type] = ["math"]
 
 receivers: Dict[str, List[str]] = {
+    "flood": ["AVATAR", "CAPTCHA", "CLEAN", "LANG", "LONG", "NOFLOOD", "NOPORN",
+              "NOSPAM", "TIP", "USER", "WATCH"],
     "declare": ["ANALYZE", "AVATAR", "CAPTCHA", "CLEAN", "LANG", "LONG",
                 "NOFLOOD", "NOPORN", "NOSPAM", "TIP", "USER", "WARN", "WATCH"],
     "score": ["ANALYZE", "AVATAR", "CAPTCHA", "CLEAN", "INDEX", "LANG", "LONG",
@@ -484,7 +486,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.5.1"
+version: str = "0.5.2"
 
 # Load data from pics database
 
