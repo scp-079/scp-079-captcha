@@ -54,10 +54,6 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
         name = get_full_name(user)
         now = get_now()
 
-        # Check if the user should be added to the wait list
-        if is_should_ignore(gid, user, aid):
-            return True
-
         # Add the user to the wait list
         glovar.user_ids[uid]["name"] = name
         glovar.user_ids[uid]["wait"][gid] = now
@@ -769,6 +765,7 @@ def question_change(client: Client, uid: int, mid: int) -> bool:
     return result
 
 
+@threaded()
 def question_status(client: Client, uid: int, the_type: str) -> bool:
     # Reply question status
     result = False
@@ -887,6 +884,7 @@ def send_hint(client: Client, the_type: str, gid: int,
     return result
 
 
+@threaded()
 def send_pin(client: Client, gid: int) -> bool:
     # Send pin message
     result = False
