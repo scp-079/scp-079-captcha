@@ -219,8 +219,11 @@ def add_flood(client: Client, gid: int, mid: int, now: int) -> bool:
             client=client,
             receivers=glovar.receivers["flood"],
             action="flood",
-            action_type="begin",
-            data=gid
+            action_type="status",
+            data={
+                "group_id": gid,
+                "status": "begin"
+            }
         )
 
         # Send the debug message

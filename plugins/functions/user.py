@@ -257,8 +257,11 @@ def flood_end(client: Client, gid: int) -> bool:
             client=client,
             receivers=glovar.receivers["flood"],
             action="flood",
-            action_type="end",
-            data=gid
+            action_type="status",
+            data={
+                "group_id": gid,
+                "status": "end"
+            }
         )
     except Exception as e:
         logger.warning(f"Flood end error: {e}", exc_info=True)
