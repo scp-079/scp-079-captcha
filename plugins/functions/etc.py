@@ -247,15 +247,15 @@ def get_now() -> int:
     return result
 
 
-def get_readable_time(secs: int = 0) -> str:
+def get_readable_time(secs: int = 0, format_date: str = "%Y%m%d%H%M%S") -> str:
     # Get a readable time string
     result = ""
 
     try:
         if secs:
-            result = datetime.utcfromtimestamp(secs).strftime("%Y%m%d%H%M%S")
+            result = datetime.utcfromtimestamp(secs).strftime(format_date)
         else:
-            result = strftime("%Y%m%d%H%M%S", localtime())
+            result = strftime(format_date, localtime())
     except Exception as e:
         logger.warning(f"Get readable time error: {e}", exc_info=True)
 
