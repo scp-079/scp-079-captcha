@@ -271,7 +271,6 @@ def flood_end(client: Client, gid: int) -> bool:
     return result
 
 
-@threaded()
 def flood_user(gid: int, uid: int, time: int, action: str, reason: str = None,
                mid: int = None, aid: int = None) -> bool:
     # Log the flood user
