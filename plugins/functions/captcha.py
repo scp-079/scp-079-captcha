@@ -29,7 +29,7 @@ from .. import glovar
 from .channel import ask_help_welcome, send_debug, share_data
 from .decorators import threaded
 from .etc import button_data, code, get_channel_link, get_full_name, get_image_size, get_now, lang, mention_name
-from .etc import mention_text, t2t
+from .etc import mention_text, t2t, thread
 from .file import delete_file, get_new_path, save
 from .filters import is_declared_message, is_flooded, is_limited_user, is_nm_text, is_should_ignore, is_watch_user
 from .filters import is_wb_text
@@ -196,6 +196,7 @@ def add_failed(client: Client, gid: int, uid: int, aid: int) -> bool:
 
 
 def add_flood(client: Client, gid: int, mid: int, now: int) -> bool:
+    # Add flood group
     result = False
 
     try:
@@ -857,6 +858,9 @@ def send_hint(client: Client, the_type: str, gid: int,
             markup=markup
         )
 
+        if not result:
+            return False
+
         # Init the data
         if the_type in {"manual", "nospam"} and glovar.message_ids[gid].get(the_type) is None:
             glovar.message_ids[gid][the_type] = {}
@@ -874,7 +878,7 @@ def send_hint(client: Client, the_type: str, gid: int,
             glovar.message_ids[gid]["hint"] = new_id
             old_id and delete_message(client, gid, old_id)
             old_ids = glovar.message_ids[gid]["flood"]
-            old_ids and delete_messages(client, gid, old_ids)
+            old_ids and thread(delete_messages, (client, gid, old_ids))
 
         # Save message ids
         save("message_ids")
@@ -905,7 +909,7 @@ def send_pin(client: Client, gid: int) -> bool:
 
         new_id = result.message_id
         old_ids = glovar.message_ids[gid]["flood"]
-        old_ids and delete_messages(client, gid, old_ids)
+        old_ids and thread(delete_messages, (client, gid, old_ids))
 
         if pinned_message:
             old_id = pinned_message.message_id
@@ -947,7 +951,7 @@ def send_static(client: Client, gid: int, text: str, flood: bool = False) -> boo
 
         if flood:
             old_ids = glovar.message_ids[gid]["flood"]
-            old_ids and delete_messages(client, gid, old_ids)
+            old_ids and thread(delete_messages, (client, gid, old_ids))
             glovar.message_ids[gid]["flood"].add(new_id)
         else:
             old_id = glovar.message_ids[gid]["static"]
@@ -1039,13 +1043,12 @@ def user_captcha(client: Client, message: Optional[Message], gid: int, user: Use
         failed_time = user_status["failed"].get(gid, 0)
 
         if now - failed_time <= glovar.time_punish:
-            terminate_user_punish(
+            delete_message(client, gid, mid)
+            return terminate_user_punish(
                 client=client,
                 uid=uid,
                 gid=gid
             )
-            delete_message(client, gid, mid)
-            return True
 
         # Check declare status
         if message and is_declared_message(None, message):
