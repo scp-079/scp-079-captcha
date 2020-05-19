@@ -322,7 +322,6 @@ test_group = Filters.create(
     name="Test Group"
 )
 
-
 white_user = Filters.create(
     func=is_white_user,
     name="White User"
