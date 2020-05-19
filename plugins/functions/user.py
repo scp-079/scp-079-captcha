@@ -279,9 +279,6 @@ def flood_user(gid: int, uid: int, time: int, action: str, reason: str = None,
     glovar.locks["flood"].acquire()
 
     try:
-        if not is_flooded(gid):
-            return False
-
         if glovar.flood_logs.get(gid) is None:
             glovar.flood_logs[gid] = []
 
