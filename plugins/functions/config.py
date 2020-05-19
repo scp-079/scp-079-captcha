@@ -24,7 +24,7 @@ from pyrogram import Client, Message
 
 from .. import glovar
 from .channel import send_debug
-from .etc import code, lang
+from .etc import code, lang, thread
 from .file import save
 from .telegram import send_report_message
 
@@ -97,7 +97,7 @@ def update_config(client: Client, message: Message, config: dict, more: str = ""
         if more:
             text += f"{lang('more')}{lang('colon')}{code(more)}\n"
 
-        send_report_message(15, client, gid, text)
+        thread(send_report_message, (15, client, gid, text))
 
         # Send the debug message
         send_debug(

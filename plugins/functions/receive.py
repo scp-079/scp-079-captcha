@@ -30,7 +30,7 @@ from .channel import get_debug_text, send_debug, share_data
 from .config import get_config_text
 from .etc import code, crypt_str, general_link, get_int, get_now, get_text, lang, thread, mention_id
 from .file import crypt_file, data_to_file, delete_file, get_new_path, get_downloaded_path, save
-from .filters import is_class_d_user, is_class_e_user
+from .filters import is_class_e_user, is_should_ignore
 from .group import leave_group
 from .ids import init_group_id, init_user_id
 from .telegram import get_chat_member, send_message, send_report_message
@@ -77,13 +77,18 @@ def receive_check_log(client: Client, message: Message, data: int) -> bool:
     try:
         # Basic data
         gid = data
-        users = receive_file_data(client, message)
         now = get_now()
         count = 0
 
+        # Get users
+        users = receive_file_data(client, message)
+
+        if users is None:
+            users = set()
+
         # Log the users
         for uid in users:
-            if is_class_d_user(uid):
+            if is_should_ignore(gid, uid):
                 continue
 
             if is_class_e_user(uid):
@@ -226,7 +231,9 @@ def receive_config_reply(client: Client, data: dict) -> bool:
                 ]
             ]
         )
-        result = send_report_message(60, client, gid, text, None, markup)
+        thread(send_report_message, (60, client, gid, text, None, markup))
+
+        result = True
     except Exception as e:
         logger.warning(f"Receive config reply error: {e}", exc_info=True)
 

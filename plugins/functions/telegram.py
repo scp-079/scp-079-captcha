@@ -28,14 +28,13 @@ from pyrogram.errors import FloodWait, MessageDeleteForbidden, PeerIdInvalid, Qu
 from pyrogram.errors import UsernameInvalid, UsernameNotOccupied, UserNotParticipant
 
 from .. import glovar
-from .decorators import retry, threaded
+from .decorators import retry
 from .etc import delay, get_int
 
 # Enable logging
 logger = logging.getLogger(__name__)
 
 
-@threaded()
 @retry
 def answer_callback(client: Client, callback_query_id: str, text: str, show_alert: bool = False) -> Optional[bool]:
     # Answer the callback
@@ -567,7 +566,6 @@ def send_photo(client: Client, cid: int, photo: str, file_ref: str = None, capti
     return result
 
 
-@threaded()
 @retry
 def send_report_message(secs: int, client: Client, cid: int, text: str, mid: int = None,
                         markup: InlineKeyboardMarkup = None) -> Optional[bool]:

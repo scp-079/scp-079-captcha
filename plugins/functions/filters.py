@@ -675,7 +675,7 @@ def is_regex_text(word_type: str, text: str, ocr: bool = False, again: bool = Fa
     return result
 
 
-def is_should_ignore(gid: int, user: User, aid: int = 0) -> bool:
+def is_should_ignore(gid: int, user: Union[int, User], aid: int = 0) -> bool:
     # Check if should ignore the user
     result = False
 
@@ -685,6 +685,9 @@ def is_should_ignore(gid: int, user: User, aid: int = 0) -> bool:
 
         if gid not in glovar.ignore_ids["user"] and is_class_d_user(user):
             return True
+
+        if isinstance(user, int):
+            return False
 
         if (glovar.nospam_id not in glovar.admin_ids[gid]
                 or gid in glovar.ignore_ids["nospam"]):

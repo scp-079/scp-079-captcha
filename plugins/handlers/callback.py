@@ -23,7 +23,7 @@ from pyrogram import Client, CallbackQuery
 
 from .. import glovar
 from ..functions.captcha import question_answer, question_change
-from ..functions.etc import get_int, get_text, lang
+from ..functions.etc import get_int, get_text, lang, thread
 from ..functions.filters import authorized_group, captcha_group, is_class_e_user, test_group
 from ..functions.telegram import answer_callback
 
@@ -64,7 +64,9 @@ def check_wait(client: Client, callback_query: CallbackQuery) -> bool:
             text = lang("check_no")
 
         # Answer the callback
-        result = answer_callback(client, callback_query.id, text, True)
+        thread(answer_callback, (client, callback_query.id, text, True))
+
+        result = True
     except Exception as e:
         logger.warning(f"Check wait error: {e}", exc_info=True)
 
@@ -114,7 +116,9 @@ def question(client: Client, callback_query: CallbackQuery) -> bool:
             question_change(client, uid, mid)
 
         # Answer the callback
-        result = answer_callback(client, callback_query.id, "")
+        thread(answer_callback, (client, callback_query.id, ""))
+
+        result = True
     except Exception as e:
         logger.warning(f"Question error: {e}", exc_info=True)
     finally:

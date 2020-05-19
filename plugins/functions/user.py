@@ -307,7 +307,7 @@ def flood_user(gid: int, uid: int, time: int, action: str, reason: str = None,
     return result
 
 
-def forgive_user(client: Client, uid: int) -> bool:
+def forgive_user(client: Client, uid: int, failed: bool = False) -> bool:
     # Forgive the user
     result = False
 
@@ -317,7 +317,12 @@ def forgive_user(client: Client, uid: int) -> bool:
             unrestrict_user(client, gid, uid)
 
         # Unban in all punished groups
-        for gid in set(glovar.user_ids[uid]["banned"]) | set(glovar.user_ids[uid]["restricted"]):
+        if failed:
+            group_list = {gid for gid in list(glovar.user_ids[uid]["failed"]) if glovar.user_ids[uid]["failed"][gid]}
+        else:
+            group_list = set(glovar.user_ids[uid]["banned"]) | set(glovar.user_ids[uid]["restricted"])
+
+        for gid in group_list:
             unban_user(client, gid, uid)
 
         # Remove users from CAPTCHA group
@@ -338,7 +343,7 @@ def forgive_users(client: Client) -> bool:
     result = False
 
     try:
-        result = bool([forgive_user(client, uid) for uid in list(glovar.user_ids)])
+        result = bool([forgive_user(client, uid, True) for uid in list(glovar.user_ids)])
     except Exception as e:
         logger.warning(f"Forgive users error: {e}", exc_info=True)
 
@@ -371,7 +376,7 @@ def get_uid(client: Client, message: Message) -> int:
 
         # Get the user id
         if r_msg and is_from_user(None, r_msg):
-            result = get_uid_from_reply(client, message)
+            result = get_uid_from_reply(client, r_msg)
         else:
             result = get_uid_from_command(client, message)
     except Exception as e:
@@ -572,6 +577,7 @@ def remove_captcha_group(client: Client, uid: int) -> bool:
     return result
 
 
+@threaded()
 def remove_failed_user(uid: int) -> bool:
     # Remove failed user
     result = False
@@ -623,6 +629,7 @@ def remove_new_users() -> bool:
     return result
 
 
+@threaded()
 def remove_wait_user(client: Client, uid: int) -> bool:
     # Remove the user from wait list
     result = False
@@ -650,7 +657,7 @@ def remove_wait_user(client: Client, uid: int) -> bool:
             glovar.user_ids[uid]["manual"].discard(gid)
             glovar.user_ids[uid]["failed"][gid] = 0
 
-        delete_hint(client)
+        not all(is_flooded(gid) for gid in wait_group_list) and delete_hint(client)
         save("user_ids")
 
         # Check the groups
@@ -721,14 +728,14 @@ def restrict_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
     return result
 
 
-def terminate_user_banned(client: Client, uid: int, gid: int = 0) -> bool:
+def terminate_user_banned(client: Client, uid: int, gid: int) -> bool:
     # Banned in group
     result = False
 
     try:
         # Check the user's status in that group
         failed = glovar.user_ids[uid]["wait"].pop(gid, 0)
-        failed and delete_hint(client)
+        failed and not is_flooded(gid) and delete_hint(client)
         glovar.user_ids[uid]["manual"].discard(gid)
 
         # Reset all groups' success records
@@ -779,7 +786,7 @@ def terminate_user_banned(client: Client, uid: int, gid: int = 0) -> bool:
     return result
 
 
-def terminate_user_delete(client: Client, gid: int = 0, mid: int = 0) -> bool:
+def terminate_user_delete(client: Client, gid: int, mid: int) -> bool:
     # Delete the message
     result = False
 
@@ -797,7 +804,7 @@ def terminate_user_delete(client: Client, gid: int = 0, mid: int = 0) -> bool:
     return result
 
 
-def terminate_user_pass(client: Client, uid: int, gid: int = 0, aid: int = 0) -> bool:
+def terminate_user_pass(client: Client, uid: int, gid: int, aid: int) -> bool:
     # Pass in group
     result = False
 
@@ -818,7 +825,7 @@ def terminate_user_pass(client: Client, uid: int, gid: int = 0, aid: int = 0) ->
         banned_group and unban_user(client, gid, uid)
 
         # Delete the hint
-        delete_hint(client)
+        not is_flooded(gid) and delete_hint(client)
 
         # Ask help welcome
         if gid not in glovar.user_ids[uid]["manual"]:
@@ -964,7 +971,7 @@ def terminate_user_succeed(client: Client, uid: int) -> bool:
             glovar.user_ids[uid]["succeeded"][gid] = now
 
         # Delete the hint
-        delete_hint(client)
+        not all(is_flooded(gid) for gid in wait_group_list) and delete_hint(client)
 
         # Remove from CAPTCHA group
         delay(60, remove_captcha_group, [client, uid])
@@ -976,7 +983,7 @@ def terminate_user_succeed(client: Client, uid: int) -> bool:
         ask_help_welcome(client, uid, welcome_ids)
 
         # Update the score
-        update_score(client, uid)
+        not any(is_flooded(gid) for gid in wait_group_list) and update_score(client, uid)
 
         # Send debug message
         send_debug(
@@ -1141,7 +1148,7 @@ def terminate_user_timeout(client: Client, uid: int) -> bool:
     return result
 
 
-def terminate_user_undo_pass(client: Client, uid: int, gid: int = 0, aid: int = 0) -> bool:
+def terminate_user_undo_pass(client: Client, uid: int, gid: int, aid: int) -> bool:
     # Undo pass in group
     result = False
 
@@ -1154,7 +1161,7 @@ def terminate_user_undo_pass(client: Client, uid: int, gid: int = 0, aid: int = 
         save("user_ids")
 
         # Update the score
-        update_score(client, uid)
+        not is_flooded(gid) and update_score(client, uid)
 
         # Send debug message
         result = send_debug(
@@ -1214,7 +1221,7 @@ def terminate_user_wrong(client: Client, uid: int) -> bool:
         save("user_ids")
 
         # Delete the hint
-        delete_hint(client)
+        not all(is_flooded(gid) for gid in wait_group_list) and delete_hint(client)
 
         # Remove from CAPTCHA group
         delay(15, remove_captcha_group, [client, uid])

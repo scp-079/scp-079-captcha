@@ -27,7 +27,7 @@ from ..functions.captcha import send_static, user_captcha
 from ..functions.channel import get_debug_text, send_debug, share_data
 from ..functions.command import delete_normal_command, delete_shared_command, command_error, get_command_context
 from ..functions.config import conflict_config, get_config_text, update_config
-from ..functions.etc import bold, code, code_block, general_link, get_int, get_now, get_text, lang
+from ..functions.etc import bold, code, code_block, general_link, get_now, lang
 from ..functions.etc import mention_id, message_link, thread
 from ..functions.file import save
 from ..functions.filters import authorized_group, captcha_group, class_e, from_user
@@ -223,7 +223,7 @@ def config_directly(client: Client, message: Message) -> bool:
             text = (f"{lang('admin_group')}{lang('colon')}{code(aid)}\n"
                     f"{lang('action')}{lang('colon')}{code(lang('config_show'))}\n"
                     f"{get_config_text(new_config)}\n")
-            return send_report_message(30, client, gid, text)
+            return thread(send_report_message, (30, client, gid, text))
 
         # Check the config lock
         if now - new_config["lock"] < 310:
@@ -309,7 +309,7 @@ def custom(client: Client, message: Message) -> bool:
                 text = code_block(result)
 
             # Send the report message
-            return send_report_message(20, client, gid, text)
+            return thread(send_report_message, (20, client, gid, text))
 
         # Config welcome
         command_context = command_context.strip()
@@ -346,7 +346,7 @@ def custom(client: Client, message: Message) -> bool:
         # Send the report message
         text += (f"{lang('type')}{lang('colon')}{code(lang(f'custom_{command_type}'))}\n"
                  f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
-        send_report_message(20, client, gid, text)
+        thread(send_report_message, (20, client, gid, text))
 
         result = True
     except Exception as e:
@@ -377,12 +377,7 @@ def pass_captcha(client: Client, message: Message) -> bool:
             return False
 
         # Get the user id
-        user = message.reply_to_message.from_user
-        uid = user.id
-
-        if user.is_self:
-            message_text = get_text(message.reply_to_message)
-            uid = get_int(message_text.split("\n")[1].split(lang("colon"))[1])
+        uid = get_uid(client, message)
 
         # Check the user status
         if not (uid
@@ -403,7 +398,7 @@ def pass_captcha(client: Client, message: Message) -> bool:
                 f"{lang('action')}{lang('colon')}{code(lang('action_pass'))}\n"
                 f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
                 f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
-        send_report_message(30, client, cid, text)
+        thread(send_report_message, (30, client, cid, text))
 
         # Send the debug message
         text = (f"{lang('project')}{lang('colon')}{general_link(glovar.project_name, glovar.project_link)}\n"
@@ -476,7 +471,7 @@ def pass_group(client: Client, message: Message) -> bool:
                      f"{lang('reason')}{lang('colon')}{code(lang('reason_none'))}\n")
 
         # Send the report message
-        send_report_message(30, client, gid, text)
+        thread(send_report_message, (30, client, gid, text))
 
         result = True
     except Exception as e:
@@ -515,7 +510,7 @@ def static(client: Client, message: Message) -> bool:
         text = (f"{lang('admin')}{lang('colon')}{code(aid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('action_static'))}\n"
                 f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
-        send_report_message(15, client, gid, text)
+        thread(send_report_message, (15, client, gid, text))
 
         result = True
     except Exception as e:
