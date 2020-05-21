@@ -66,6 +66,7 @@ transfer_channel: 频道转移
 group_id: 群组 ID
 group_name: 群组名称
 inviter: 邀请人
+leave_group: 退出群组
 leave_approve: 已批准退出群组
 leave_auto: 自动退出并清空数据
 reason_admin: 获取管理员列表失败

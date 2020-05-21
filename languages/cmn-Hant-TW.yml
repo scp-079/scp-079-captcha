@@ -66,6 +66,7 @@ transfer_channel: 頻道轉移
 group_id: 群組 ID
 group_name: 群組名
 inviter: 邀請者
+leave_group: 離開群組
 leave_approve: 已批准離開群組
 leave_auto: 自動離開並清除數據
 reason_admin: 取得管理者目錄失敗

@@ -80,6 +80,9 @@ test_group_id: int = 0
 
 # [custom]
 default_group_link: str = ""
+leave_button: str = ""
+leave_link: str = ""
+leave_reason: str = ""
 more: Union[bool, str] = ""
 more_link: str = ""
 more_text: str = ""
@@ -166,6 +169,9 @@ try:
 
     # [custom]
     default_group_link = config["custom"].get("default_group_link", default_group_link)
+    leave_button = config["custom"].get("leave_button", leave_button)
+    leave_link = config["custom"].get("leave_link", leave_link)
+    leave_reason = config["custom"].get("leave_reason", leave_reason)
     more = config["custom"].get("more", more)
     more = eval(more)
     more_link = config["custom"].get("more_link", more_link)
@@ -260,6 +266,9 @@ if (False
 
         # [custom]
         or default_group_link in {"", "[DATA EXPUNGED]"}
+        or leave_button in {"", "[DATA EXPUNGED]"}
+        or leave_link in {"", "[DATA EXPUNGED]"}
+        or leave_reason in {"", "[DATA EXPUNGED]"}
         or more not in {False, True}
         or more_link in {"", "[DATA EXPUNGED]"}
         or more_text in {"", "[DATA EXPUNGED]"}
@@ -486,7 +495,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.5.3"
+version: str = "0.5.4"
 
 # Load data from pics database
 

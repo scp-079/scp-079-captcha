@@ -19,13 +19,13 @@
 import logging
 from typing import List, Optional
 
-from pyrogram import Chat, ChatMember, Client, Message, User
+from pyrogram import Chat, ChatMember, Client, InlineKeyboardButton, InlineKeyboardMarkup, Message, User
 
 from .. import glovar
 from .decorators import threaded
 from .etc import code, get_now, get_text_user, lang, mention_id, mention_name, mention_text, thread
 from .file import save
-from .telegram import delete_messages, get_chat, get_messages, leave_chat
+from .telegram import delete_messages, get_chat, get_messages, leave_chat, send_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -221,13 +221,14 @@ def get_pinned(client: Client, gid: int, cache: bool = True) -> Optional[Message
     return result
 
 
-def leave_group(client: Client, gid: int) -> bool:
+def leave_group(client: Client, gid: int, reason: str = "") -> bool:
     # Leave a group, clear it's data
     result = False
 
     try:
         glovar.left_group_ids.add(gid)
         save("left_group_ids")
+        leave_reason(client, gid, reason)
         thread(leave_chat, (client, gid))
 
         glovar.lack_group_ids.discard(gid)
@@ -256,6 +257,33 @@ def leave_group(client: Client, gid: int) -> bool:
         result = True
     except Exception as e:
         logger.warning(f"Leave group error: {e}", exc_info=True)
+
+    return result
+
+
+def leave_reason(client: Client, gid: int, reason: str = "") -> bool:
+    # Send leave reason
+    result = False
+
+    try:
+        if not reason:
+            return False
+
+        text = (f"{lang('action')}{lang('colon')}{code(lang('leave_group'))}\n"
+                f"{lang('reason')}{lang('colon')}{code(glovar.leave_reason)}\n")
+        markup = InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton(
+                        text=glovar.leave_button,
+                        url=glovar.leave_link
+                    )
+                ]
+            ]
+        )
+        result = send_message(client, gid, text, None, markup)
+    except Exception as e:
+        logger.warning(f"Leave reason error: {e}", exc_info=True)
 
     return result
 

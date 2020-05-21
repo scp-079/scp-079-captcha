@@ -320,7 +320,7 @@ def init_group(client: Client, message: Message) -> bool:
             if gid in glovar.left_group_ids:
                 return leave_group(client, gid)
 
-            leave_group(client, gid)
+            leave_group(client, gid, glovar.leave_reason)
 
             text += (f"{lang('status')}{lang('colon')}{code(lang('status_left'))}\n"
                      f"{lang('reason')}{lang('colon')}{code(lang('reason_unauthorized'))}\n")

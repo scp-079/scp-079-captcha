@@ -50,6 +50,9 @@ test_group_id = [DATA EXPUNGED]
 
 [custom]
 default_group_link = https://t.me/SCP_079_DEBUG
+leave_button = 申请使用
+leave_link = https://scp-079.org/ApplyForUse/
+leave_reason = 需要授权方可使用
 more = True
 more_link = https://scp-079.org/readme/
 more_text = 点击了解本项目

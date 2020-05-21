@@ -66,6 +66,7 @@ transfer_channel: Transfer Channel
 group_id: Group ID
 group_name: Group Name
 inviter: Inviter
+leave_group: Leave Group
 leave_approve: Approve to Leave the Group
 leave_auto: Leave automatically
 reason_admin: Failed to Fetch Admin List
