@@ -29,7 +29,7 @@ from pyrogram.errors import UsernameInvalid, UsernameNotOccupied, UserNotPartici
 
 from .. import glovar
 from .decorators import retry
-from .etc import delay, get_int
+from .etc import delay, get_int, wait_flood
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -259,6 +259,21 @@ def get_chat_member(client: Client, cid: int, uid: int) -> Union[bool, ChatMembe
     return result
 
 
+@retry
+def get_chat_members_count(client: Client, cid: int) -> Optional[int]:
+    # Get the number of members in a chat
+    result = None
+
+    try:
+        result = client.get_chat_members_count(chat_id=cid)
+    except FloodWait as e:
+        raise e
+    except Exception as e:
+        logger.warning(f"Get chat members count in {cid} error: {e}", exc_info=True)
+
+    return result
+
+
 def get_group_info(client: Client, chat: Union[int, Chat], cache: bool = True) -> (str, str):
     # Get a group's name and link
     group_name = "Unknown Group"
@@ -344,22 +359,26 @@ def get_user_full(client: Client, uid: int) -> Optional[UserFull]:
     return result
 
 
-@retry
 def kick_chat_member(client: Client, cid: int, uid: Union[int, str],
-                     log: bool = False, ignore: bool = False) -> Union[bool, Message, None]:
+                     until_date: int = 0) -> Union[bool, Message, None]:
     # Kick a chat member in a group
     result = None
 
     try:
         result = client.kick_chat_member(chat_id=cid, user_id=uid)
     except FloodWait as e:
-        log and logger.warning(f"Kick chat member {uid} in {cid} - Sleep for {e.x} second(s)")
-        raise e
-    except PeerIdInvalid as e:
-        if ignore:
-            return False
+        logger.warning(f"Kick chat member {uid} in {cid} - Sleep for {e.x} second(s)")
+
+        if until_date:
+            new_date = until_date + e.x
         else:
-            raise e
+            new_date = 0
+
+        wait_flood(e)
+
+        return kick_chat_member(client, cid, uid, new_date)
+    except PeerIdInvalid:
+        return False
     except Exception as e:
         logger.warning(f"Kick chat member {uid} in {cid} error: {e}", exc_info=True)
 

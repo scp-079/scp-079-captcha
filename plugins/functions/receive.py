@@ -34,7 +34,8 @@ from .file import crypt_file, data_to_file, delete_file, get_new_path, get_downl
 from .filters import is_class_e_user, is_should_ignore
 from .group import leave_group
 from .ids import init_group_id, init_user_id
-from .telegram import get_chat_member, get_members, kick_chat_member, send_message, send_report_message
+from .telegram import get_chat_member, get_chat_members_count, get_members, kick_chat_member, send_message
+from .telegram import send_report_message
 from .timers import update_admins
 from .user import flood_end, flood_user, forgive_user, forgive_users, kick_user, remove_failed_user, remove_new_users
 from .user import remove_wait_user, terminate_user_banned
@@ -91,12 +92,9 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
 
         # Log the users
         log_users = deepcopy(users)
-        manual and logger.warning(f"Log users {len(log_users)}")
         members = get_members(client, gid)
-        member_count = 0
 
         for member in members:
-            member_count += 1
             uid = member.user.id
 
             if uid not in log_users and not begin < member.joined_date < end:
@@ -111,27 +109,25 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
             with glovar.locks["message"]:
                 user_status = glovar.user_ids.get(uid)
 
-            if (user_status
-                    and any(gid in user_status[the_type] for the_type in ["failed", "pass", "wait", "succeeded"])):
+            if user_status and any(user_status.get(the_type) for the_type in ["failed", "pass", "wait", "succeeded"]):
                 continue
 
             if manual:
-                kick_chat_member(client, gid, member.user.id, True)
-                flood_user(gid, member.user.id, now, "ban", "check")
-                logger.warning(f"Banned {member.user.id} in {gid}")
+                kick_chat_member(client, gid, uid, now + glovar.time_punish)
+                flood_user(gid, uid, now, "ban", "check")
+                logger.warning(f"Banned {uid} in {gid}")
             else:
-                kick_user(client, gid, member.user.id)
-                flood_user(gid, member.user.id, now, "kick", "check")
+                kick_user(client, gid, uid)
+                flood_user(gid, uid, now, "kick", "check")
 
-            log_users.discard(member.user.id)
+            log_users.discard(uid)
             count += 1
 
-        manual and logger.warning(f"Checked {member_count} members of {gid}")
-        manual and logger.warning(f"Count {count}")
-        manual and logger.warning(f"Log users {len(log_users)}")
+        manual and logger.warning(f"Checked members of {gid}")
+        members_count = get_chat_members_count(client, gid)
 
         for uid in log_users:
-            if manual:
+            if manual or members_count and members_count < 10000:
                 continue
 
             if is_should_ignore(gid, uid):
@@ -143,16 +139,13 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
             with glovar.locks["message"]:
                 user_status = glovar.user_ids.get(uid)
 
-            if (user_status
-                    and any(gid in user_status[the_type] for the_type in ["failed", "pass", "wait", "succeeded"])):
+            if user_status and any(user_status.get(the_type) for the_type in ["failed", "pass", "wait", "succeeded"]):
                 continue
 
             manual and logger.warning(f"Need USER to kick {uid} in {gid}")
-            manual and kick_chat_member(client, gid, uid, True, True)
-            flood_user(gid, uid, now, (manual and "ban") or "kick", "log")
+            kick_chat_member(client, gid, uid, now + glovar.time_punish)
+            flood_user(gid, uid, now, "kick", "log")
             count += 1
-
-        manual and logger.warning(f"Count {count}")
 
         # Send debug message
         send_debug(
