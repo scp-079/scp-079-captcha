@@ -28,6 +28,7 @@ from .. import glovar
 from .captcha import user_captcha
 from .channel import get_debug_text, send_debug, share_data
 from .config import get_config_text
+from .decorators import threaded
 from .etc import code, crypt_str, general_link, get_int, get_now, get_text, lang, thread, mention_id
 from .file import crypt_file, data_to_file, delete_file, get_new_path, get_downloaded_path, save
 from .filters import is_class_e_user, is_should_ignore
@@ -68,6 +69,7 @@ def receive_add_bad(client: Client, data: dict) -> bool:
     return result
 
 
+@threaded()
 def receive_check_log(client: Client, message: Message, data: dict) -> bool:
     # Receive check log
     result = False
@@ -119,7 +121,7 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
                 continue
 
             if not glovar.user_ids.get(uid, {}):
-                flood_user(gid, uid, now, "kick", "log")
+                flood_user(gid, uid, now, (manual and "ban") or "kick", "log")
                 count += 1
                 continue
 
@@ -132,7 +134,7 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
                 continue
 
             manual and logger.warning(f"Need USER to kick {uid} in {gid}")
-            flood_user(gid, uid, now, "kick", "log")
+            flood_user(gid, uid, now, (manual and "ban") or "kick", "log")
             count += 1
 
         # Send debug message
