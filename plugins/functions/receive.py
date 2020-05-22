@@ -91,13 +91,21 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
 
         # Log the users
         log_users = deepcopy(users)
+        manual and logger.warning(f"Log users {len(log_users)}")
         members = get_members(client, gid)
         member_count = 0
 
         for member in members:
             member_count += 1
+            uid = member.user.id
 
-            if not member.user or (member.user.id not in log_users and not begin < member.joined_date < end):
+            if uid not in log_users and not begin < member.joined_date < end:
+                continue
+
+            if is_should_ignore(gid, uid):
+                continue
+
+            if is_class_e_user(uid):
                 continue
 
             with glovar.locks["message"]:
@@ -119,6 +127,8 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
             count += 1
 
         manual and logger.warning(f"Checked {member_count} members of {gid}")
+        manual and logger.warning(f"Count {count}")
+        manual and logger.warning(f"Log users {len(log_users)}")
 
         for uid in log_users:
             if is_should_ignore(gid, uid):
@@ -127,25 +137,19 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
             if is_class_e_user(uid):
                 continue
 
-            if not glovar.user_ids.get(uid, {}):
-                manual and logger.warning(f"Need USER to kick no data {uid} in {gid}")
-                manual and kick_chat_member(client, gid, uid, True, True)
-                flood_user(gid, uid, now, (manual and "ban") or "kick", "log")
-                count += 1
-                continue
-
             with glovar.locks["message"]:
                 user_status = glovar.user_ids.get(uid)
 
-            has_log = any(gid in user_status[the_type] for the_type in ["failed", "pass", "wait", "succeeded"])
-
-            if has_log:
+            if (user_status
+                    and any(gid in user_status[the_type] for the_type in ["failed", "pass", "wait", "succeeded"])):
                 continue
 
             manual and logger.warning(f"Need USER to kick {uid} in {gid}")
             manual and kick_chat_member(client, gid, uid, True, True)
             flood_user(gid, uid, now, (manual and "ban") or "kick", "log")
             count += 1
+
+        manual and logger.warning(f"Count {count}")
 
         # Send debug message
         send_debug(
