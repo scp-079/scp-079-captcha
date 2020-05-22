@@ -119,7 +119,8 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
                 count += 1
                 continue
 
-            user_status = glovar.user_ids[uid]
+            with glovar.locks["message"]:
+                user_status = glovar.user_ids[uid]
 
             if any(gid in user_status[the_type]
                    for the_type in ["join", "pass", "wait", "succeeded", "failed", "restricted", "banned", "manual"]):
