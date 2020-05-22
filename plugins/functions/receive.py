@@ -72,8 +72,6 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
     # Receive check log
     result = False
 
-    glovar.locks["message"].acquire()
-
     try:
         # Basic data
         gid = data["group_id"]
@@ -143,8 +141,6 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
         result = flood_end(client, gid)
     except Exception as e:
         logger.warning(f"Receive check log error: {e}", exc_info=True)
-    finally:
-        glovar.locks["message"].release()
 
     return result
 
