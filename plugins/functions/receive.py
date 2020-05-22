@@ -96,7 +96,7 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
                 continue
 
             with glovar.locks["message"]:
-                user_status = glovar.user_ids[member.user.id]
+                user_status = glovar.user_ids.get(member.user.id)
 
             if (user_status
                     and any(gid in user_status[the_type] for the_type in ["pass", "wait", "succeeded"])):
