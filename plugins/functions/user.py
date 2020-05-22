@@ -157,7 +157,7 @@ def flood_end(client: Client, gid: int) -> bool:
 
     try:
         if not glovar.flood_logs.get(gid, []):
-            return False
+            glovar.flood_logs[gid] = []
 
         # Ask help to kick users
         kick_list = set()
