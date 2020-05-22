@@ -145,7 +145,7 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
         )
 
         # Flood end
-        result = flood_end(client, gid)
+        result = flood_end(client, gid, manual)
     except Exception as e:
         logger.warning(f"Receive check log error: {e}", exc_info=True)
 

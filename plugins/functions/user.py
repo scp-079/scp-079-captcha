@@ -179,7 +179,10 @@ def flood_end(client: Client, gid: int, manual: bool = False) -> bool:
             receivers=["USER"],
             action="help",
             action_type="kick",
-            data=gid,
+            data={
+                "group_id": gid,
+                "manual": manual
+            },
             file=file
         )
 
