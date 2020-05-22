@@ -84,6 +84,10 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
         now = get_now()
         count = 0
 
+        # Check the group
+        if glovar.admin_ids.get(gid) is None:
+            return False
+
         # Get users
         users = receive_file_data(client, message)
 
