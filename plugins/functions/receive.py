@@ -98,14 +98,13 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
             member_count += 1
 
             if not member.user or (member.user.id not in log_users and not begin < member.joined_date < end):
-                manual and logger.warning(f"Ignore a member {member}")
                 continue
 
             with glovar.locks["message"]:
                 user_status = glovar.user_ids.get(member.user.id)
 
             if (user_status
-                    and any(gid in user_status[the_type] for the_type in ["pass", "wait", "succeeded"])):
+                    and any(gid in user_status[the_type] for the_type in ["failed", "pass", "wait", "succeeded"])):
                 continue
 
             if manual:
@@ -129,7 +128,7 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
                 continue
 
             if not glovar.user_ids.get(uid, {}):
-                manual and logger.warning(f"Need USER to kick {uid} in {gid}")
+                manual and logger.warning(f"Need USER to kick not data {uid} in {gid}")
                 manual and kick_chat_member(client, gid, uid, True, True)
                 flood_user(gid, uid, now, (manual and "ban") or "kick", "log")
                 count += 1
@@ -138,7 +137,7 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
             with glovar.locks["message"]:
                 user_status = glovar.user_ids.get(uid)
 
-            has_log = any(gid in user_status[the_type] for the_type in ["pass", "wait", "succeeded"])
+            has_log = any(gid in user_status[the_type] for the_type in ["failed", "pass", "wait", "succeeded"])
 
             if has_log:
                 continue
