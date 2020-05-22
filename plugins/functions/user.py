@@ -149,15 +149,17 @@ def failed_user(client: Client, uid: int, reason: str) -> bool:
 
 
 @threaded()
-def flood_end(client: Client, gid: int) -> bool:
+def flood_end(client: Client, gid: int, manual: bool = False) -> bool:
     # Flood end, terminate users
     result = False
 
     glovar.locks["flood"].acquire()
 
     try:
-        if not glovar.flood_logs.get(gid, []):
+        if not glovar.flood_logs.get(gid, []) and manual:
             glovar.flood_logs[gid] = []
+        elif not glovar.flood_logs.get(gid, []):
+            return False
 
         # Ask help to kick users
         kick_list = set()
@@ -185,6 +187,9 @@ def flood_end(client: Client, gid: int) -> bool:
         delete_list = set()
 
         for user in glovar.flood_logs[gid]:
+            if manual:
+                continue
+
             uid = user["user id"]
             reason = user["reason"]
 
@@ -194,7 +199,7 @@ def flood_end(client: Client, gid: int) -> bool:
             delete_list.add(uid)
 
         file = data_to_file(delete_list)
-        share_data(
+        not manual and share_data(
             client=client,
             receivers=["USER"],
             action="flood",
@@ -207,6 +212,9 @@ def flood_end(client: Client, gid: int) -> bool:
         users: Dict[int, float] = {}
 
         for user in glovar.flood_logs[gid]:
+            if manual:
+                continue
+
             uid = user["user id"]
             reason = user["reason"]
 
@@ -226,7 +234,7 @@ def flood_end(client: Client, gid: int) -> bool:
 
         save("user_ids")
         file = data_to_file(users)
-        share_data(
+        not manual and share_data(
             client=client,
             receivers=glovar.receivers["score"],
             action="flood",

@@ -345,13 +345,14 @@ def get_user_full(client: Client, uid: int) -> Optional[UserFull]:
 
 
 @retry
-def kick_chat_member(client: Client, cid: int, uid: Union[int, str]) -> Union[bool, Message, None]:
+def kick_chat_member(client: Client, cid: int, uid: Union[int, str], log: bool = False) -> Union[bool, Message, None]:
     # Kick a chat member in a group
     result = None
 
     try:
         result = client.kick_chat_member(chat_id=cid, user_id=uid)
     except FloodWait as e:
+        log and logger.warning(f"Kick chat member {uid} in {cid} - Sleep for {e.x} second(s)")
         raise e
     except Exception as e:
         logger.warning(f"Kick chat member {uid} in {cid} error: {e}", exc_info=True)

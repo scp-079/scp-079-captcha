@@ -33,9 +33,9 @@ from .file import crypt_file, data_to_file, delete_file, get_new_path, get_downl
 from .filters import is_class_e_user, is_should_ignore
 from .group import leave_group
 from .ids import init_group_id, init_user_id
-from .telegram import get_chat_member, send_message, send_report_message
+from .telegram import get_chat_member, get_members, kick_chat_member, send_message, send_report_message
 from .timers import update_admins
-from .user import flood_end, flood_user, forgive_user, forgive_users, remove_failed_user, remove_new_users
+from .user import flood_end, flood_user, forgive_user, forgive_users, kick_user, remove_failed_user, remove_new_users
 from .user import remove_wait_user, terminate_user_banned
 
 # Enable logging
@@ -68,7 +68,7 @@ def receive_add_bad(client: Client, data: dict) -> bool:
     return result
 
 
-def receive_check_log(client: Client, message: Message, data: int) -> bool:
+def receive_check_log(client: Client, message: Message, data: dict) -> bool:
     # Receive check log
     result = False
 
@@ -76,7 +76,8 @@ def receive_check_log(client: Client, message: Message, data: int) -> bool:
 
     try:
         # Basic data
-        gid = data
+        gid = data["group_id"]
+        manual = data["manual"]
         now = get_now()
         count = 0
 
@@ -87,7 +88,28 @@ def receive_check_log(client: Client, message: Message, data: int) -> bool:
             users = set()
 
         # Log the users
-        for uid in users:
+        log_users = deepcopy(users)
+        members = get_members(client, gid)
+
+        for member in members:
+            if not member.user or member.user.id not in log_users:
+                continue
+
+            if glovar.user_ids.get(member.user.id, {}):
+                continue
+
+            if manual:
+                kick_chat_member(client, gid, member.user.id, True)
+                flood_user(gid, member.user.id, now, "ban", "check")
+                logger.warning(f"Banned {member.user.id} in {gid}")
+            else:
+                kick_user(client, gid, member.user.id)
+                flood_user(gid, member.user.id, now, "kick", "check")
+
+            log_users.discard(member.user.id)
+            count += 1
+
+        for uid in log_users:
             if is_should_ignore(gid, uid):
                 continue
 
