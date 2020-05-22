@@ -114,7 +114,7 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
 
             if manual:
                 kick_chat_member(client, gid, uid, now + glovar.time_punish)
-                flood_user(gid, uid, now, "ban", "check")
+                flood_user(gid, uid, now, "kick", "check")
                 logger.warning(f"Banned {uid} in {gid}")
             else:
                 kick_user(client, gid, uid)
