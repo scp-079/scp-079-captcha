@@ -365,7 +365,7 @@ def kick_chat_member(client: Client, cid: int, uid: Union[int, str],
     result = None
 
     try:
-        result = client.kick_chat_member(chat_id=cid, user_id=uid)
+        result = client.kick_chat_member(chat_id=cid, user_id=uid, until_date=until_date)
     except FloodWait as e:
         logger.warning(f"Kick chat member {uid} in {cid} - Sleep for {e.x} second(s)")
 
