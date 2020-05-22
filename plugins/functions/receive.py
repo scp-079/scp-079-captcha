@@ -128,7 +128,7 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
                 continue
 
             if not glovar.user_ids.get(uid, {}):
-                manual and logger.warning(f"Need USER to kick not data {uid} in {gid}")
+                manual and logger.warning(f"Need USER to kick no data {uid} in {gid}")
                 manual and kick_chat_member(client, gid, uid, True, True)
                 flood_user(gid, uid, now, (manual and "ban") or "kick", "log")
                 count += 1
