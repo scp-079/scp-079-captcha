@@ -109,7 +109,7 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
                 continue
 
             with glovar.locks["message"]:
-                user_status = glovar.user_ids.get(member.user.id)
+                user_status = glovar.user_ids.get(uid)
 
             if (user_status
                     and any(gid in user_status[the_type] for the_type in ["failed", "pass", "wait", "succeeded"])):
@@ -131,6 +131,9 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
         manual and logger.warning(f"Log users {len(log_users)}")
 
         for uid in log_users:
+            if manual:
+                continue
+
             if is_should_ignore(gid, uid):
                 continue
 
