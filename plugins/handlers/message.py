@@ -368,7 +368,7 @@ def init_group(client: Client, message: Message) -> bool:
     return result
 
 
-@Client.on_message((Filters.incoming or glovar.aio) & Filters.channel
+@Client.on_message((Filters.incoming | aio) & Filters.channel
                    & ~Filters.command(glovar.all_commands, glovar.prefix)
                    & exchange_channel)
 def process_data(client: Client, message: Message) -> bool:
