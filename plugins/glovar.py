@@ -321,7 +321,7 @@ if (False
 lang_dict: dict = {}
 
 try:
-    with open(f"languages/{lang}.yml", "r") as f:
+    with open(f"languages/{lang}.yml", "r", encoding="utf-8") as f:
         lang_dict = safe_load(f)
 except Exception as e:
     logger.critical(f"Reading language YAML file failed: {e}", exc_info=True)
