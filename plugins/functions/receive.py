@@ -29,7 +29,7 @@ from .captcha import user_captcha
 from .channel import get_debug_text, send_debug, share_data
 from .config import get_config_text
 from .decorators import threaded
-from .etc import code, crypt_str, general_link, get_int, get_now, get_text, lang, thread, mention_id
+from .etc import code, crypt_str, general_link, get_int, get_now, get_text, lang, thread, mention_id, mention_text
 from .file import crypt_file, data_to_file, delete_file, get_new_path, get_downloaded_path, save
 from .filters import is_class_e_user, is_should_ignore
 from .group import leave_group
@@ -262,6 +262,7 @@ def receive_config_reply(client: Client, data: dict) -> bool:
         text = (f"{lang('admin')}{lang('colon')}{code(uid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('config_change'))}\n"
                 f"{lang('description')}{lang('colon')}{code(lang('config_button'))}\n")
+        text += mention_text("\U00002060", uid)
         markup = InlineKeyboardMarkup(
             [
                 [
