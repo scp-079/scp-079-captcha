@@ -26,7 +26,7 @@ from ..functions.channel import ask_help_welcome, get_debug_text
 from ..functions.command import delete_normal_command
 from ..functions.etc import code, general_link, get_now, lang, thread, mention_id
 from ..functions.file import save
-from ..functions.filters import authorized_group, captcha_group, class_c, class_d, class_e, declared_message
+from ..functions.filters import aio, authorized_group, captcha_group, class_c, class_d, class_e, declared_message
 from ..functions.filters import exchange_channel, from_user, hide_channel, is_class_d_user, is_class_e_user
 from ..functions.filters import is_flooded, new_group, test_group
 from ..functions.group import delete_message, save_admins, leave_group

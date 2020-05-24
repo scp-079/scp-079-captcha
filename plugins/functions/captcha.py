@@ -936,7 +936,7 @@ def send_pin(client: Client, gid: int) -> bool:
 
 
 @threaded()
-def send_static(client: Client, gid: int, text: str, flood: bool = False) -> bool:
+def send_static(client: Client, gid: int, text: str, flood: bool = False, temp: bool = False) -> bool:
     # Send static message
     result = False
 
@@ -953,6 +953,10 @@ def send_static(client: Client, gid: int, text: str, flood: bool = False) -> boo
             old_ids = glovar.message_ids[gid]["flood"]
             old_ids and thread(delete_messages, (client, gid, old_ids))
             glovar.message_ids[gid]["flood"].add(new_id)
+        elif temp:
+            old_id = glovar.message_ids[gid]["hint"]
+            old_id and delete_message(client, gid, old_id)
+            glovar.message_ids[gid]["hint"] = new_id
         else:
             old_id = glovar.message_ids[gid]["static"]
             old_id and delete_message(client, gid, old_id)

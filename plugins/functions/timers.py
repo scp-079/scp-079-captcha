@@ -191,7 +191,8 @@ def interval_min_01(client: Client) -> bool:
                 client=client,
                 gid=gid,
                 text=f"{lang('description')}{lang('colon')}{code(description)}\n",
-                flood=True
+                flood=True,
+                temp=True
             )
 
             # Require to check recent actions
