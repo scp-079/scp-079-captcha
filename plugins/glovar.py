@@ -534,7 +534,7 @@ chinese_words: Dict[str, List[str]] = {
 }
 
 for word_type in ["chengyu", "food"]:
-    with open(f"assets/{word_type}.txt", "r") as f:
+    with open(f"assets/{word_type}.txt", "r", encoding="utf-8") as f:
         text = f.read()
         lines = text.split("\n")
         candidates = {line.split("\t")[0].strip() for line in lines}
