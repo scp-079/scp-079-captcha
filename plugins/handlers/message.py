@@ -252,7 +252,8 @@ def verify_check(client: Client, message: Message) -> bool:
     return result
 
 
-@Client.on_message(Filters.incoming & Filters.channel & ~Filters.command(glovar.all_commands, glovar.prefix)
+@Client.on_message((Filters.incoming | aio) & Filters.channel
+                   & ~Filters.command(glovar.all_commands, glovar.prefix)
                    & hide_channel, group=-1)
 def exchange_emergency(client: Client, message: Message) -> bool:
     # Sent emergency channel transfer request
