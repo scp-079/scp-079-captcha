@@ -20,8 +20,7 @@ import logging
 
 from pyrogram import Client, Message
 
-from .decorators import threaded
-from .etc import code, delay, get_text, lang
+from .etc import code, delay, get_text, lang, thread
 from .filters import is_class_c
 from .group import delete_message
 from .telegram import send_message, send_report_message
@@ -69,7 +68,6 @@ def delete_shared_command(client: Client, message: Message) -> bool:
     return result
 
 
-@threaded()
 def command_error(client: Client, message: Message, action: str, error: str,
                   detail: str = "", report: bool = True) -> bool:
     # Command error
@@ -91,9 +89,11 @@ def command_error(client: Client, message: Message, action: str, error: str,
 
         # Send the message
         if report:
-            result = send_report_message(10, client, cid, text)
+            thread(send_report_message, (10, client, cid, text))
         else:
-            result = bool(send_message(client, cid, text))
+            thread(send_message, (client, cid, text))
+
+        result = True
     except Exception as e:
         logger.warning(f"Command error: {e}", exc_info=True)
 
