@@ -379,14 +379,14 @@ def message_link(message: Message) -> str:
 
 def random_str(i: int) -> str:
     # Get a random string
-    text = ""
+    result = ""
 
     try:
-        text = "".join(choice(ascii_letters + digits) for _ in range(i))
+        result = "".join(choice(ascii_letters + digits) for _ in range(i))
     except Exception as e:
         logger.warning(f"Random str error: {e}", exc_info=True)
 
-    return text
+    return result
 
 
 def t2t(text: str, normal: bool, printable: bool, pure: bool = False) -> str:
