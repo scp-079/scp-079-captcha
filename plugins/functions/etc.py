@@ -50,7 +50,7 @@ def bold(text: Any) -> str:
         if not result:
             return ""
 
-        result = f"<b>{escape(text)}</b>"
+        result = f"<b>{escape(result)}</b>"
     except Exception as e:
         logger.warning(f"Bold error: {e}", exc_info=True)
 
