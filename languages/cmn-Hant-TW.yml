@@ -122,18 +122,18 @@ action_wait: 等待驗證
 attention: 注意
 captcha_check: 我需要驗證嗎
 captcha_go: 去驗證
-check_admin: 您是管理者，可自由進入驗證群組裡查看機器人運行狀況
-check_no: 您無需驗證即可在本組講話
-check_pass: 您已在本組通過驗證
-check_yes: 您需要驗證才可以在本組講話
-custom_flood: 進組轟炸
+check_admin: 您是管理員，可自由進入驗證群組裡查看機器人運行狀況
+check_no: 您無需驗證即可在本群發言
+check_pass: 您已在本群通過驗證
+check_yes: 您需要驗證才可以在本群發言
+custom_flood: 進群轟炸
 custom_manual: 手動驗證
 custom_nospam: NOSPAM 降級
 custom_single: 單個使用者
 custom_static: 靜態提示
 description_again: 回答錯誤，請調整答案，再次嘗試
 description_ask: 請您儘快回答下方的問題來完成驗證，您可以點正確答案的按鈕或直接傳送正確答案。
-  注意，您總共有 {} 次機會回答問題，錯誤會導致驗證失敗。您在本組的任何訊息都視作對問題的回答，請謹慎發言
+  注意，您總共有 {} 次機會回答問題，錯誤會導致驗證失敗。您在本群的任何訊息都視作對問題的回答，請謹慎發言
 description_bad: 全域黑名單
 description_banned: 群組管理員封禁
 description_hint: 新進群用戶，請您點下方右側按鈕來驗證，請在 {} 秒内完成驗證，否則您會被移出本群
