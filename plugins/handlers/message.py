@@ -354,7 +354,7 @@ def init_group(client: Client, message: Message) -> bool:
                      f"{lang('reason')}{lang('colon')}{code(lang('reason_admin'))}\n")
 
         # Add inviter info
-        if message.from_user.username:
+        if inviter.username:
             text += f"{lang('inviter')}{lang('colon')}{mention_id(inviter.id)}\n"
         else:
             text += f"{lang('inviter')}{lang('colon')}{code(inviter.id)}\n"
