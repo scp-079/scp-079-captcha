@@ -24,7 +24,7 @@ from pyrogram import InputMediaPhoto, InlineKeyboardMarkup, ReplyKeyboardMarkup,
 from pyrogram.api.functions.users import GetFullUser
 from pyrogram.api.types import InputPeerUser, InputPeerChannel, UserFull
 from pyrogram.errors import ChatAdminRequired, ChatNotModified, ButtonDataInvalid, ChannelInvalid, ChannelPrivate
-from pyrogram.errors import FloodWait, MessageDeleteForbidden, PeerIdInvalid, QueryIdInvalid
+from pyrogram.errors import FloodWait, MessageDeleteForbidden, MessageNotModified, PeerIdInvalid, QueryIdInvalid
 from pyrogram.errors import UsernameInvalid, UsernameNotOccupied, UserNotParticipant
 
 from .. import glovar
@@ -160,6 +160,8 @@ def edit_message_text(client: Client, cid: int, mid: int, text: str,
         raise e
     except ButtonDataInvalid:
         logger.warning(f"Edit message {mid} text in {cid} - invalid markup: {markup}")
+    except MessageNotModified:
+        return None
     except (ChannelInvalid, ChannelPrivate, ChatAdminRequired, PeerIdInvalid):
         return False
     except Exception as e:
