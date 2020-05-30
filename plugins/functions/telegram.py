@@ -218,7 +218,7 @@ def get_admins(client: Client, cid: int) -> Union[bool, List[ChatMember], None]:
     try:
         chat = get_chat(client, cid)
 
-        if not chat or not chat.members_count:
+        if isinstance(chat, Chat) and not chat.members_count:
             return False
 
         result = client.get_chat_members(chat_id=cid, filter="administrators")
