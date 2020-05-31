@@ -28,7 +28,7 @@ from .channel import share_data, share_regex_count
 from .decorators import threaded
 from .etc import code, general_link, get_now, get_readable_time, lang, thread
 from .file import file_tsv, save
-from .filters import is_class_e_user
+from .filters import is_class_e_user, is_flooded
 from .group import delete_hint, leave_group, save_admins
 from .telegram import export_chat_invite_link, get_admins, get_group_info
 from .telegram import get_members, send_message
@@ -233,6 +233,10 @@ def new_invite_link(client: Client, manual: bool = False) -> bool:
     try:
         # Basic data
         now = get_now()
+
+        # Check flood status
+        if any(is_flooded(gid) for gid in list(glovar.configs)):
+            return False
 
         with glovar.locks["message"]:
             # Copy the data
