@@ -101,6 +101,9 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
         kick_list = set()
 
         for member in members:
+            if not member.user or not member.user.id or not member.joined_date:
+                continue
+
             uid = member.user.id
 
             if uid not in log_users and not begin < member.joined_date < end:
