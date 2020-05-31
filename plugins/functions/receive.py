@@ -25,16 +25,17 @@ from typing import Any
 from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
-from .captcha import user_captcha
+from .captcha import send_static, user_captcha
 from .channel import get_debug_text, send_debug, share_data
 from .config import get_config_text
 from .decorators import threaded
-from .etc import code, crypt_str, general_link, get_int, get_now, get_text, lang, thread, mention_id, mention_text
+from .etc import code, crypt_str, delay, general_link, get_int, get_now, get_text, lang, thread, mention_id
+from .etc import mention_text
 from .file import crypt_file, data_to_file, delete_file, get_new_path, get_downloaded_path, save
-from .filters import is_class_e_user, is_should_ignore
-from .group import leave_group
+from .filters import is_class_e_user, is_flooded, is_should_ignore
+from .group import delete_message, leave_group
 from .ids import init_group_id, init_user_id
-from .telegram import get_chat_member, get_chat_members_count, get_members, send_message
+from .telegram import get_chat_member, get_chat_members_count, get_members, pin_chat_message, send_message
 from .telegram import send_report_message
 from .timers import update_admins
 from .user import flood_end, flood_user, forgive_user, forgive_users, kick_users, remove_failed_user, remove_new_users
@@ -418,6 +419,89 @@ def receive_help_captcha(client: Client, data: dict) -> bool:
         )
     except Exception as e:
         logger.warning(f"Receive help captcha error: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
+
+    return result
+
+
+def receive_help_confirm(client: Client, data: dict) -> bool:
+    # Receive help confirm
+    result = False
+
+    glovar.locks["message"].acquire()
+
+    try:
+        # Basic data
+        gid = data["group_id"]
+        status = data["status"]
+        now = get_now()
+
+        # Reset confirm status
+        glovar.flooded_ids.discard(gid)
+        save("flooded_ids")
+
+        # Check the group status
+        if not is_flooded(gid):
+            return False
+
+        # Check confirm status
+        if status != "end":
+            glovar.pinned_ids[gid]["last"] = now
+            save("pinned_ids")
+            return True
+
+        # Flood data
+        start = glovar.pinned_ids[gid]["start"]
+        last = glovar.pinned_ids[gid]["last"]
+        new_id = glovar.pinned_ids[gid]["new_id"]
+        old_id = glovar.pinned_ids[gid]["old_id"]
+        wait_user_list = [wid for wid in glovar.user_ids if glovar.user_ids[wid]["wait"].get(gid, 0)]
+
+        # Pin old message
+        old_id and thread(pin_chat_message, (client, gid, old_id))
+
+        # Delete newly pinned message
+        new_id and delay(30, delete_message, [client, gid, new_id])
+        glovar.pinned_ids[gid]["new_id"] = 0
+
+        # Reset time status
+        glovar.pinned_ids[gid]["start"] = 0
+        glovar.pinned_ids[gid]["last"] = 0
+
+        # Resend regular hint
+        description = lang("description_hint").format(glovar.time_captcha)
+        wait_user_list and not glovar.message_ids[gid]["hint"] and send_static(
+            client=client,
+            gid=gid,
+            text=f"{lang('description')}{lang('colon')}{code(description)}\n",
+            flood=True,
+            temp=True
+        )
+
+        # Require to check recent actions
+        share_data(
+            client=client,
+            receivers=["USER"],
+            action="help",
+            action_type="log",
+            data={
+                "group_id": gid,
+                "begin": start,
+                "end": now
+            }
+        )
+
+        # Send debug message
+        send_debug(
+            client=client,
+            gids=[gid],
+            action=lang("action_normal"),
+            time=last,
+            duration=last - start
+        )
+    except Exception as e:
+        logger.warning(f"Receive help confirm error: {e}", exc_info=True)
     finally:
         glovar.locks["message"].release()
 

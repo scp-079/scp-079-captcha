@@ -578,6 +578,9 @@ failed_ids: Dict[int, Dict[str, Union[bool, str]]] = {}
 #     }
 # }
 
+flooded_ids: Set[int] = set()
+# flooded_ids = {-10012345678}
+
 ignore_ids: Dict[str, Set[int]] = {
     "nospam": set(),
     "user": set()
@@ -742,8 +745,9 @@ for word_type in regex:
 # }
 
 # Load data
-file_list: List[str] = ["admin_ids", "bad_ids", "failed_ids", "ignore_ids", "lack_group_ids", "left_group_ids",
-                        "message_ids", "pinned_ids", "trust_ids", "user_ids", "watch_ids", "white_ids",
+file_list: List[str] = ["admin_ids", "bad_ids", "failed_ids", "flooded_ids", "ignore_ids", "lack_group_ids",
+                        "left_group_ids", "message_ids", "pinned_ids", "trust_ids", "user_ids", "watch_ids",
+                        "white_ids",
                         "configs", "custom_texts", "flood_logs", "invite"]
 file_list += [f"{f}_words" for f in regex]
 

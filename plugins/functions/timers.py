@@ -24,15 +24,14 @@ from typing import Dict
 from pyrogram import Client
 
 from .. import glovar
-from .captcha import send_static
-from .channel import send_debug, share_data, share_regex_count
+from .channel import share_data, share_regex_count
 from .decorators import threaded
-from .etc import code, delay, general_link, get_now, get_readable_time, lang, thread
+from .etc import code, general_link, get_now, get_readable_time, lang, thread
 from .file import file_tsv, save
 from .filters import is_class_e_user
-from .group import delete_hint, delete_message, leave_group, save_admins
+from .group import delete_hint, leave_group, save_admins
 from .telegram import export_chat_invite_link, get_admins, get_group_info
-from .telegram import get_members, pin_chat_message, send_message
+from .telegram import get_members, send_message
 from .user import check_timeout_user, forgive_users, kick_user, lift_ban, remove_group_user, unban_user
 
 # Enable logging
@@ -154,17 +153,19 @@ def interval_min_01(client: Client) -> bool:
         # Check the flood status
         for gid in list(glovar.pinned_ids):
             # Basic data
-            new_id = glovar.pinned_ids[gid]["new_id"]
-            old_id = glovar.pinned_ids[gid]["old_id"]
             start = glovar.pinned_ids[gid]["start"]
             last = glovar.pinned_ids[gid]["last"]
 
             # Check pinned status
-            if not start and not new_id:
+            if not start:
                 continue
 
             # Check normal time
             if now - last < glovar.time_captcha * 3:
+                continue
+
+            # Check confirm status
+            if gid in glovar.flooded_ids:
                 continue
 
             # Get group's waiting user list
@@ -174,51 +175,19 @@ def interval_min_01(client: Client) -> bool:
             if len(wait_user_list) > glovar.limit_flood:
                 continue
 
-            # Pin old message
-            old_id and thread(pin_chat_message, (client, gid, old_id))
-
-            # Delete newly pinned message
-            new_id and delay(30, delete_message, [client, gid, new_id])
-            glovar.pinned_ids[gid]["new_id"] = 0
-
-            # Reset time status
-            glovar.pinned_ids[gid]["start"] = 0
-            glovar.pinned_ids[gid]["last"] = 0
-
-            # Resend regular hint
-            description = lang("description_hint").format(glovar.time_captcha)
-            wait_user_list and not glovar.message_ids[gid]["hint"] and send_static(
-                client=client,
-                gid=gid,
-                text=f"{lang('description')}{lang('colon')}{code(description)}\n",
-                flood=True,
-                temp=True
-            )
-
-            # Require to check recent actions
+            # Ask for help
+            glovar.flooded_ids.add(gid)
+            save("flooded_ids")
             share_data(
                 client=client,
                 receivers=["USER"],
                 action="help",
-                action_type="log",
+                action_type="confirm",
                 data={
                     "group_id": gid,
-                    "begin": start,
-                    "end": now
+                    "time": now
                 }
             )
-
-            # Send debug message
-            send_debug(
-                client=client,
-                gids=[gid],
-                action=lang("action_normal"),
-                time=last,
-                duration=last - start
-            )
-
-        # Save the pinned_ids
-        save("pinned_ids")
 
         # Delete hint messages
         delete_hint(client)
