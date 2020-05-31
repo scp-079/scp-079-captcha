@@ -40,19 +40,24 @@ logger = logging.getLogger(__name__)
 
 
 @threaded()
-def ban_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
+def ban_user(client: Client, gid: int, uid: Union[int, str], lock: bool = False) -> bool:
     # Ban a user
     result = False
+
+    lock and glovar.locks["ban"].acquire()
 
     try:
         result = kick_chat_member(client, gid, uid)
     except Exception as e:
         logger.warning(f"Ban user error: {e}", exc_info=True)
+    finally:
+        lock and glovar.locks["ban"].release()
 
     return result
 
 
-def change_member_status(client: Client, level: str, gid: int, uid: int, record: bool = False) -> bool:
+def change_member_status(client: Client, level: str, gid: int, uid: int,
+                         record: bool = False, lock: bool = False) -> bool:
     # Chat member's status in the group
     result = False
 
@@ -69,7 +74,7 @@ def change_member_status(client: Client, level: str, gid: int, uid: int, record:
             save("user_ids")
             restrict_user(client, gid, uid)
         elif level == "kick":
-            ban_user(client, gid, uid)
+            ban_user(client, gid, uid, lock)
             record and glovar.user_ids[uid]["banned"].add(gid) and save("user_ids")
 
         result = True
@@ -679,7 +684,7 @@ def remove_wait_user(client: Client, uid: int) -> bool:
                 continue
 
             level = get_level(gid)
-            change_member_status(client, level, gid, uid, True)
+            change_member_status(client, level, gid, uid, record=True)
             glovar.user_ids[uid]["wait"].pop(gid, 0)
             glovar.user_ids[uid]["manual"].discard(gid)
             glovar.user_ids[uid]["failed"][gid] = 0
@@ -1100,7 +1105,7 @@ def terminate_user_timeout(client: Client, uid: int) -> bool:
                 level = get_level(gid)
 
             # Limit the user
-            change_member_status(client, level, gid, uid)
+            change_member_status(client, level, gid, uid, lock=any(is_flooded(g) for g in wait_group_list))
             not is_flooded(gid) and ask_for_help(client, "delete", gid, uid)
 
             # Modify the status

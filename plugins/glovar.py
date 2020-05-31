@@ -423,6 +423,7 @@ emoji_set: Set[str] = set(UNICODE_EMOJI)
 
 locks: Dict[str, Lock] = {
     "admin": Lock(),
+    "ban": Lock(),
     "config": Lock(),
     "failed": Lock(),
     "flood": Lock(),
