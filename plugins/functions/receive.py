@@ -471,6 +471,7 @@ def receive_help_confirm(client: Client, data: dict) -> bool:
         # Reset time status
         glovar.pinned_ids[gid]["start"] = 0
         glovar.pinned_ids[gid]["last"] = 0
+        save("pinned_ids")
 
         # Resend regular hint
         description = lang("description_hint").format(glovar.time_captcha)
