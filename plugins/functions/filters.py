@@ -527,8 +527,7 @@ def is_flooded(gid: int) -> bool:
     result = False
 
     try:
-        init_group_id(gid)
-        result = glovar.pinned_ids[gid]["start"]
+        result = glovar.pinned_ids.get(gid) and glovar.pinned_ids[gid]["start"]
     except Exception as e:
         logger.warning(f"Is flooded error: {e}", exc_info=True)
 
