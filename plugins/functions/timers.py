@@ -185,7 +185,9 @@ def interval_min_01(client: Client) -> bool:
                 action_type="confirm",
                 data={
                     "group_id": gid,
-                    "time": now
+                    "begin": now - glovar.time_captcha * 3,
+                    "end": now,
+                    "limit": glovar.limit_flood
                 }
             )
 
