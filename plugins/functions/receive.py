@@ -34,10 +34,10 @@ from .file import crypt_file, data_to_file, delete_file, get_new_path, get_downl
 from .filters import is_class_e_user, is_should_ignore
 from .group import leave_group
 from .ids import init_group_id, init_user_id
-from .telegram import get_chat_member, get_chat_members_count, get_members, kick_chat_member, send_message
+from .telegram import get_chat_member, get_chat_members_count, get_members, send_message
 from .telegram import send_report_message
 from .timers import update_admins
-from .user import flood_end, flood_user, forgive_user, forgive_users, kick_user, remove_failed_user, remove_new_users
+from .user import flood_end, flood_user, forgive_user, forgive_users, kick_users, remove_failed_user, remove_new_users
 from .user import remove_wait_user, terminate_user_banned
 
 # Enable logging
@@ -97,6 +97,7 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
         # Log the users
         log_users = deepcopy(users)
         members = get_members(client, gid)
+        kick_list = set()
 
         for member in members:
             uid = member.user.id
@@ -116,19 +117,16 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
             if user_status and any(user_status.get(the_type) for the_type in ["failed", "pass", "wait", "succeeded"]):
                 continue
 
-            if manual:
-                kick_chat_member(client, gid, uid, now + glovar.time_punish)
-                flood_user(gid, uid, now, "kick", "check")
-                logger.warning(f"Banned {uid} in {gid}")
-            else:
-                kick_user(client, gid, uid)
-                flood_user(gid, uid, now, "kick", "check")
-
+            kick_list.add(uid)
+            flood_user(gid, uid, now, "kick", "check")
+            manual and logger.warning(f"Banned flood user {uid} in {gid}")
             log_users.discard(uid)
             count += 1
 
+        kick_users(client, gid, kick_list)
         manual and logger.warning(f"Checked members of {gid}")
         members_count = get_chat_members_count(client, gid)
+        kick_list = set()
 
         for uid in log_users:
             if manual or members_count and members_count < 10000:
@@ -146,10 +144,13 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
             if user_status and any(user_status.get(the_type) for the_type in ["failed", "pass", "wait", "succeeded"]):
                 continue
 
+            kick_list.add(uid)
             manual and logger.warning(f"Need USER to kick {uid} in {gid}")
-            kick_chat_member(client, gid, uid, now + glovar.time_punish)
             flood_user(gid, uid, now, "kick", "log")
             count += 1
+
+        # Try kicking them without USER's help
+        kick_users(client, gid, kick_list)
 
         # Send debug message
         send_debug(

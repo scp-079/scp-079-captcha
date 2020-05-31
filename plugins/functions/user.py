@@ -18,7 +18,7 @@
 
 import logging
 from time import sleep
-from typing import Dict, Union
+from typing import Dict, Iterable, Union
 
 from pyrogram import ChatPermissions, Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 from pyrogram.api.types import User
@@ -523,6 +523,26 @@ def kick_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
         result = True
     except Exception as e:
         logger.warning(f"Kick user error: {e}", exc_info=True)
+
+    return result
+
+
+@threaded()
+def kick_users(client: Client, gid: int, uids: Iterable[int]) -> bool:
+    # Kick users
+    result = False
+
+    try:
+        if not uids:
+            return False
+
+        for uid in uids:
+            now = get_now()
+            kick_chat_member(client, gid, uid, now + 600)
+
+        result = True
+    except Exception as e:
+        logger.warning(f"Kick users error: {e}", exc_info=True)
 
     return result
 
