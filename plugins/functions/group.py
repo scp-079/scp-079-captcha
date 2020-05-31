@@ -179,15 +179,15 @@ def get_hint_text(gid: int, the_type: str, user: User = None) -> str:
                        f"{lang('reason')}{lang('colon')}{code(lang('action_flood'))}\n")
             return result
         elif the_type == "manual":
-            result = (f"{lang('user_name')}{lang('colon')}{mention_name(user)}\n"
+            result = (f"{lang('wait_user')}{lang('colon')}{mention_name(user)}\n"
                       f"{lang('user_id')}{lang('colon')}{code(user.id)}\n")
             description = lang("description_manual").format(glovar.time_captcha)
         elif the_type == "nospam":
-            result = (f"{lang('user_name')}{lang('colon')}{mention_name(user)}\n"
+            result = (f"{lang('wait_user')}{lang('colon')}{mention_name(user)}\n"
                       f"{lang('user_id')}{lang('colon')}{code(user.id)}\n")
             description = lang("description_nospam").format(glovar.time_captcha)
         elif the_type == "single":
-            result = f"{lang('user_id')}{lang('colon')}{mention_id(user.id)}\n"
+            result = f"{lang('wait_user')}{lang('colon')}{mention_id(user.id)}\n"
             description = lang("description_single").format(glovar.time_captcha)
         elif the_type == "static":
             description = lang("description_hint").format(glovar.time_captcha)
