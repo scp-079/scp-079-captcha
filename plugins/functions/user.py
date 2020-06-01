@@ -850,32 +850,23 @@ def terminate_user_pass(client: Client, uid: int, gid: int, aid: int) -> bool:
         # Basic data
         now = get_now()
 
-        # Unban the user
-        unban_user(client, gid, uid)
-        glovar.user_ids[uid]["pass"][gid] = now
-        save("user_ids")
-
-        # Check the user
-        if not glovar.user_ids[uid]["wait"].get(gid, 0):
-            return False
-
         # Modify the status
+        glovar.user_ids[uid]["pass"][gid] = now
+        waiting = glovar.user_ids[uid]["wait"].get(gid, 0)
         glovar.user_ids[uid]["wait"].pop(gid, 0)
-        unrestrict_user(client, gid, uid)
         glovar.user_ids[uid]["failed"].pop(gid, 0)
+        glovar.user_ids[uid]["banned"].discard(gid)
         glovar.user_ids[uid]["restricted"].discard(gid)
 
-        # Lift ban
-        banned_group = gid in glovar.user_ids[uid]["banned"]
-        banned_group and glovar.user_ids[uid]["banned"].discard(gid)
-        banned_group and unban_user(client, gid, uid)
+        # Unban the user
+        unban_user(client, gid, uid)
 
         # Delete the hint
-        not is_flooded(gid) and delete_hint(client)
+        waiting and not is_flooded(gid) and delete_hint(client)
 
         # Ask help welcome
         if gid not in glovar.user_ids[uid]["manual"]:
-            ask_help_welcome(client, uid, [gid])
+            waiting and ask_help_welcome(client, uid, [gid])
         else:
             glovar.user_ids[uid]["manual"].discard(gid)
             save("user_ids")
