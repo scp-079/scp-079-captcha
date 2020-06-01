@@ -435,6 +435,11 @@ locks: Dict[str, Lock] = {
     "regex": Lock()
 }
 
+pass_counts: Dict[int, int] = {}
+# pass_counts = {
+#     -10012345678: 0
+# }
+
 question_types: Dict[str, List[str]] = {
     "changeable": ["chengyu", "letter", "math_pic", "number"],
     "chinese": ["chengyu", "food", "letter", "math_pic", "number"],
