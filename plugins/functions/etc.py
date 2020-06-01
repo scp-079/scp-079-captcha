@@ -290,10 +290,6 @@ def get_text_user(text: str, user: User) -> str:
     result = text
 
     try:
-        # Check the user
-        if not user:
-            return result
-
         # Basic data
         uid = user.id
         name = get_full_name(user)
