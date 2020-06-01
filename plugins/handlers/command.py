@@ -31,8 +31,9 @@ from ..functions.etc import bold, code, code_block, general_link, get_now, lang
 from ..functions.etc import mention_id, message_link, thread
 from ..functions.file import save
 from ..functions.filters import authorized_group, captcha_group, class_e, from_user
-from ..functions.filters import is_class_c, is_class_e, is_from_user, test_group
+from ..functions.filters import is_class_c, is_class_e, is_class_e_user, is_from_user, test_group
 from ..functions.group import delete_message
+from ..functions.ids import init_user_id
 from ..functions.telegram import forward_messages, get_group_info, send_message, send_report_message
 from ..functions.user import get_uid, terminate_user_pass, terminate_user_succeed, terminate_user_undo_pass
 
@@ -441,21 +442,12 @@ def pass_group(client: Client, message: Message) -> bool:
         # Proceed
         uid = get_uid(client, message)
 
-        if not uid:
+        # Check user status
+        if not uid or uid == aid or is_class_e_user(uid):
             return command_error(client, message, lang("action_pass"), lang("command_usage"))
 
         # Terminate the user
-        if glovar.user_ids.get(uid, {}) and glovar.user_ids[uid]["wait"].get(gid, 0):
-            terminate_user_pass(
-                client=client,
-                uid=uid,
-                gid=gid,
-                aid=aid
-            )
-            text += (f"{lang('action')}{lang('colon')}{code(lang('action_pass'))}\n"
-                     f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
-                     f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
-        elif glovar.user_ids[uid]["pass"].get(gid, 0):
+        if glovar.user_ids[uid]["pass"].get(gid, 0):
             terminate_user_undo_pass(
                 client=client,
                 uid=uid,
@@ -465,10 +457,18 @@ def pass_group(client: Client, message: Message) -> bool:
             text += (f"{lang('action')}{lang('colon')}{code(lang('action_undo_pass'))}\n"
                      f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
                      f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
-        else:
+        elif init_user_id(uid):
+            terminate_user_pass(
+                client=client,
+                uid=uid,
+                gid=gid,
+                aid=aid
+            )
             text += (f"{lang('action')}{lang('colon')}{code(lang('action_pass'))}\n"
-                     f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                     f"{lang('reason')}{lang('colon')}{code(lang('reason_none'))}\n")
+                     f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
+                     f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
+        else:
+            return False
 
         # Send the report message
         thread(send_report_message, (30, client, gid, text))

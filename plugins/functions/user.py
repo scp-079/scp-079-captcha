@@ -329,10 +329,12 @@ def forgive_user(client: Client, uid: int, failed: bool = False) -> bool:
             unrestrict_user(client, gid, uid, lock=True)
 
         # Unban in all punished groups
+        failed_set = {gid for gid in list(glovar.user_ids[uid]["failed"]) if glovar.user_ids[uid]["failed"][gid]}
+
         if failed:
-            group_list = {gid for gid in list(glovar.user_ids[uid]["failed"]) if glovar.user_ids[uid]["failed"][gid]}
+            group_list = failed_set
         else:
-            group_list = set(glovar.user_ids[uid]["banned"]) | set(glovar.user_ids[uid]["restricted"])
+            group_list = set(glovar.user_ids[uid]["banned"]) | set(glovar.user_ids[uid]["restricted"]) | failed_set
 
         for gid in group_list:
             unban_user(client, gid, uid, lock=True)
@@ -848,8 +850,16 @@ def terminate_user_pass(client: Client, uid: int, gid: int, aid: int) -> bool:
         # Basic data
         now = get_now()
 
-        # Modify the status
+        # Unban the user
+        unban_user(client, gid, uid)
         glovar.user_ids[uid]["pass"][gid] = now
+        save("user_ids")
+
+        # Check the user
+        if not glovar.user_ids[uid]["wait"].get(gid, 0):
+            return False
+
+        # Modify the status
         glovar.user_ids[uid]["wait"].pop(gid, 0)
         unrestrict_user(client, gid, uid)
         glovar.user_ids[uid]["failed"].pop(gid, 0)
