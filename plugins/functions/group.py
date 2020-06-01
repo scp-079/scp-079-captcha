@@ -170,7 +170,7 @@ def get_hint_text(gid: int, the_type: str, user: User = None,
     try:
         custom_text = glovar.custom_texts[gid].get(the_type, "")
 
-        if custom_text:
+        if custom_text and user:
             result = get_text_user(custom_text, user)
 
         if result and count:
