@@ -167,7 +167,6 @@ question_pic: 正确答案在下方按钮中，请选择或发送上图中所显
 suggestion: 建议
 suggestion_wrong: 请您等待 {} 秒后，再重新加入原始群组（非本群）触发新的验证请求
 triggered_time: 触发时间
-wait_user: 待验证用户
 
 # Symbol
 colon: "："
@@ -187,6 +186,7 @@ rule_custom: 群组自定义
 rule_global: 全局规则
 score_ban: 评分封禁
 score_user: 用户评分
+wait_user: 待验证用户
 watch_ban: 追踪封禁
 watch_delete: 追踪删除
 watch_user: 敏感追踪

@@ -178,7 +178,6 @@ question_pic: The correct answer is in the buttons below, please select or send 
 suggestion: Suggestion
 suggestion_wrong: Please wait {} seconds before re-joining the original group for verification
 triggered_time: Triggered Time
-wait_user: Users Required Verification
 
 # Symbol
 colon: ": "
@@ -198,6 +197,7 @@ rule_custom: Custom Rule
 rule_global: Global Rule
 score_ban: Ban by Score
 score_user: High Score
+wait_user: User(s) Required Verification
 watch_ban: Watch Ban
 watch_delete: Watch Delete
 watch_user: Watched User

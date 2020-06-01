@@ -506,7 +506,8 @@ def get_uid_from_text(message: Message) -> int:
 
         # Get the uid
         text_list = [text for text in message_text.split("\n")
-                     if text.startswith(f"{lang('user_id')}{lang('colon')}")]
+                     if text.startswith(f"{lang('user_id')}{lang('colon')}")
+                     or text.startswith(f"{lang('wait_user')}{lang('colon')}")]
 
         if not text_list:
             return 0

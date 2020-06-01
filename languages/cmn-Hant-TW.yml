@@ -167,7 +167,6 @@ question_pic: 正確答案在下方按鈕中，请點按或傳送上圖裡顯示
 suggestion: 建議
 suggestion_wrong: 請您等待 {} 秒後，再重新進入原群組（不是本組）觸發新的驗證請求
 triggered_time: 觸法時間
-wait_user: 等待驗證的使用者
 
 # Symbol
 colon: "："
@@ -187,6 +186,7 @@ rule_custom: 群組自定義
 rule_global: 全局規則
 score_ban: 得分封禁
 score_user: 使用者得分
+wait_user: 等待驗證的使用者
 watch_ban: 追蹤封禁
 watch_delete: 追蹤刪除
 watch_user: 敏感追蹤
