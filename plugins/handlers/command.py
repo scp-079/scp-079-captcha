@@ -457,7 +457,7 @@ def pass_group(client: Client, message: Message) -> bool:
             text += (f"{lang('action')}{lang('colon')}{code(lang('action_undo_pass'))}\n"
                      f"{lang('user_id')}{lang('colon')}{mention_id(uid)}\n"
                      f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
-        elif init_user_id(uid) and glovar.pass_counts.get(gid, 0) < 100:
+        elif glovar.pass_counts.get(gid, 0) < 100 and init_user_id(uid):
             glovar.pass_counts[gid] = glovar.pass_counts.get(gid, 0) + 1
             terminate_user_pass(
                 client=client,
