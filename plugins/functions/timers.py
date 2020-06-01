@@ -83,7 +83,7 @@ def clear_blacklist(client: Client) -> bool:
 
             user = member.user
             uid = user.id
-            unban_user(client, glovar.captcha_group_id, uid)
+            unban_user(client, glovar.captcha_group_id, uid, lock=True)
 
         result = True
     except Exception as e:
@@ -114,7 +114,7 @@ def clear_members(client: Client) -> bool:
             if user_data and (user_data.get("wait") or user_data.get("time")):
                 continue
 
-            kick_user(client, glovar.captcha_group_id, uid)
+            kick_user(client, glovar.captcha_group_id, uid, lock=True)
 
         result = True
     except Exception as e:

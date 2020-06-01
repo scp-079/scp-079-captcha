@@ -174,7 +174,8 @@ def get_hint_text(gid: int, the_type: str, user: User = None) -> str:
 
         if the_type == "flood":
             description = lang("description_hint").format(glovar.time_captcha)
-            result += (f"{lang('description')}{lang('colon')}{code(description)}\n"
+            result += (f"{lang('description')}{lang('colon')}{code(description)}\n" +
+                       f"-" * 24 + "\n"
                        f"{lang('action')}{lang('colon')}{code(lang('pin'))}\n"
                        f"{lang('reason')}{lang('colon')}{code(lang('action_flood'))}\n")
             return result

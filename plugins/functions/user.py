@@ -326,7 +326,7 @@ def forgive_user(client: Client, uid: int, failed: bool = False) -> bool:
     try:
         # Pass in all waiting groups
         for gid in list(glovar.user_ids[uid]["wait"]):
-            unrestrict_user(client, gid, uid)
+            unrestrict_user(client, gid, uid, lock=True)
 
         # Unban in all punished groups
         if failed:
@@ -335,7 +335,7 @@ def forgive_user(client: Client, uid: int, failed: bool = False) -> bool:
             group_list = set(glovar.user_ids[uid]["banned"]) | set(glovar.user_ids[uid]["restricted"])
 
         for gid in group_list:
-            unban_user(client, gid, uid)
+            unban_user(client, gid, uid, lock=True)
 
         # Remove users from CAPTCHA group
         time = glovar.user_ids[uid]["time"]
@@ -517,9 +517,11 @@ def get_uid_from_text(message: Message) -> int:
 
 
 @threaded()
-def kick_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
+def kick_user(client: Client, gid: int, uid: Union[int, str], lock: bool = False) -> bool:
     # Kick a user
     result = False
+
+    lock and glovar.locks["ban"].acquire()
 
     try:
         kick_chat_member(client, gid, uid)
@@ -528,6 +530,8 @@ def kick_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
         result = True
     except Exception as e:
         logger.warning(f"Kick user error: {e}", exc_info=True)
+    finally:
+        lock and glovar.locks["ban"].release()
 
     return result
 
@@ -569,7 +573,7 @@ def lift_ban(client: Client, uid: int, now: int) -> bool:
                 continue
 
             glovar.user_ids[uid]["failed"][gid] = 0
-            unban_user(client, gid, uid)
+            unban_user(client, gid, uid, lock=True)
 
         result = True
     except Exception as e:
@@ -1306,22 +1310,28 @@ def terminate_user_wrong(client: Client, uid: int) -> bool:
 
 
 @threaded()
-def unban_user(client: Client, gid: int, uid: int) -> bool:
+def unban_user(client: Client, gid: int, uid: int, lock: bool = False) -> bool:
     # Unban a user
     result = False
+
+    lock and glovar.locks["ban"].acquire()
 
     try:
         result = unban_chat_member(client, gid, uid)
     except Exception as e:
         logger.warning(f"Unban user error: {e}", exc_info=True)
+    finally:
+        lock and glovar.locks["ban"].release()
 
     return result
 
 
 @threaded()
-def unrestrict_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
+def unrestrict_user(client: Client, gid: int, uid: Union[int, str], lock: bool = False) -> bool:
     # Unrestrict a user
     result = False
+
+    lock and glovar.locks["ban"].acquire()
 
     try:
         permissions = ChatPermissions(
@@ -1340,5 +1350,7 @@ def unrestrict_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
         result = restrict_chat_member(client, gid, uid, permissions)
     except Exception as e:
         logger.warning(f"Unrestrict user error: {e}", exc_info=True)
+    finally:
+        lock and glovar.locks["ban"].release()
 
     return result
