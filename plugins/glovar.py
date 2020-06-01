@@ -371,6 +371,7 @@ default_config: Dict[str, Union[bool, int]] = {
 default_custom_text: Dict[str, str] = {
     "flood": "",
     "manual": "",
+    "multi": "",
     "nospam": "",
     "single": "",
     "static": ""
@@ -496,7 +497,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.5.6"
+version: str = "0.5.7"
 
 # Load data from pics database
 
@@ -706,6 +707,7 @@ custom_texts: Dict[int, Dict[str, str]] = {}
 #     -10012345678: {
 #         "flood": "",
 #         "manual": "",
+#         "multi": "",
 #         "nospam": "",
 #         "single": "",
 #         "static": ""

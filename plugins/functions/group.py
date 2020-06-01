@@ -162,7 +162,8 @@ def get_group(client: Client, gid: int, cache: bool = True) -> Optional[Chat]:
     return result
 
 
-def get_hint_text(gid: int, the_type: str, user: User = None) -> str:
+def get_hint_text(gid: int, the_type: str, user: User = None,
+                  count: int = 0, mention: str = "") -> str:
     # Get the group's hint text
     result = ""
 
@@ -170,7 +171,13 @@ def get_hint_text(gid: int, the_type: str, user: User = None) -> str:
         custom_text = glovar.custom_texts[gid].get(the_type, "")
 
         if custom_text:
-            return get_text_user(custom_text, user)
+            result = get_text_user(custom_text, user)
+
+        if result and count:
+            result += mention
+            return result.replace("$code_count", code(f"{count} {lang('members')}"))
+        elif result:
+            return result
 
         if the_type == "flood":
             description = lang("description_hint").format(glovar.time_captcha)
@@ -191,6 +198,10 @@ def get_hint_text(gid: int, the_type: str, user: User = None) -> str:
             result = f"{lang('wait_user')}{lang('colon')}{mention_id(user.id)}\n"
             description = lang("description_single").format(glovar.time_captcha)
         elif the_type == "static":
+            description = lang("description_hint").format(glovar.time_captcha)
+        elif the_type == "multi":
+            count_text = f"{count} {lang('members')}"
+            result = f"{lang('wait_user')}{lang('colon')}{code(count_text)}\n"
             description = lang("description_hint").format(glovar.time_captcha)
         else:
             description = ""

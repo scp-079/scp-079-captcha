@@ -154,10 +154,11 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
         else:
             result = send_hint(
                 client=client,
-                text=text,
-                the_type="normal",
+                the_type="multi",
                 gid=gid,
-                mid=mid
+                mid=mid,
+                count=len(wait_user_list),
+                mention=mention_users_text
             )
 
         # Check if the message was sent successfully
@@ -818,7 +819,8 @@ def question_status(client: Client, uid: int, the_type: str) -> bool:
 
 
 def send_hint(client: Client, the_type: str, gid: int,
-              text: str = "", mid: int = None, user: User = None) -> Union[bool, Message]:
+              text: str = "", mid: int = None, user: User = None,
+              count: int = 0, mention: str = "") -> Union[bool, Message]:
     # Send hint message
     result = False
 
@@ -843,8 +845,7 @@ def send_hint(client: Client, the_type: str, gid: int,
         elif the_type == "single":
             text = get_hint_text(gid, "single", user)
         else:
-            description = lang("description_hint").format(glovar.time_captcha)
-            text += f"{lang('description')}{lang('colon')}{code(description)}\n"
+            text = get_hint_text(gid, "multi", user, count, mention)
 
         # Regular hint markup
         markup = get_markup_hint(single=the_type in {"manual", "nospam", "single"})

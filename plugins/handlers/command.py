@@ -289,7 +289,7 @@ def custom(client: Client, message: Message) -> bool:
                 f"{lang('action')}{lang('colon')}{code(lang('action_custom'))}\n")
 
         # Check command format
-        if command_type not in {"flood", "manual", "nospam", "single", "static"}:
+        if command_type not in {"flood", "manual", "nospam", "single", "static", "multi"}:
             return command_error(client, message, lang("action_custom"), lang("command_usage"))
 
         # Show the config
