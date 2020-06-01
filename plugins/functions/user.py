@@ -852,8 +852,7 @@ def terminate_user_pass(client: Client, uid: int, gid: int, aid: int) -> bool:
 
         # Modify the status
         glovar.user_ids[uid]["pass"][gid] = now
-        waiting = glovar.user_ids[uid]["wait"].get(gid, 0)
-        glovar.user_ids[uid]["wait"].pop(gid, 0)
+        waiting = glovar.user_ids[uid]["wait"].pop(gid, 0)
         glovar.user_ids[uid]["failed"].pop(gid, 0)
         glovar.user_ids[uid]["banned"].discard(gid)
         glovar.user_ids[uid]["restricted"].discard(gid)
