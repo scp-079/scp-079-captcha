@@ -175,7 +175,7 @@ def get_hint_text(gid: int, the_type: str, user: User = None,
 
         if result and count:
             result += mention
-            return result.replace("$code_count", code(f"{count} {lang('members')}"))
+            return result.replace("$code_count", code(count))
         elif result:
             return result
 
