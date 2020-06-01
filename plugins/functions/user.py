@@ -414,7 +414,7 @@ def get_uid_from_command(client: Client, message: Message) -> int:
             return result
 
         # Username text
-        result, peer_type = resolve_username(client, text)
+        peer_type, result = resolve_username(client, text)
 
         if peer_type == "user":
             return result
