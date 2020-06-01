@@ -49,9 +49,6 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
     result = False
 
     try:
-        # TODO DEBUG
-        aid and logger.warning(3)
-
         # Basic data
         uid = user.id
         name = get_full_name(user)
@@ -981,9 +978,6 @@ def user_captcha(client: Client, message: Optional[Message], gid: int, user: Use
     result = False
 
     try:
-        # TODO DEBUG
-        aid and logger.warning(1)
-
         # Basic data
         uid = user.id
 
@@ -1060,9 +1054,6 @@ def user_captcha(client: Client, message: Optional[Message], gid: int, user: Use
                 uid=uid,
                 gid=gid
             )
-
-        # TODO DEBUG
-        aid and logger.warning(2)
 
         # Check declare status
         if message and is_declared_message(None, message):
