@@ -128,6 +128,7 @@ check_pass: You have passed the verification in this group
 check_yes: You need verification to send messages in this group
 custom_flood: Flood New Members
 custom_manual: Manaual CAPTCHA
+custom_multi: Multi Users
 custom_nospam: NOSPAM CAPTCHA
 custom_single: Single User
 custom_static: Static Hint

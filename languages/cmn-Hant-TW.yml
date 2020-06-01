@@ -128,6 +128,7 @@ check_pass: 您已在本群通過驗證
 check_yes: 您需要驗證才可以在本群發言
 custom_flood: 進群轟炸
 custom_manual: 手動驗證
+custom_multi: 多用户验证
 custom_nospam: NOSPAM 降級
 custom_single: 單個使用者
 custom_static: 靜態提示
