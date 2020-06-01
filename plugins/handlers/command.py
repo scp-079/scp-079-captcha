@@ -51,6 +51,9 @@ def captcha(client: Client, message: Message) -> bool:
     glovar.locks["message"].acquire()
 
     try:
+        # TODO
+        logger.warning(10)
+
         # Basic data
         gid = message.chat.id
 
@@ -63,12 +66,21 @@ def captcha(client: Client, message: Message) -> bool:
         r_message = message.reply_to_message
         aid = message.from_user.id
 
+        # TODO
+        logger.warning(11)
+
         if not r_message or not is_from_user(None, r_message):
             return False
+
+        # TODO
+        logger.warning(11.5)
 
         # Check pass
         if is_class_c(None, r_message) or is_class_e(None, r_message):
             return False
+
+        # TODO
+        logger.warning(12)
 
         if r_message.new_chat_members:
             user = r_message.new_chat_members[0]
