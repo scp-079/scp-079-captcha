@@ -94,7 +94,7 @@ def delete_hint(client: Client) -> bool:
             for mid in list(glovar.message_ids[gid]["manual"]):
                 time = glovar.message_ids[gid]["manual"][mid]
 
-                if now - time < glovar.time_captcha:
+                if now - time < glovar.time_captcha and gid in wait_group_list:
                     continue
 
                 glovar.message_ids[gid]["nospam"].pop(mid, 0)
@@ -107,7 +107,7 @@ def delete_hint(client: Client) -> bool:
             for mid in list(glovar.message_ids[gid]["nospam"]):
                 time = glovar.message_ids[gid]["nospam"][mid]
 
-                if now - time < glovar.time_captcha:
+                if now - time < glovar.time_captcha and gid in wait_group_list:
                     continue
 
                 glovar.message_ids[gid]["nospam"].pop(mid, 0)
