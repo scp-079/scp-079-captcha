@@ -19,7 +19,7 @@
 import logging
 from typing import Generator, Iterable, List, Optional, Union
 
-from pyrogram import Chat, ChatMember, ChatPermissions, ChatPreview, Client
+from pyrogram import Chat, ChatMember, ChatPermissions, ChatPreview, Client, User
 from pyrogram import InputMediaPhoto, InlineKeyboardMarkup, ReplyKeyboardMarkup, Message
 from pyrogram.api.functions.users import GetFullUser
 from pyrogram.api.types import InputPeerUser, InputPeerChannel, UserFull
@@ -315,6 +315,21 @@ def get_group_info(client: Client, chat: Union[int, Chat], cache: bool = True) -
 
 
 @retry
+def get_me(client: Client) -> Optional[User]:
+    # Get myself
+    result = None
+
+    try:
+        result = client.get_me()
+    except FloodWait as e:
+        raise e
+    except Exception as e:
+        logger.warning(f"Get me error: {e}", exc_info=True)
+
+    return result
+
+
+@retry
 def get_members(client: Client, cid: int, query: str = "all") -> Optional[Generator[ChatMember, None, None]]:
     # Get a members generator of a chat
     result = None
@@ -342,6 +357,23 @@ def get_messages(client: Client, cid: int, mids: Union[int, Iterable[int]]) -> U
         return None
     except Exception as e:
         logger.warning(f"Get messages {mids} in {cid} error: {e}", exc_info=True)
+
+    return result
+
+
+def get_start(client: Client, para: str) -> str:
+    # Get start link with parameter
+    result = ""
+
+    try:
+        me = get_me(client)
+
+        if not me or not me.username:
+            return ""
+
+        result = f"https://t.me/{me.username}?start={para}"
+    except Exception as e:
+        logger.warning(f"Get start error: {e}", exc_info=True)
 
     return result
 
