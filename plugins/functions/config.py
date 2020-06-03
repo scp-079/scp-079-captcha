@@ -138,7 +138,7 @@ def qns_add(client: Client, message: Message, gid: int, key: str, text: str, the
         if the_type == "add":
             glovar.questions[gid]["qns"][key]["issued"] = 0
             glovar.questions[gid]["qns"][key]["answer"] = 0
-            glovar.questions[gid]["qns"][key]["wrong"] = 0
+            glovar.questions[gid]["qns"][key]["pass"] = 0
 
         # Save the data
         save("questions")
@@ -148,11 +148,13 @@ def qns_add(client: Client, message: Message, gid: int, key: str, text: str, the
         text = (f"{lang('group_name')}{lang('colon')}{general_link(group_name, group_link)}\n"
                 f"{lang('group_id')}{lang('colon')}{code(gid)}\n"
                 f"{lang('action')}{lang('colon')}{code(lang('添加自定义问题'))}\n"
-                f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n"
-                f"{lang('问题编号')}{lang('colon')}{code(key)}\n"
-                f"{lang('question')}{lang('colon')}{code(question)}\n")
-        text += "\n".join("\t" * 4 + f"■ {code(c)}" for c in correct_list)
-        text += "\n".join("\t" * 4 + f"□ {code(w)}" for w in wrong_list)
+                f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n")
+        text += code("-" * 24) + "\n"
+        text += (f"{lang('问题编号')}{lang('colon')}{code(key)}\n"
+                 f"{lang('question')}{lang('colon')}{code(question)}\n")
+        text += code("-" * 24) + "\n"
+        text += "\n".join("\t" * 4 + f"■ {code(c)}" for c in correct_list) + "\n"
+        text += "\n".join("\t" * 4 + f"□ {code(w)}" for w in wrong_list) + "\n"
 
         # Generate the markup
         buttons = []

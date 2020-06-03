@@ -776,7 +776,7 @@ questions: Dict[int, Dict[str, Union[int, str, Dict[str, Dict[str, Union[int, st
 #                 "wrong": {"answer2"},
 #                 "issued": 0,
 #                 "answer": 0,
-#                 "wrong": 0
+#                 "pass": 0
 #             }
 #         }
 #     }
@@ -805,7 +805,7 @@ for word_type in regex:
 file_list: List[str] = ["admin_ids", "bad_ids", "failed_ids", "flooded_ids", "ignore_ids", "lack_group_ids",
                         "left_group_ids", "message_ids", "pinned_ids", "trust_ids", "user_ids", "watch_ids",
                         "white_ids",
-                        "configs", "custom_texts", "flood_logs", "invite", "starts"]
+                        "configs", "custom_texts", "flood_logs", "invite", "questions", "starts"]
 file_list += [f"{f}_words" for f in regex]
 
 for file in file_list:
