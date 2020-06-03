@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 @Client.on_callback_query(~captcha_group & ~test_group & authorized_group)
-def check_wait(client: Client, callback_query: CallbackQuery) -> bool:
+def check_group(client: Client, callback_query: CallbackQuery) -> bool:
     # Answer the check query
     result = False
 
@@ -44,10 +44,7 @@ def check_wait(client: Client, callback_query: CallbackQuery) -> bool:
         action = callback_data["a"]
         action_type = callback_data["t"]
 
-        if action != "hint":
-            return False
-
-        if action_type != "check":
+        if action != "hint" or action_type != "check":
             return False
 
         # Get the user's status
