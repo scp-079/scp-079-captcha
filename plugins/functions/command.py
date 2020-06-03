@@ -90,9 +90,9 @@ def command_error(client: Client, message: Message, action: str, error: str,
 
         # Send the message
         if report:
-            thread(send_report_message, (10, client, cid, text, mid))
+            thread(send_report_message, (10, client, cid, text))
         else:
-            thread(send_message, (client, cid, text))
+            thread(send_message, (client, cid, text, mid))
 
         result = True
     except Exception as e:
