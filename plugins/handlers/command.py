@@ -20,7 +20,7 @@ import logging
 import re
 from copy import deepcopy
 
-from pyrogram import Client, Filters, Message
+from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
 from ..functions.captcha import send_static, user_captcha
@@ -34,8 +34,8 @@ from ..functions.filters import authorized_group, captcha_group, class_e, from_u
 from ..functions.filters import is_class_c, is_class_e, is_class_e_user, is_from_user, test_group
 from ..functions.group import delete_message
 from ..functions.ids import init_user_id
-from ..functions.telegram import forward_messages, get_group_info, send_message, send_report_message
-from ..functions.user import get_uid, terminate_user_pass, terminate_user_succeed, terminate_user_undo_pass
+from ..functions.telegram import forward_messages, get_group_info, get_start, send_message, send_report_message
+from ..functions.user import add_start, get_uid, terminate_user_pass, terminate_user_succeed, terminate_user_undo_pass
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -477,6 +477,64 @@ def pass_group(client: Client, message: Message) -> bool:
         result = True
     except Exception as e:
         logger.warning(f"Pass group error: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
+        delete_normal_command(client, message)
+
+    return result
+
+
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["qns"], glovar.prefix)
+                   & ~captcha_group & ~test_group & authorized_group
+                   & from_user)
+def qns(client: Client, message: Message) -> bool:
+    # Request a custom questions setting session
+    result = False
+
+    glovar.locks["message"].release()
+
+    try:
+        # Basic data
+        gid = message.chat.id
+        aid = message.from_user.id
+        now = message.date or get_now()
+
+        # Check permission
+        if not is_class_c(None, message):
+            return True
+
+        # Check the group status
+        if now < glovar.questions[gid]["lock"] + 600:
+            aid = glovar.questions[gid]["aid"]
+            return command_error(client, message, "发起自定义问题设置会话", "已存在设置会话", f"会话被 {code(aid)} 占用中")
+
+        # Save the data
+        glovar.questions[gid]["lock"] = now
+        glovar.questions[aid]["aid"] = aid
+        save("questions")
+
+        # Add start status
+        key = add_start(get_now() + 60, gid, aid, "qns")
+
+        # Send the report message
+        text = (f"{lang('admin')}{lang('colon')}{code(aid)}\n"
+                f"{lang('action')}{lang('colon')}{code('发起自定义问题设置会话')}\n"
+                f"{lang('description')}{lang('colon')}{code(lang('config_button'))}\n")
+        markup = InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton(
+                        text=lang("config_go"),
+                        url=get_start(client, key)
+                    )
+                ]
+            ]
+        )
+        thread(send_report_message, (180, client, gid, text, None, markup))
+
+        result = True
+    except Exception as e:
+        logger.warning(f"Qns error: {e}", exc_info=True)
     finally:
         glovar.locks["message"].release()
         delete_normal_command(client, message)

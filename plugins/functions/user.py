@@ -39,9 +39,9 @@ from .telegram import resolve_username, restrict_chat_member, unban_chat_member
 logger = logging.getLogger(__name__)
 
 
-def add_start(until: int, cid: int, uid: int, action: str) -> bool:
+def add_start(until: int, cid: int, uid: int, action: str) -> str:
     # Add start
-    result = False
+    result = ""
 
     try:
         key = random_str(8)
@@ -57,7 +57,7 @@ def add_start(until: int, cid: int, uid: int, action: str) -> bool:
         }
         save("starts")
 
-        result = True
+        result = key
     except Exception as e:
         logger.warning(f"Add start error: {e}", exc_info=True)
 
