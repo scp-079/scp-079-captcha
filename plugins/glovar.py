@@ -413,6 +413,7 @@ default_user_status: Dict[str, Union[int, str, Dict[Union[int, str], Union[float
     "answer": "",
     "limit": 0,
     "try": 0,
+    "qns": {},
     "join": {},
     "pass": {},
     "wait": {},
@@ -624,7 +625,7 @@ message_ids: Dict[int, Dict[str, Union[int, Dict[int, int], Set[int]]]] = {}
 #         "static": 124,
 #         "manual": {
 #             125: 1512345678
-#         }
+#         },
 #         "nospam": {
 #             126: 1512345678
 #         }
@@ -656,20 +657,23 @@ user_ids: Dict[int, Dict[str, Union[int, str, Dict[Union[int, str], Union[float,
 #         "answer": "",
 #         "limit": 5,
 #         "try": 0,
+#         "qns": {
+#             -10012345678: "tag"
+#         },
 #         "join": {
-#               -10012345678: 1512345678
+#             -10012345678: 1512345678
 #         },
 #         "pass": {
-#               -10012345678: 1512345678
+#             -10012345678: 1512345678
 #         },
 #         "wait": {
-#               -10012345678: 1512345678
+#             -10012345678: 1512345678
 #         },
 #         "succeeded": {
-#               -10012345678: 1512345678
+#             -10012345678: 1512345678
 #         },
 #         "failed": {
-#               -10012345678: 1512345678
+#             -10012345678: 1512345678
 #         },
 #         "restricted": {-10012345678},
 #         "banned": {-10012345678},
@@ -764,6 +768,8 @@ questions: Dict[int, Dict[str, Union[int, str, Dict[str, Dict[str, Union[str, Li
 #         "last": "tag",
 #         "qns": {
 #             "tag": {
+#                 "time": 1511234578,
+#                 "aid": 12345678,
 #                 "question": "a question",
 #                 "correct": ["answer1"],
 #                 "wrong": ["answer2"]
