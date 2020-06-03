@@ -529,6 +529,14 @@ def qns(client: Client, message: Message) -> bool:
         # Save the data
         glovar.questions[gid]["lock"] = now
         glovar.questions[aid]["aid"] = aid
+
+        for group_id in list(glovar.questions):
+            if glovar.questions[group_id]["aid"] != aid:
+                continue
+
+            glovar.questions[group_id]["lock"] = 0
+            glovar.questions[group_id]["aid"] = 0
+
         save("questions")
 
         # Add start status
