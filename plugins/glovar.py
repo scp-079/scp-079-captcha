@@ -340,6 +340,7 @@ all_commands: List[str] = [
     "qns",
     "remove",
     "rm",
+    "show",
     "start",
     "static",
     "version"
@@ -399,7 +400,7 @@ default_pinned_data: Dict[str, int] = {
     "last": 0
 }
 
-default_question_data: Dict[str, Union[int, str, Dict[str, Dict[str, Union[str, List[str]]]]]] = {
+default_question_data: Dict[str, Union[int, str, Dict[str, Dict[str, Union[int, str, Set[str]]]]]] = {
     "lock": 0,
     "aid": 0,
     "last": "",
@@ -760,7 +761,7 @@ invite: Dict[str, Union[int, str]] = {
 #     "time": 1512345678
 # }
 
-questions: Dict[int, Dict[str, Union[int, str, Dict[str, Dict[str, Union[str, List[str]]]]]]] = {}
+questions: Dict[int, Dict[str, Union[int, str, Dict[str, Dict[str, Union[int, str, Set[str]]]]]]] = {}
 # questions = {
 #     -10012345678: {
 #         "lock": 1512345678,
@@ -771,8 +772,8 @@ questions: Dict[int, Dict[str, Union[int, str, Dict[str, Dict[str, Union[str, Li
 #                 "time": 1511234578,
 #                 "aid": 12345678,
 #                 "question": "a question",
-#                 "correct": ["answer1"],
-#                 "wrong": ["answer2"],
+#                 "correct": {"answer1"},
+#                 "wrong": {"answer2"},
 #                 "issued": 0,
 #                 "answer": 0,
 #                 "wrong": 0

@@ -19,7 +19,7 @@
 import logging
 from random import choice, randint, sample, shuffle
 from string import ascii_lowercase
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 from captcha.image import ImageCaptcha
 from claptcha import Claptcha
@@ -28,8 +28,8 @@ from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
 from .. import glovar
 from .channel import ask_help_welcome, send_debug, share_data
 from .decorators import threaded
-from .etc import button_data, code, get_channel_link, get_full_name, get_image_size, get_now, lang, mention_name
-from .etc import mention_text, t2t, thread
+from .etc import button_data, code, get_channel_link, get_full_name, get_image_size, get_length, get_now, lang
+from .etc import mention_name, mention_text, t2t, thread
 from .file import delete_file, get_new_path, save
 from .filters import is_declared_message, is_flooded, is_limited_user, is_nm_text, is_should_ignore, is_watch_user
 from .filters import is_wb_text
@@ -518,6 +518,45 @@ def get_markup_ask(captcha: dict, question_type: str = "") -> Optional[InlineKey
         result = InlineKeyboardMarkup(markup_list)
     except Exception as e:
         logger.warning(f"Get markup ask error: {e}", exc_info=True)
+
+    return result
+
+
+def get_markup_qns(buttons: List[Dict[str, Union[str, bytes]]]) -> Optional[InlineKeyboardMarkup]:
+    # Get the qns message's markup
+    result = None
+
+    try:
+        if not buttons:
+            return None
+
+        markup_list = [[]]
+
+        if len(buttons) == 4:
+            limit = 2
+        else:
+            limit = 3
+
+        for button in buttons:
+            text = button["text"]
+            data = button["data"]
+
+            length = get_length(text)
+
+            if (len(markup_list[-1]) == limit
+                    or (length > 12 and markup_list[-1] is not [])):
+                markup_list.append([])
+
+            markup_list[-1].append(
+                InlineKeyboardButton(
+                    text=text,
+                    callback_data=data
+                )
+            )
+
+        result = InlineKeyboardMarkup(markup_list)
+    except Exception as e:
+        logger.warning(f"Get markup qns error: {e}", exc_info=True)
 
     return result
 

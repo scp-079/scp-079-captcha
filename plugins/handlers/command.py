@@ -77,7 +77,7 @@ def add(client: Client, message: Message) -> bool:
 
         # Check the command format
         if not text:
-            return command_error(client, message, "添加自定义问题", lang("command_usage"), report=False)
+            return command_error(client, message, lang("添加自定义问题"), lang("command_usage"), report=False)
 
         # Get key
         key = random_str(8)
@@ -85,7 +85,7 @@ def add(client: Client, message: Message) -> bool:
         while glovar.questions[gid]["qns"].get(key):
             key = random_str(8)
 
-        result = qns_add(client, message, key, text)
+        result = qns_add(client, message, gid, key, text)
     except Exception as e:
         logger.warning(f"Add error: {e}", exc_info=True)
     finally:
@@ -447,14 +447,14 @@ def edit(client: Client, message: Message) -> bool:
 
         # Check the command format
         if not key or not text:
-            return command_error(client, message, "编辑自定义问题", lang("command_usage"), report=False)
+            return command_error(client, message, lang("编辑自定义问题"), lang("command_usage"), report=False)
 
         # Check the key
         if not glovar.questions[gid]["qns"].get(key):
-            return command_error(client, message, "编辑自定义问题", lang("command_para"),
-                                 "不存在该问题", False)
+            return command_error(client, message, lang("编辑自定义问题"), lang("command_para"),
+                                 lang("不存在该问题"), False)
 
-        result = qns_add(client, message, key, text)
+        result = qns_add(client, message, gid, key, text, "edit")
     except Exception as e:
         logger.warning(f"Edit error: {e}", exc_info=True)
     finally:
@@ -611,7 +611,8 @@ def qns(client: Client, message: Message) -> bool:
         # Check the group status
         if now < glovar.questions[gid]["lock"] + 600:
             aid = glovar.questions[gid]["aid"]
-            return command_error(client, message, "发起自定义问题设置会话", "已存在设置会话", f"会话被 {aid} 占用中")
+            return command_error(client, message, lang("发起自定义问题设置会话"), lang("已存在设置会话"),
+                                 lang("会话被 {} 占用中").format(aid))
 
         # Save evidence
         result = forward_messages(
@@ -651,7 +652,7 @@ def qns(client: Client, message: Message) -> bool:
 
         # Send the report message
         text = (f"{lang('admin')}{lang('colon')}{code(aid)}\n"
-                f"{lang('action')}{lang('colon')}{code('发起自定义问题设置会话')}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('发起自定义问题设置会话'))}\n"
                 f"{lang('description')}{lang('colon')}{code(lang('config_button'))}\n")
         markup = InlineKeyboardMarkup(
             [
@@ -717,14 +718,14 @@ def remove(client: Client, message: Message) -> bool:
 
         # Check the command format
         if not key:
-            return command_error(client, message, "删除自定义问题", lang("command_usage"), report=False)
+            return command_error(client, message, lang("删除自定义问题"), lang("command_usage"), report=False)
 
         # Check the key
         if not glovar.questions[gid]["qns"].get(key):
-            return command_error(client, message, "删除自定义问题", lang("command_para"),
-                                 "不存在该问题", False)
+            return command_error(client, message, lang("删除自定义问题"), lang("command_para"),
+                                 lang("不存在该问题"), False)
 
-        result = qns_remove(client, message, key)
+        result = qns_remove(client, message, gid, key)
     except Exception as e:
         logger.warning(f"Remove error: {e}", exc_info=True)
     finally:
