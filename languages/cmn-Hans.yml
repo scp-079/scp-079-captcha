@@ -50,6 +50,14 @@ command_lack: 命令参数缺失
 command_para: 命令参数有误
 command_type: 命令类别有误
 command_usage: 用法有误
+detail_qns_occupied: 会话被 {} 占用中
+error_140: 问题不得超过 140 字
+error_15: 单个回答不得超过 15 字节
+error_6: 备选答案个数不得超过 6 个
+error_duplicated: 答案重合
+error_exceed: 自定义问题数量已达上限
+error_qns_occupied: 已存在设置会话
+error_qns_none: 不存在该问题
 
 # Debug
 evidence: 证据留存
@@ -114,6 +122,12 @@ action_flood: 检测到轰炸
 action_invite: 重新生成邀请链接
 action_normal: 轰炸已终止
 action_pass: 手动通过
+action_qns: 自定义问题设置
+action_qns_add: 添加自定义问题
+action_qns_edit: 编辑自定义问题
+action_qns_remove: 移除自定义问题
+action_qns_show: 查看自定义问题
+action_qns_start: 发起自定义问题设置会话
 action_report: 发送报告
 action_show: 查看自定义提示
 action_static: 发送固定提示消息
@@ -157,6 +171,7 @@ flood_total: 轰炸总人数
 mention_lack: 缺少提及用户的代号
 mention_redundant: 不应包含用户相关的代号
 old_pinned: 原置顶消息
+qns_key: 问题编号
 question: 问题
 question_attention: 请确认哪个是对自己发出的问题再回答
 question_change: 更换问题

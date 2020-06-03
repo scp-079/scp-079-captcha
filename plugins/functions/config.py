@@ -92,14 +92,15 @@ def qns_add(client: Client, message: Message, gid: int, key: str, text: str, the
 
         # Check questions count
         if the_type == "add" and len(glovar.questions[gid]["qns"]) >= 6:
-            return command_error(client, message, lang("添加自定义问题"), lang("自定义问题数量已达上限"), report=False)
+            return command_error(client, message, lang(f"action_qns_{the_type}"), lang("error_exceed"),
+                                 report=False)
 
         # Get text list
         text_list = [t for t in text.split("\n+++") if t]
 
         # Check the text list
         if not text_list or len(text_list) < 2:
-            return command_error(client, message, lang("添加自定义问题"), lang("command_para"), report=False)
+            return command_error(client, message, lang(f"action_qns_{the_type}"), lang("command_para"), report=False)
 
         # Get question and answers
         question = text_list[0]
@@ -108,8 +109,8 @@ def qns_add(client: Client, message: Message, gid: int, key: str, text: str, the
 
         # Check the question
         if len(question) > 140:
-            return command_error(client, message, lang("添加自定义问题"), lang("command_para"),
-                                 lang("问题不得超过 140 字"), False)
+            return command_error(client, message, lang(f"action_qns_{the_type}"), lang("command_para"),
+                                 lang("error_140"), False)
 
         correct_list = {c for c in correct.split("\n") if c.strip()}
 
@@ -120,12 +121,16 @@ def qns_add(client: Client, message: Message, gid: int, key: str, text: str, the
 
         # Check the answers
         if any(w in correct_list for w in wrong_list):
-            return command_error(client, message, lang("添加自定义问题"), lang("command_para"),
-                                 lang("答案重合"), False)
+            return command_error(client, message, lang(f"action_qns_{the_type}"), lang("command_para"),
+                                 lang("error_duplicated"), False)
+
+        if len(correct_list | wrong_list) > 6:
+            return command_error(client, message, lang(f"action_qns_{the_type}"), lang("command_para"),
+                                 lang("error_6"), False)
 
         if any(len(a.encode()) > 15 for a in correct_list) or any(len(a.encode()) > 15 for a in wrong_list):
-            return command_error(client, message, lang("添加自定义问题"), lang("command_para"),
-                                 lang("单个回答不得超过 15 字节"), False)
+            return command_error(client, message, lang(f"action_qns_{the_type}"), lang("command_para"),
+                                 lang("error_15"), False)
 
         # Add the answer
         glovar.questions[gid]["qns"][key] = {
@@ -148,9 +153,9 @@ def qns_add(client: Client, message: Message, gid: int, key: str, text: str, the
         group_name, group_link = get_group_info(client, gid)
         text = (f"{lang('group_name')}{lang('colon')}{general_link(group_name, group_link)}\n"
                 f"{lang('group_id')}{lang('colon')}{code(gid)}\n"
-                f"{lang('action')}{lang('colon')}{code(lang('添加自定义问题'))}\n"
+                f"{lang('action')}{lang('colon')}{code(lang(f'action_qns_{the_type}'))}\n"
                 f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n" + code("-" * 24) + "\n"
-                f"{lang('问题编号')}{lang('colon')}{code(key)}\n" + code("-" * 24) + "\n"
+                f"{lang('qns_key')}{lang('colon')}{code(key)}\n" + code("-" * 24) + "\n"
                 f"{lang('question')}{lang('colon')}{code(question)}\n" + code("-" * 24) + "\n")
         text += "\n".join("\t" * 4 + f"■ {code(c)}" for c in correct_list) + "\n"
         text += "\n".join("\t" * 4 + f"□ {code(w)}" for w in wrong_list) + "\n"
@@ -172,6 +177,8 @@ def qns_add(client: Client, message: Message, gid: int, key: str, text: str, the
 
         # Send the report message
         thread(send_message, (client, cid, text, mid, markup))
+
+        result = True
     except Exception as e:
         logger.warning(f"Qns add error: {e}", exc_info=True)
 
@@ -183,7 +190,28 @@ def qns_remove(client: Client, message: Message, gid: int, key: str) -> bool:
     result = False
 
     try:
-        pass
+        # Basic data
+        cid = message.chat.id
+        mid = message.message_id
+        question = glovar.questions[gid]["qns"][key]["question"]
+
+        # Pop the data
+        glovar.questions[gid]["qns"].pop(key, {})
+        save("questions")
+
+        # Generate the text
+        group_name, group_link = get_group_info(client, gid)
+        text = (f"{lang('group_name')}{lang('colon')}{general_link(group_name, group_link)}\n"
+                f"{lang('group_id')}{lang('colon')}{code(gid)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('action_qns_remove'))}\n"
+                f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n" + code("-" * 24) + "\n"
+                f"{lang('qns_key')}{lang('colon')}{code(key)}\n" + code("-" * 24) + "\n"
+                f"{lang('question')}{lang('colon')}{code(question)}\n")
+
+        # Send the report message
+        thread(send_message, (client, cid, text, mid))
+
+        result = True
     except Exception as e:
         logger.warning(f"Qns remove error: {e}", exc_info=True)
 
@@ -210,7 +238,7 @@ def start_qns(client: Client, message: Message, key: str) -> bool:
         group_name, group_link = get_group_info(client, gid)
         text = (f"{lang('group_name')}{lang('colon')}{general_link(group_name, group_link)}\n"
                 f"{lang('group_id')}{lang('colon')}{code(gid)}\n"
-                f"{lang('action')}{lang('colon')}{code(lang('自定义问题设置'))}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('action_qns'))}\n"
                 f"{lang('description')}{lang('colon')}{code(lang('description_qns'))}\n")
         thread(send_message, (client, cid, text, mid))
 

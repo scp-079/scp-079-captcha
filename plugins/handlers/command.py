@@ -77,7 +77,7 @@ def add(client: Client, message: Message) -> bool:
 
         # Check the command format
         if not text:
-            return command_error(client, message, lang("添加自定义问题"), lang("command_usage"), report=False)
+            return command_error(client, message, lang("action_qns_add"), lang("command_usage"), report=False)
 
         # Get key
         key = random_str(8)
@@ -447,12 +447,12 @@ def edit(client: Client, message: Message) -> bool:
 
         # Check the command format
         if not key or not text:
-            return command_error(client, message, lang("编辑自定义问题"), lang("command_usage"), report=False)
+            return command_error(client, message, lang("action_qns_edit"), lang("command_usage"), report=False)
 
         # Check the key
         if not glovar.questions[gid]["qns"].get(key):
-            return command_error(client, message, lang("编辑自定义问题"), lang("command_para"),
-                                 lang("不存在该问题"), False)
+            return command_error(client, message, lang("action_qns_edit"), lang("command_para"),
+                                 lang("error_qns_none"), False)
 
         result = qns_add(client, message, gid, key, text, "edit")
     except Exception as e:
@@ -611,8 +611,8 @@ def qns(client: Client, message: Message) -> bool:
         # Check the group status
         if now < glovar.questions[gid]["lock"] + 600:
             aid = glovar.questions[gid]["aid"]
-            return command_error(client, message, lang("发起自定义问题设置会话"), lang("已存在设置会话"),
-                                 lang("会话被 {} 占用中").format(aid))
+            return command_error(client, message, lang("action_qns_start"), lang("error_qns_occupied"),
+                                 lang("detail_qns_occupied").format(aid))
 
         # Save evidence
         result = forward_messages(
@@ -652,7 +652,7 @@ def qns(client: Client, message: Message) -> bool:
 
         # Send the report message
         text = (f"{lang('admin')}{lang('colon')}{code(aid)}\n"
-                f"{lang('action')}{lang('colon')}{code(lang('发起自定义问题设置会话'))}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('action_qns_start'))}\n"
                 f"{lang('description')}{lang('colon')}{code(lang('config_button'))}\n")
         markup = InlineKeyboardMarkup(
             [
@@ -718,12 +718,12 @@ def remove(client: Client, message: Message) -> bool:
 
         # Check the command format
         if not key:
-            return command_error(client, message, lang("删除自定义问题"), lang("command_usage"), report=False)
+            return command_error(client, message, lang("action_qns_remove"), lang("command_usage"), report=False)
 
         # Check the key
         if not glovar.questions[gid]["qns"].get(key):
-            return command_error(client, message, lang("删除自定义问题"), lang("command_para"),
-                                 lang("不存在该问题"), False)
+            return command_error(client, message, lang("action_qns_remove"), lang("command_para"),
+                                 lang("error_qns_none"), False)
 
         result = qns_remove(client, message, gid, key)
     except Exception as e:
@@ -831,38 +831,6 @@ def version(client: Client, message: Message) -> bool:
         # Generate the text
         text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n\n"
                 f"{lang('version')}{lang('colon')}{bold(glovar.version)}\n")
-
-        # Send the report message
-        result = send_message(client, cid, text, mid)
-    except Exception as e:
-        logger.warning(f"Version error: {e}", exc_info=True)
-
-    return result
-
-
-# TODO Temp
-@Client.on_message(Filters.incoming & Filters.group & Filters.command(["debug"], glovar.prefix)
-                   & test_group
-                   & from_user)
-def debug(client: Client, message: Message) -> bool:
-    # Check the program's version
-    result = False
-
-    try:
-        # Basic data
-        cid = message.chat.id
-        aid = message.from_user.id
-        mid = message.message_id
-
-        glovar.questions = {}
-        save("questions")
-        glovar.starts = {}
-        save("starts")
-
-        # Generate the text
-        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n\n"
-                f"{lang('action')}{lang('colon')}{code('Debug')}\n"
-                f"{lang('result')}{lang('colon')}{code('Done')}\n")
 
         # Send the report message
         result = send_message(client, cid, text, mid)

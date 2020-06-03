@@ -50,6 +50,14 @@ command_lack: Lack of Parameter
 command_para: Incorrect Command Parameter
 command_type: Incorrect Command Type
 command_usage: Incorrect Usage
+detail_qns_occupied: 会话被 {} 占用中
+error_140: 问题不得超过 140 字
+error_15: 单个回答不得超过 15 字节
+error_6: 备选答案个数不得超过 6 个
+error_duplicated: 答案重合
+error_exceed: 自定义问题数量已达上限
+error_qns_occupied: 已存在设置会话
+error_qns_none: 不存在该问题
 
 # Debug
 evidence: Evidence
@@ -114,6 +122,12 @@ action_flood: Flood Detected
 action_invite: Generate New Invite Link
 action_normal: Flood Stopped
 action_pass: Pass Manually
+action_qns: 自定义问题设置
+action_qns_add: 添加自定义问题
+action_qns_edit: 编辑自定义问题
+action_qns_remove: 移除自定义问题
+action_qns_show: 查看自定义问题
+action_qns_start: 发起自定义问题设置会话
 action_report: Send Report
 action_show: Show the Custom Hint
 action_static: Send Static Hint
@@ -166,6 +180,7 @@ flood_total: Flood Total
 mention_lack: Lack of the Mentioning User Code
 mention_redundant: Should not Contain User-Related Codes
 old_pinned: Previous Pinned Message
+qns_key: 问题编号
 question: Question
 question_attention: Please confirm which question is yours before answering
 question_change: Change the Question

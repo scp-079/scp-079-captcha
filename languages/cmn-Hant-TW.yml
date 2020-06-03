@@ -50,6 +50,14 @@ command_lack: 缺乏指令參數
 command_para: 錯誤指令參數
 command_type: 錯誤指令類型
 command_usage: 錯誤用法
+detail_qns_occupied: 会话被 {} 占用中
+error_140: 问题不得超过 140 字
+error_15: 单个回答不得超过 15 字节
+error_6: 备选答案个数不得超过 6 个
+error_duplicated: 答案重合
+error_exceed: 自定义问题数量已达上限
+error_qns_occupied: 已存在设置会话
+error_qns_none: 不存在该问题
 
 # Debug
 evidence: 證據留存
@@ -114,6 +122,12 @@ action_flood: 檢測到轟炸
 action_invite: 重新生成邀請鏈接
 action_normal: 轟炸已停止
 action_pass: 手動通過
+action_qns: 自定义问题设置
+action_qns_add: 添加自定义问题
+action_qns_edit: 编辑自定义问题
+action_qns_remove: 移除自定义问题
+action_qns_show: 查看自定义问题
+action_qns_start: 发起自定义问题设置会话
 action_report: 傳送報告
 action_show: 顯示自定義提示
 action_static: 傳送靜態提示訊息
@@ -157,6 +171,7 @@ flood_total: 轟炸人數
 mention_lack: 缺少提到使用者的代號
 mention_redundant: 不應包括使用者相關的代號
 old_pinned: 原置頂訊息
+qns_key: 问题编号
 question: 問題
 question_attention: 請注意哪個是屬於自己的問題再回答
 question_change: 更改問題
