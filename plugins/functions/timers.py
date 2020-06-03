@@ -123,6 +123,34 @@ def clear_members(client: Client) -> bool:
     return result
 
 
+def interval_hour_01() -> bool:
+    # Execute every hour
+    result = False
+
+    glovar.locks["message"].acquire()
+
+    try:
+        # Basic data
+        now = get_now()
+
+        # Clear starts data
+        for key in list(glovar.starts):
+            if glovar.starts[key]["until"] > now:
+                continue
+
+            glovar.starts.pop(key, {})
+
+        save("starts")
+
+        result = True
+    except Exception as e:
+        logger.warning(f"Interval hour 01 error: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
+
+    return result
+
+
 def interval_min_01(client: Client) -> bool:
     # Execute every minute
     result = False

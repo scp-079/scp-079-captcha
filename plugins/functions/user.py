@@ -39,7 +39,7 @@ from .telegram import resolve_username, restrict_chat_member, unban_chat_member
 logger = logging.getLogger(__name__)
 
 
-def add_start(time: int, cid: int, uid: int, action: str) -> bool:
+def add_start(until: int, cid: int, uid: int, action: str) -> bool:
     # Add start
     result = False
 
@@ -50,7 +50,7 @@ def add_start(time: int, cid: int, uid: int, action: str) -> bool:
             key = random_str(8)
 
         glovar.starts[key] = {
-            "time": time,
+            "until": until,
             "cid": cid,
             "uid": uid,
             "action": action

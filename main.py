@@ -25,7 +25,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from pyrogram import Client
 
 from plugins import glovar
-from plugins.functions.timers import backup_files, interval_min_01, interval_min_10
+from plugins.functions.timers import backup_files, interval_hour_01, interval_min_01, interval_min_10
 from plugins.functions.timers import reset_data, send_count, share_failed_users, update_admins, update_status
 
 # Enable logging
@@ -45,6 +45,7 @@ update_status(app, "online")
 scheduler = BackgroundScheduler(job_defaults={"misfire_grace_time": 60})
 scheduler.add_job(interval_min_01, "interval", [app], minutes=1)
 scheduler.add_job(interval_min_10, "interval", [app], minutes=10)
+scheduler.add_job(interval_hour_01, "interval", hours=1)
 scheduler.add_job(update_status, "cron", [app, "awake"], minute=30)
 scheduler.add_job(backup_files, "cron", [app], hour=20)
 scheduler.add_job(send_count, "cron", [app], hour=21)
