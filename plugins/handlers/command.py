@@ -534,6 +534,9 @@ def qns(client: Client, message: Message) -> bool:
             if glovar.questions[group_id]["aid"] != aid:
                 continue
 
+            if group_id == gid:
+                continue
+
             glovar.questions[group_id]["lock"] = 0
             glovar.questions[group_id]["aid"] = 0
 
