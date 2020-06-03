@@ -127,7 +127,7 @@ def interval_hour_01() -> bool:
     # Execute every hour
     result = False
 
-    glovar.locks["message"].acquire()
+    glovar.locks["config"].acquire()
 
     try:
         # Basic data
@@ -146,7 +146,7 @@ def interval_hour_01() -> bool:
     except Exception as e:
         logger.warning(f"Interval hour 01 error: {e}", exc_info=True)
     finally:
-        glovar.locks["message"].release()
+        glovar.locks["config"].release()
 
     return result
 

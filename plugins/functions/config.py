@@ -24,9 +24,9 @@ from pyrogram import Client, Message
 
 from .. import glovar
 from .channel import send_debug
-from .etc import code, lang, thread
+from .etc import code, general_link, lang, thread
 from .file import save
-from .telegram import send_report_message
+from .telegram import get_group_info, send_message, send_report_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -72,6 +72,37 @@ def get_config_text(config: dict) -> str:
             result += f"{lang(the_type)}{lang('colon')}{code(the_text)}\n"
     except Exception as e:
         logger.warning(f"Get config text error: {e}", exc_info=True)
+
+    return result
+
+
+def start_qns(client: Client, message: Message, key: str) -> bool:
+    # Start qns
+    result = False
+
+    try:
+        # Basic data
+        cid = message.chat.id
+        uid = message.from_user.id
+        mid = message.message_id
+        gid = glovar.starts[key]["cid"]
+        aid = glovar.starts[key]["uid"]
+
+        # Check the permission
+        if uid != aid:
+            return False
+
+        # Send the report message
+        group_name, group_link = get_group_info(client, gid)
+        text = (f"{lang('group_name')}{lang('colon')}{general_link(group_name, group_link)}\n"
+                f"{lang('group_id')}{lang('colon')}{code(gid)}\n"
+                f"{lang('action')}{lang('colon')}{code('自定义问题设置')}\n"
+                f"{lang('description')}{lang('colon')}{code('请开始设置所指定群组的自定义问题，自发起设置后，您共有 600 秒的时间来调整，逾时无效')}\n")
+        thread(send_message, (client, cid, text, mid))
+
+        result = True
+    except Exception as e:
+        logger.warning(f"Start qns error: {e}", exc_info=True)
 
     return result
 

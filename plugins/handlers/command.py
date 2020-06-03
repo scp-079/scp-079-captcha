@@ -26,9 +26,9 @@ from .. import glovar
 from ..functions.captcha import send_static, user_captcha
 from ..functions.channel import get_debug_text, send_debug, share_data
 from ..functions.command import delete_normal_command, delete_shared_command, command_error, get_command_context
-from ..functions.config import conflict_config, get_config_text, update_config
-from ..functions.etc import bold, code, code_block, general_link, get_now, lang
-from ..functions.etc import mention_id, message_link, thread
+from ..functions.command import get_command_type
+from ..functions.config import conflict_config, get_config_text, start_qns, update_config
+from ..functions.etc import bold, code, code_block, general_link, get_now, lang, mention_id, message_link, thread
 from ..functions.file import save
 from ..functions.filters import authorized_group, captcha_group, class_e, from_user
 from ..functions.filters import is_class_c, is_class_e, is_class_e_user, is_from_user, test_group
@@ -366,7 +366,7 @@ def pass_captcha(client: Client, message: Message) -> bool:
     # Pass in CAPTCHA
     result = False
 
-    glovar.locks["config"].acquire()
+    glovar.locks["message"].acquire()
 
     try:
         # Basic data
@@ -412,7 +412,7 @@ def pass_captcha(client: Client, message: Message) -> bool:
     except Exception as e:
         logger.warning(f"Pass captcha error: {e}", exc_info=True)
     finally:
-        glovar.locks["config"].release()
+        glovar.locks["message"].release()
         delete_normal_command(client, message)
 
     return result
@@ -491,7 +491,7 @@ def qns(client: Client, message: Message) -> bool:
     # Request a custom questions setting session
     result = False
 
-    glovar.locks["message"].release()
+    glovar.locks["config"].acquire()
 
     try:
         # Basic data
@@ -554,8 +554,50 @@ def qns(client: Client, message: Message) -> bool:
     except Exception as e:
         logger.warning(f"Qns error: {e}", exc_info=True)
     finally:
-        glovar.locks["message"].release()
+        glovar.locks["config"].release()
         delete_normal_command(client, message)
+
+    return result
+
+
+@Client.on_message(Filters.incoming & Filters.private & Filters.command(["start"], glovar.prefix)
+                   & from_user & class_e)
+def start(client: Client, message: Message) -> bool:
+    # Process /start command in private chat
+    result = False
+
+    glovar.locks["config"].acquire()
+
+    try:
+        # Basic data
+        now = message.date or get_now()
+
+        # Get start key
+        key = get_command_type(message)
+
+        # Check the key
+        if not key or not glovar.starts.get(key):
+            return False
+
+        # Get until time
+        until = glovar.starts[key]["until"]
+
+        # Check the until time
+        if now >= until:
+            return False
+
+        # Get action
+        action = glovar.starts[key]["action"]
+
+        # Proceed
+        if action == "qns":
+            return start_qns(client, message, key)
+
+        result = True
+    except Exception as e:
+        logger.warning(f"Start error: {e}", exc_info=True)
+    finally:
+        glovar.locks["config"].release()
 
     return result
 

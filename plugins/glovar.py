@@ -340,6 +340,7 @@ all_commands: List[str] = [
     "qns",
     "remove",
     "rm",
+    "start",
     "static",
     "version"
 ]
