@@ -502,7 +502,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.5.8"
+version: str = "0.5.9"
 
 # Load data from pics database
 
@@ -742,6 +742,16 @@ invite: Dict[str, Union[int, str]] = {
 #     "time": 1512345678
 # }
 
+starts: Dict[str, Dict[str, Union[int, str]]] = {}
+# starts = {
+#     "random": {
+#         "time": 1512345678,
+#         "cid": -10012345678,
+#         "uid": 12345678,
+#         "action": "act"
+#     }
+# }
+
 # Init word variables
 
 for word_type in regex:
@@ -755,7 +765,7 @@ for word_type in regex:
 file_list: List[str] = ["admin_ids", "bad_ids", "failed_ids", "flooded_ids", "ignore_ids", "lack_group_ids",
                         "left_group_ids", "message_ids", "pinned_ids", "trust_ids", "user_ids", "watch_ids",
                         "white_ids",
-                        "configs", "custom_texts", "flood_logs", "invite"]
+                        "configs", "custom_texts", "flood_logs", "invite", "starts"]
 file_list += [f"{f}_words" for f in regex]
 
 for file in file_list:
