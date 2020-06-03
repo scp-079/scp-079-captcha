@@ -150,8 +150,7 @@ def qns_add(client: Client, message: Message, gid: int, key: str, text: str, the
                 f"{lang('action')}{lang('colon')}{code(lang('添加自定义问题'))}\n"
                 f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n" + code("-" * 24) + "\n"
                 f"{lang('问题编号')}{lang('colon')}{code(key)}\n" + code("-" * 24) + "\n"
-                f"{lang('question')}{lang('colon')}{code(question)}\n"
-                f"{lang('备选答案')}{lang('colon')}" + "-" * 24 + "\n")
+                f"{lang('question')}{lang('colon')}{code(question)}\n" + code("-" * 24) + "\n")
         text += "\n".join("\t" * 4 + f"■ {code(c)}" for c in correct_list) + "\n"
         text += "\n".join("\t" * 4 + f"□ {code(w)}" for w in wrong_list) + "\n"
 
