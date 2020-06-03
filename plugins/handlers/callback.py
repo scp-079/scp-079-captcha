@@ -111,7 +111,7 @@ def question(client: Client, callback_query: CallbackQuery) -> bool:
 
         # Check action
         if action != "q":
-            return True
+            return False
 
         # Get the user id
         message = callback_query.message
@@ -120,11 +120,11 @@ def question(client: Client, callback_query: CallbackQuery) -> bool:
 
         # Check permission
         if not oid or uid != oid:
-            return True
+            return False
 
         # Check user status
         if not glovar.user_ids.get(uid, {}) or not glovar.user_ids[uid]["answer"]:
-            return True
+            return False
 
         # Answer the question
         if action_type == "a":
