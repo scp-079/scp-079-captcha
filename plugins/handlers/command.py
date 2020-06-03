@@ -672,3 +672,35 @@ def version(client: Client, message: Message) -> bool:
         logger.warning(f"Version error: {e}", exc_info=True)
 
     return result
+
+
+# TODO Temp
+@Client.on_message(Filters.incoming & Filters.group & Filters.command(["debug"], glovar.prefix)
+                   & test_group
+                   & from_user)
+def debug(client: Client, message: Message) -> bool:
+    # Check the program's version
+    result = False
+
+    try:
+        # Basic data
+        cid = message.chat.id
+        aid = message.from_user.id
+        mid = message.message_id
+
+        glovar.questions = {}
+        save("questions")
+        glovar.starts = {}
+        save("starts")
+
+        # Generate the text
+        text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n\n"
+                f"{lang('action')}{lang('colon')}{code('Debug')}\n"
+                f"{lang('result')}{lang('colon')}{code('Done')}\n")
+
+        # Send the report message
+        result = send_message(client, cid, text, mid)
+    except Exception as e:
+        logger.warning(f"Version error: {e}", exc_info=True)
+
+    return result
