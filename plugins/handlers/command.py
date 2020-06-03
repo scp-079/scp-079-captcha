@@ -59,10 +59,10 @@ def add(client: Client, message: Message) -> bool:
         gid = 0
 
         for group_id in list(glovar.questions):
-            if now >= glovar.questions[gid]["lock"] + 600:
+            if now >= glovar.questions[group_id]["lock"] + 600:
                 continue
 
-            if glovar.questions[gid]["aid"] != uid:
+            if glovar.questions[group_id]["aid"] != uid:
                 continue
 
             gid = group_id
@@ -429,10 +429,10 @@ def edit(client: Client, message: Message) -> bool:
         gid = 0
 
         for group_id in list(glovar.questions):
-            if now >= glovar.questions[gid]["lock"] + 600:
+            if now >= glovar.questions[group_id]["lock"] + 600:
                 continue
 
-            if glovar.questions[gid]["aid"] != uid:
+            if glovar.questions[group_id]["aid"] != uid:
                 continue
 
             gid = group_id
@@ -700,10 +700,10 @@ def remove(client: Client, message: Message) -> bool:
         gid = 0
 
         for group_id in list(glovar.questions):
-            if now >= glovar.questions[gid]["lock"] + 600:
+            if now >= glovar.questions[group_id]["lock"] + 600:
                 continue
 
-            if glovar.questions[gid]["aid"] != uid:
+            if glovar.questions[group_id]["aid"] != uid:
                 continue
 
             gid = group_id
