@@ -241,7 +241,7 @@ def config_directly(client: Client, message: Message) -> bool:
             return command_error(client, message, lang("config_change"), lang("command_lack"))
 
         # Check the command type
-        if command_type not in {"delete", "restrict", "ban", "forgive", "hint", "pass", "pin", "question", "manual"}:
+        if command_type not in {"delete", "restrict", "ban", "forgive", "hint", "pass", "pin", "qns", "manual"}:
             return command_error(client, message, lang("config_change"), lang("command_type"))
 
         # New settings
