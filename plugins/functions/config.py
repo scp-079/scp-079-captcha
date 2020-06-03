@@ -250,6 +250,7 @@ def qns_show(client: Client, message: Message, gid: int) -> bool:
             percent_engaged = (engaged / (issued or 1)) * 100
             percent_wrong = ((engaged - solved) / (engaged or 1)) * 100
 
+            text += code("-" * 24) + "\n"
             text += (f"{lang('qns_key')}{lang('colon')}{code(key)}\n"
                      f"{lang('modified_by')}{lang('colon')}{code(aid)}\n"
                      f"{lang('qns_issued')}{lang('colon')}{code(issued)}\n"
