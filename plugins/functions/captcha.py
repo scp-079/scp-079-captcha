@@ -1104,3 +1104,98 @@ def user_captcha(client: Client, message: Optional[Message], gid: int, user: Use
         logger.warning(f"User captcha error: {e}", exc_info=True)
 
     return result
+
+
+def user_captcha_qns(client: Client, message: Optional[Message], gid: int, user: User, mid: int, now: int,
+                     aid: int = 0) -> bool:
+    # User CAPTCHA
+    result = False
+
+    try:
+        # Basic data
+        uid = user.id
+
+        # Init the user's status
+        if not init_user_id(uid):
+            return False
+
+        # Check if the user should be added to the wait list
+        if is_should_ignore(gid, user, aid):
+            return True
+
+        # Get user status
+        user_status = glovar.user_ids[uid]
+
+        # Check pass list
+        pass_time = user_status["pass"].get(gid, 0)
+
+        if pass_time:
+            return True
+
+        # Check wait list
+        wait_time = user_status["wait"].get(gid, 0)
+
+        if wait_time:
+            return True
+
+        # Check succeeded list
+        succeeded_time = user_status["succeeded"].get(gid, 0)
+
+        if now - succeeded_time < glovar.time_recheck:
+            return True
+
+        # Check name
+        name = get_full_name(user, True, True, True)
+        ban_name = is_nm_text(name)
+        wb_name = is_wb_text(name, False)
+
+        # Succeeded auto pass
+        succeeded_time = max(user_status["succeeded"].values()) if user_status["succeeded"] else 0
+
+        still_in_captcha_group = (succeeded_time
+                                  and not (ban_name or wb_name)
+                                  and user_status["time"]
+                                  and now - succeeded_time < glovar.time_remove + 30)
+
+        if still_in_captcha_group:
+            not aid and ask_help_welcome(client, uid, [gid], mid)
+            return True
+
+        do_not_need_recheck = (succeeded_time
+                               and not (ban_name or wb_name)
+                               and glovar.configs[gid].get("pass", True)
+                               and succeeded_time and now - succeeded_time < glovar.time_recheck
+                               and not is_watch_user(user, "ban", now)
+                               and not is_watch_user(user, "delete", now)
+                               and not is_limited_user(gid, user, now, False))
+
+        if do_not_need_recheck:
+            not aid and ask_help_welcome(client, uid, [gid], mid)
+            return True
+
+        # White list auto pass
+        if glovar.configs[gid].get("pass", True) and uid in glovar.white_ids:
+            not aid and ask_help_welcome(client, uid, [gid], mid)
+            return True
+
+        # Check failed list
+        failed_time = user_status["failed"].get(gid, 0)
+
+        if now - failed_time <= glovar.time_punish:
+            delete_message(client, gid, mid)
+            return terminate_user_punish(
+                client=client,
+                uid=uid,
+                gid=gid
+            )
+
+        # Check declare status
+        if message and is_declared_message(None, message):
+            return False
+
+        # Add to wait list
+        result = add_wait(client, gid, user, mid, aid)
+    except Exception as e:
+        logger.warning(f"User captcha error: {e}", exc_info=True)
+
+    return result

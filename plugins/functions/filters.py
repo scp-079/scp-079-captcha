@@ -730,6 +730,27 @@ def is_should_ignore(gid: int, user: Union[int, User], aid: int = 0) -> bool:
     return result
 
 
+def is_should_qns(gid: int) -> bool:
+    # Check if should qns the user
+    result = False
+
+    try:
+        if is_flooded(gid):
+            return False
+
+        if not glovar.configs[gid].get("qns", False):
+            return False
+
+        if not glovar.questions[gid]["qns"]:
+            return False
+
+        result = True
+    except Exception as e:
+        logger.warning(f"Is should qns error: {e}", exc_info=True)
+
+    return result
+
+
 def is_watch_user(user: Union[int, User], the_type: str, now: int = 0) -> bool:
     # Check if the message is sent by a watch user
     result = False

@@ -23,7 +23,7 @@ from copy import deepcopy
 from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
-from ..functions.captcha import send_static, user_captcha
+from ..functions.captcha import send_static, user_captcha, user_captcha_qns
 from ..functions.channel import get_debug_text, send_debug, share_data
 from ..functions.command import delete_normal_command, delete_shared_command, command_error, get_command_context
 from ..functions.command import get_command_type
@@ -33,7 +33,7 @@ from ..functions.etc import bold, code, code_block, general_link, get_now, lang,
 from ..functions.etc import random_str, thread
 from ..functions.file import save
 from ..functions.filters import authorized_group, captcha_group, class_e, from_user
-from ..functions.filters import is_class_c, is_class_e, is_class_e_user, is_from_user, test_group
+from ..functions.filters import is_class_c, is_class_e, is_class_e_user, is_from_user, is_should_qns, test_group
 from ..functions.group import delete_message
 from ..functions.ids import init_user_id
 from ..functions.telegram import forward_messages, get_group_info, get_start, send_message, send_report_message
@@ -130,15 +130,26 @@ def captcha(client: Client, message: Message) -> bool:
         else:
             user = r_message.from_user
 
-        result = user_captcha(
-            client=client,
-            message=r_message,
-            gid=gid,
-            user=user,
-            mid=r_message.message_id,
-            now=now,
-            aid=aid
-        )
+        if is_should_qns(gid):
+            result = user_captcha_qns(
+                client=client,
+                message=r_message,
+                gid=gid,
+                user=user,
+                mid=r_message.message_id,
+                now=now,
+                aid=aid
+            )
+        else:
+            result = user_captcha(
+                client=client,
+                message=r_message,
+                gid=gid,
+                user=user,
+                mid=r_message.message_id,
+                now=now,
+                aid=aid
+            )
     except Exception as e:
         logger.warning(f"Captcha error: {e}", exc_info=True)
     finally:
