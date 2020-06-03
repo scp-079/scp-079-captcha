@@ -145,6 +145,7 @@ description_manual: "請您按下方按鈕來驗證，請在 {} 秒内完成驗�
 description_nospam: "請您點下方按鈕來驗證，請在 {} 秒内完成驗證，否則您會被移出本群。\
   您觸發了防廣告機器人的封禁規則，由于您進群時間較長，故未封禁您，但要求您完成一次驗證"
 description_pass: 管理員放行
+description_qns: 请开始使用命令来设置所指定群组的自定义问题，自于群组中发起设置会话起，您共有 600 秒的时间来调整，逾时无效
 description_single: 本群開啟了進群驗證，您需要通過驗證才可以發言。請您點下方按鈕來驗證，您需在 {} 秒内完成驗證，否則您會被移出本群
 description_succeed: 驗證成功成功，您可以在相應群組裡正常講話
 description_timeout: 驗證超時

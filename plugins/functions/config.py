@@ -97,7 +97,7 @@ def start_qns(client: Client, message: Message, key: str) -> bool:
         text = (f"{lang('group_name')}{lang('colon')}{general_link(group_name, group_link)}\n"
                 f"{lang('group_id')}{lang('colon')}{code(gid)}\n"
                 f"{lang('action')}{lang('colon')}{code('自定义问题设置')}\n"
-                f"{lang('description')}{lang('colon')}{code('请开始设置所指定群组的自定义问题，自发起设置后，您共有 600 秒的时间来调整，逾时无效')}\n")
+                f"{lang('description')}{lang('colon')}{code(lang('description_qns'))}\n")
         thread(send_message, (client, cid, text, mid))
 
         result = True

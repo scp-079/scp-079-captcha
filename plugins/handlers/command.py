@@ -507,7 +507,7 @@ def qns(client: Client, message: Message) -> bool:
         # Check the group status
         if now < glovar.questions[gid]["lock"] + 600:
             aid = glovar.questions[gid]["aid"]
-            return command_error(client, message, "发起自定义问题设置会话", "已存在设置会话", f"会话被 {code(aid)} 占用中")
+            return command_error(client, message, "发起自定义问题设置会话", "已存在设置会话", f"会话被 {aid} 占用中")
 
         # Save evidence
         result = forward_messages(
@@ -543,7 +543,7 @@ def qns(client: Client, message: Message) -> bool:
         save("questions")
 
         # Add start status
-        key = add_start(get_now() + 60, gid, aid, "qns")
+        key = add_start(get_now() + 180, gid, aid, "qns")
 
         # Send the report message
         text = (f"{lang('admin')}{lang('colon')}{code(aid)}\n"
