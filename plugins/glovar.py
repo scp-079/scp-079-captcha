@@ -330,11 +330,15 @@ except Exception as e:
 # Init
 
 all_commands: List[str] = [
+    "add",
     "captcha",
     "config",
     "config_captcha",
     "custom",
+    "edit",
     "pass",
+    "question",
+    "remove",
     "static",
     "version"
 ]
@@ -365,7 +369,8 @@ default_config: Dict[str, Union[bool, int]] = {
     "hint": True,
     "pass": True,
     "pin": True,
-    "manual": False
+    "question": False,
+    "manual": False,
 }
 
 default_custom_text: Dict[str, str] = {
