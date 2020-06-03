@@ -180,7 +180,7 @@ def verify_ask(client: Client, message: Message) -> bool:
             wait_group_list = list(glovar.user_ids[uid]["wait"])
 
             # Check wait list
-            if not wait_group_list:
+            if not wait_group_list or all(is_should_qns(g) for g in wait_group_list):
                 kick_user(client, gid, uid)
                 delete_message(client, gid, mid)
                 continue
