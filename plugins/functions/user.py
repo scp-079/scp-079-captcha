@@ -1287,9 +1287,9 @@ def terminate_user_timeout_qns(client: Client, gid: int, uid: int) -> bool:
         # Get the level
         level = get_level(gid)
 
-        # Kick the user (ban for 3600 seconds) or ban the user
+        # Kick the user (ban for 86400 seconds) or ban the user
         if level == "kick":
-            kick_user(client, gid, uid, until_date=now + 3600, lock=True)
+            kick_user(client, gid, uid, until_date=now + 86400, lock=True)
         elif level == "ban":
             ban_user(client, gid, uid)
 
