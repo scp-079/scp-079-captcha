@@ -18,6 +18,7 @@
 
 import logging
 from copy import deepcopy
+from random import shuffle
 from typing import List
 
 from pyrogram import Client, Message
@@ -156,8 +157,10 @@ def qns_add(client: Client, message: Message, gid: int, key: str, text: str, the
 
         # Generate the markup
         buttons = []
+        answers = list(correct_list | wrong_list)
+        shuffle(answers)
 
-        for answer in correct_list | wrong_list:
+        for answer in answers:
             buttons.append(
                 {
                     "text": answer,
