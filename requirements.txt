@@ -4,7 +4,7 @@ cffi==1.14.0
 claptcha==0.3.3
 cryptography==2.9.2
 emoji==0.5.4
-OpenCC==0.2
+OpenCC==1.1.1.post1
 Pillow==7.1.2
 pyaes==1.6.1
 pyAesCrypt==0.4.3
@@ -13,6 +13,6 @@ Pyrogram==0.17.1
 PySocks==1.7.1
 pytz==2020.1
 PyYAML==5.3.1
-six==1.14.0
+six==1.15.0
 TgCrypto==1.2.1
 tzlocal==2.1
