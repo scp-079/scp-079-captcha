@@ -27,7 +27,7 @@ from .. import glovar
 from .channel import ask_for_help, ask_help_welcome, declare_message, send_debug, share_data, update_score
 from .command import get_command_type
 from .decorators import threaded
-from .etc import code, delay, get_int, get_now, get_readable_time, get_text, lang, mention_text, thread
+from .etc import code, delay, get_int, get_now, get_readable_time, get_text, lang, mention_text, random_str, thread
 from .file import data_to_file, file_tsv, save
 from .filters import is_class_d_user, is_flooded, is_from_user
 from .group import delete_hint, delete_message
@@ -37,6 +37,31 @@ from .telegram import resolve_username, restrict_chat_member, unban_chat_member
 
 # Enable logging
 logger = logging.getLogger(__name__)
+
+
+def add_start(time: int, cid: int, uid: int, action: str) -> bool:
+    # Add start
+    result = False
+
+    try:
+        key = random_str(8)
+
+        while glovar.starts.get(key):
+            key = random_str(8)
+
+        glovar.starts[key] = {
+            "time": time,
+            "cid": cid,
+            "uid": uid,
+            "action": action
+        }
+        save("starts")
+
+        result = True
+    except Exception as e:
+        logger.warning(f"Add start error: {e}", exc_info=True)
+
+    return result
 
 
 @threaded()
