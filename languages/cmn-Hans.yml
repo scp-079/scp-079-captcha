@@ -41,6 +41,7 @@ forgive: 自动解禁
 hint: 入群提示
 pass: 自动免验证
 pin: 自动置顶
+qns: 自定义问题
 manual: 仅手动
 
 # Command

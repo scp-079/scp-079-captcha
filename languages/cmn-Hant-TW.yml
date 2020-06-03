@@ -41,6 +41,7 @@ forgive: 自動解除
 hint: 進組提示
 pass: 自動通過
 pin: 自動置頂
+qns: 自定义问题
 manual: 僅手動
 
 # Command

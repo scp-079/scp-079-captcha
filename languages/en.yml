@@ -41,6 +41,7 @@ forgive: Auto Forgive
 hint: Hint for New Joined User
 pass: Auto Pass
 pin: Auto Pin
+qns: Custom Questions
 manual: Manual Only
 
 # Command

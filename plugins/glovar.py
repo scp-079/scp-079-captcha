@@ -337,8 +337,9 @@ all_commands: List[str] = [
     "custom",
     "edit",
     "pass",
-    "question",
+    "qns",
     "remove",
+    "rm",
     "static",
     "version"
 ]
@@ -369,7 +370,7 @@ default_config: Dict[str, Union[bool, int]] = {
     "hint": True,
     "pass": True,
     "pin": True,
-    "question": False,
+    "qns": False,
     "manual": False,
 }
 
