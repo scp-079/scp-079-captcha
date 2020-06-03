@@ -497,6 +497,7 @@ def qns(client: Client, message: Message) -> bool:
         # Basic data
         gid = message.chat.id
         aid = message.from_user.id
+        mid = message.message_id
         now = message.date or get_now()
 
         # Check permission
@@ -507,6 +508,23 @@ def qns(client: Client, message: Message) -> bool:
         if now < glovar.questions[gid]["lock"] + 600:
             aid = glovar.questions[gid]["aid"]
             return command_error(client, message, "发起自定义问题设置会话", "已存在设置会话", f"会话被 {code(aid)} 占用中")
+
+        # Save evidence
+        result = forward_messages(
+            client=client,
+            cid=glovar.logging_channel_id,
+            fid=gid,
+            mids=mid
+        )
+
+        if not result:
+            return False
+
+        text = (f"{lang('project')}{lang('colon')}{code(glovar.sender)}\n"
+                f"{lang('user_id')}{lang('colon')}{code(aid)}\n"
+                f"{lang('level')}{lang('colon')}{code(lang('config_create'))}\n"
+                f"{lang('rule')}{lang('colon')}{code(lang('rule_custom'))}\n")
+        result = send_message(client, glovar.logging_channel_id, text, result.message_id)
 
         # Save the data
         glovar.questions[gid]["lock"] = now
