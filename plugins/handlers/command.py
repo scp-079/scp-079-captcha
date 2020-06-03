@@ -528,7 +528,7 @@ def qns(client: Client, message: Message) -> bool:
 
         # Save the data
         glovar.questions[gid]["lock"] = now
-        glovar.questions[aid]["aid"] = aid
+        glovar.questions[gid]["aid"] = aid
 
         for group_id in list(glovar.questions):
             if glovar.questions[group_id]["aid"] != aid:
@@ -557,6 +557,13 @@ def qns(client: Client, message: Message) -> bool:
             ]
         )
         thread(send_report_message, (180, client, gid, text, None, markup))
+
+        # Send debug message
+        text = get_debug_text(client, message.chat)
+        text += (f"{lang('admin_group')}{lang('colon')}{code(message.from_user.id)}\n"
+                 f"{lang('action')}{lang('colon')}{code(lang('config_create'))}\n"
+                 f"{lang('evidence')}{lang('colon')}{general_link(result.message_id, message_link(result))}\n")
+        thread(send_message, (client, glovar.debug_channel_id, text))
 
         result = True
     except Exception as e:
