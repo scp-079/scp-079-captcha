@@ -366,7 +366,7 @@ def pass_captcha(client: Client, message: Message) -> bool:
     # Pass in CAPTCHA
     result = False
 
-    glovar.locks["message"].acquire()
+    glovar.locks["config"].acquire()
 
     try:
         # Basic data
@@ -412,7 +412,7 @@ def pass_captcha(client: Client, message: Message) -> bool:
     except Exception as e:
         logger.warning(f"Pass captcha error: {e}", exc_info=True)
     finally:
-        glovar.locks["message"].release()
+        glovar.locks["config"].release()
         delete_normal_command(client, message)
 
     return result
