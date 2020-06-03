@@ -76,6 +76,30 @@ def get_config_text(config: dict) -> str:
     return result
 
 
+def qns_add(client: Client, message: Message, key: str, text: str) -> bool:
+    # Add or edit a custom question
+    result = False
+
+    try:
+        pass
+    except Exception as e:
+        logger.warning(f"Qns add error: {e}", exc_info=True)
+
+    return result
+
+
+def qns_remove(client: Client, message: Message, key: str) -> bool:
+    # Remove a custom question
+    result = False
+
+    try:
+        pass
+    except Exception as e:
+        logger.warning(f"Qns remove error: {e}", exc_info=True)
+
+    return result
+
+
 def start_qns(client: Client, message: Message, key: str) -> bool:
     # Start qns
     result = False

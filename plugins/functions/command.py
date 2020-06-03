@@ -77,6 +77,7 @@ def command_error(client: Client, message: Message, action: str, error: str,
         # Basic data
         cid = message.chat.id
         uid = message.from_user.id
+        mid = message.message_id
 
         # Generate the text
         text = (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
@@ -89,7 +90,7 @@ def command_error(client: Client, message: Message, action: str, error: str,
 
         # Send the message
         if report:
-            thread(send_report_message, (10, client, cid, text))
+            thread(send_report_message, (10, client, cid, text, mid))
         else:
             thread(send_message, (client, cid, text))
 

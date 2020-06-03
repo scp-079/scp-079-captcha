@@ -27,8 +27,9 @@ from ..functions.captcha import send_static, user_captcha
 from ..functions.channel import get_debug_text, send_debug, share_data
 from ..functions.command import delete_normal_command, delete_shared_command, command_error, get_command_context
 from ..functions.command import get_command_type
-from ..functions.config import conflict_config, get_config_text, start_qns, update_config
-from ..functions.etc import bold, code, code_block, general_link, get_now, lang, mention_id, message_link, thread
+from ..functions.config import conflict_config, get_config_text, qns_add, qns_remove, start_qns, update_config
+from ..functions.etc import bold, code, code_block, general_link, get_now, lang, mention_id, message_link
+from ..functions.etc import random_str, thread
 from ..functions.file import save
 from ..functions.filters import authorized_group, captcha_group, class_e, from_user
 from ..functions.filters import is_class_c, is_class_e, is_class_e_user, is_from_user, test_group
@@ -39,6 +40,58 @@ from ..functions.user import add_start, get_uid, terminate_user_pass, terminate_
 
 # Enable logging
 logger = logging.getLogger(__name__)
+
+
+@Client.on_message(Filters.incoming & Filters.private & Filters.command(["add"], glovar.prefix)
+                   & from_user & class_e)
+def add(client: Client, message: Message) -> bool:
+    # Add a custom question
+    result = False
+
+    glovar.locks["config"].acquire()
+
+    try:
+        # Basic data
+        uid = message.from_user.id
+        now = message.date or get_now()
+
+        # Get group id
+        gid = 0
+
+        for group_id in list(glovar.questions):
+            if now >= glovar.questions[gid]["lock"] + 600:
+                continue
+
+            if glovar.questions[gid]["aid"] != uid:
+                continue
+
+            gid = group_id
+            break
+
+        # Check the group id
+        if not gid:
+            return False
+
+        # Get custom text
+        text = get_command_type(message)
+
+        # Check the command format
+        if not text:
+            return command_error(client, message, "添加自定义问题", lang("command_usage"), report=False)
+
+        # Get key
+        key = random_str(8)
+
+        while glovar.questions[gid]["qns"].get(key):
+            key = random_str(8)
+
+        result = qns_add(client, message, key, text)
+    except Exception as e:
+        logger.warning(f"Add error: {e}", exc_info=True)
+    finally:
+        glovar.locks["config"].release()
+
+    return result
 
 
 @Client.on_message(Filters.incoming & Filters.group
@@ -359,6 +412,57 @@ def custom(client: Client, message: Message) -> bool:
     return result
 
 
+@Client.on_message(Filters.incoming & Filters.private & Filters.command(["edit"], glovar.prefix)
+                   & from_user & class_e)
+def edit(client: Client, message: Message) -> bool:
+    # Edit a custom question
+    result = False
+
+    glovar.locks["config"].acquire()
+
+    try:
+        # Basic data
+        uid = message.from_user.id
+        now = message.date or get_now()
+
+        # Get group id
+        gid = 0
+
+        for group_id in list(glovar.questions):
+            if now >= glovar.questions[gid]["lock"] + 600:
+                continue
+
+            if glovar.questions[gid]["aid"] != uid:
+                continue
+
+            gid = group_id
+            break
+
+        # Check the group id
+        if not gid:
+            return False
+
+        # Get key and custom text
+        key, text = get_command_type(message)
+
+        # Check the command format
+        if not key or not text:
+            return command_error(client, message, "编辑自定义问题", lang("command_usage"), report=False)
+
+        # Check the key
+        if not glovar.questions[gid]["qns"].get(key):
+            return command_error(client, message, "编辑自定义问题", lang("command_para"),
+                                 "不存在该问题", False)
+
+        result = qns_add(client, message, key, text)
+    except Exception as e:
+        logger.warning(f"Edit error: {e}", exc_info=True)
+    finally:
+        glovar.locks["config"].release()
+
+    return result
+
+
 @Client.on_message(Filters.incoming & Filters.group & Filters.command(["pass"], glovar.prefix)
                    & captcha_group & ~test_group
                    & from_user & class_e)
@@ -574,6 +678,57 @@ def qns(client: Client, message: Message) -> bool:
     finally:
         glovar.locks["config"].release()
         delete_normal_command(client, message)
+
+    return result
+
+
+@Client.on_message(Filters.incoming & Filters.private & Filters.command(["remove"], glovar.prefix)
+                   & from_user & class_e)
+def remove(client: Client, message: Message) -> bool:
+    # Remove a custom question
+    result = False
+
+    glovar.locks["config"].acquire()
+
+    try:
+        # Basic data
+        uid = message.from_user.id
+        now = message.date or get_now()
+
+        # Get group id
+        gid = 0
+
+        for group_id in list(glovar.questions):
+            if now >= glovar.questions[gid]["lock"] + 600:
+                continue
+
+            if glovar.questions[gid]["aid"] != uid:
+                continue
+
+            gid = group_id
+            break
+
+        # Check the group id
+        if not gid:
+            return False
+
+        # Get key
+        key = get_command_type(message)
+
+        # Check the command format
+        if not key:
+            return command_error(client, message, "删除自定义问题", lang("command_usage"), report=False)
+
+        # Check the key
+        if not glovar.questions[gid]["qns"].get(key):
+            return command_error(client, message, "删除自定义问题", lang("command_para"),
+                                 "不存在该问题", False)
+
+        result = qns_remove(client, message, key)
+    except Exception as e:
+        logger.warning(f"Remove error: {e}", exc_info=True)
+    finally:
+        glovar.locks["config"].release()
 
     return result
 

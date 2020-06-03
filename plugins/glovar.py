@@ -772,7 +772,10 @@ questions: Dict[int, Dict[str, Union[int, str, Dict[str, Dict[str, Union[str, Li
 #                 "aid": 12345678,
 #                 "question": "a question",
 #                 "correct": ["answer1"],
-#                 "wrong": ["answer2"]
+#                 "wrong": ["answer2"],
+#                 "issued": 0,
+#                 "answer": 0,
+#                 "wrong": 0
 #             }
 #         }
 #     }
