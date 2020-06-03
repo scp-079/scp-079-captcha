@@ -24,8 +24,8 @@ from pyrogram import Client, CallbackQuery
 from .. import glovar
 from ..functions.captcha import question_answer, question_change
 from ..functions.etc import get_int, get_text, lang, thread
-from ..functions.filters import authorized_group, captcha_group, is_class_e_user, test_group
-from ..functions.telegram import answer_callback
+from ..functions.filters import authorized_group, captcha_group, from_user, is_class_e_user, test_group
+from ..functions.telegram import answer_callback, edit_message_reply_markup
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -69,6 +69,30 @@ def check_wait(client: Client, callback_query: CallbackQuery) -> bool:
         result = True
     except Exception as e:
         logger.warning(f"Check wait error: {e}", exc_info=True)
+
+    return result
+
+
+@Client.on_callback_query(from_user)
+def example(client: Client, callback_query: CallbackQuery) -> bool:
+    # Edit the example message's reply markup
+    result = False
+
+    try:
+        # Basic data
+        cid = callback_query.message.chat.id
+        mid = callback_query.message.message_id
+        callback_data = loads(callback_query.data)
+        action = callback_data["a"]
+
+        # Check the action
+        if action != "none":
+            return False
+
+        # Edit the message
+        thread(edit_message_reply_markup, (client, cid, mid, None))
+    except Exception as e:
+        logger.warning(f"Example error: {e}", exc_info=True)
 
     return result
 

@@ -139,6 +139,32 @@ def edit_message_photo(client: Client, cid: int, mid: int, photo: str, file_ref:
 
 
 @retry
+def edit_message_reply_markup(client: Client, cid: int, mid: int,
+                              markup: InlineKeyboardMarkup = None) -> Union[bool, Message, None]:
+    # Edit the message's reply markup
+    result = None
+
+    try:
+        result = client.edit_message_reply_markup(
+            chat_id=cid,
+            message_id=mid,
+            reply_markup=markup
+        )
+    except FloodWait as e:
+        raise e
+    except ButtonDataInvalid:
+        logger.warning(f"Edit message {mid} reply markup in {cid} - invalid markup: {markup}")
+    except MessageNotModified:
+        return None
+    except (ChannelInvalid, ChannelPrivate, ChatAdminRequired, PeerIdInvalid):
+        return False
+    except Exception as e:
+        logger.warning(f"Edit message {mid} reply markup in {cid} error: {e}", exc_info=True)
+
+    return result
+
+
+@retry
 def edit_message_text(client: Client, cid: int, mid: int, text: str,
                       markup: InlineKeyboardMarkup = None) -> Union[bool, Message, None]:
     # Edit the message's text
