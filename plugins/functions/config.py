@@ -91,7 +91,7 @@ def qns_add(client: Client, message: Message, gid: int, key: str, text: str, the
         now = get_now()
 
         # Check questions count
-        if the_type == "add" and len(glovar.questions[gid]["qns"]) >= 6:
+        if the_type == "add" and len(glovar.questions[gid]["qns"]) >= 5:
             return command_error(client, message, lang(f"action_qns_{the_type}"), lang("error_exceed"),
                                  report=False)
 
