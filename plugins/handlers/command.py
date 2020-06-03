@@ -366,7 +366,7 @@ def custom(client: Client, message: Message) -> bool:
 
             # Get the config
             result = glovar.custom_texts[gid].get(command_type) or lang("reason_none")
-            text += (f"{lang('result')}{lang('colon')}" + "-" * 24 + "\n\n"
+            text += (f"{lang('result')}{lang('colon')}" + code("-" * 16) + "\n\n"
                      f"{code_block(result)}\n")
 
             # Check the text
