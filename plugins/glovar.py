@@ -397,6 +397,13 @@ default_pinned_data: Dict[str, int] = {
     "last": 0
 }
 
+default_question_data: Dict[str, Union[int, str, Dict[str, Dict[str, Union[str, List[str]]]]]] = {
+    "lock": 0,
+    "aid": 0,
+    "last": "",
+    "qns": {}
+}
+
 default_user_status: Dict[str, Union[int, str, Dict[Union[int, str], Union[float, int]], Set[int]]] = {
     "name": "",
     "mid": 0,
@@ -745,6 +752,22 @@ invite: Dict[str, Union[int, str]] = {
 # invite = {
 #     "link": "https://t.me/SCP_079_CAPTCHA",
 #     "time": 1512345678
+# }
+
+questions: Dict[int, Dict[str, Union[int, str, Dict[str, Dict[str, Union[str, List[str]]]]]]] = {}
+# questions = {
+#     -10012345678: {
+#         "lock": 1512345678,
+#         "aid": 12345678,
+#         "last": "tag",
+#         "qns": {
+#             "tag": {
+#                 "question": "a question",
+#                 "correct": ["answer1"],
+#                 "wrong": ["answer2"]
+#             }
+#         }
+#     }
 # }
 
 starts: Dict[str, Dict[str, Union[int, str]]] = {}

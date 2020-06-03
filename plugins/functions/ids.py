@@ -64,6 +64,10 @@ def init_group_id(gid: int) -> bool:
             glovar.custom_texts[gid] = deepcopy(glovar.default_custom_text)
             save("custom_texts")
 
+        if glovar.questions.get(gid) is None:
+            glovar.questions[gid] = deepcopy(glovar.default_question_data)
+            save("questions")
+
         if glovar.declared_message_ids.get(gid) is None:
             glovar.declared_message_ids[gid] = set()
 

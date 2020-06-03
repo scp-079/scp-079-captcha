@@ -266,6 +266,9 @@ def leave_group(client: Client, gid: int, reason: str = "") -> bool:
         glovar.custom_texts.pop(gid, {})
         save("custom_texts")
 
+        glovar.questions.pop(gid, {})
+        save("questions")
+
         glovar.declared_message_ids.pop(gid, set())
 
         result = True
