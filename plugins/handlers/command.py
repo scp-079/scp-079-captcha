@@ -27,7 +27,8 @@ from ..functions.captcha import send_static, user_captcha
 from ..functions.channel import get_debug_text, send_debug, share_data
 from ..functions.command import delete_normal_command, delete_shared_command, command_error, get_command_context
 from ..functions.command import get_command_type
-from ..functions.config import conflict_config, get_config_text, qns_add, qns_remove, start_qns, update_config
+from ..functions.config import conflict_config, get_config_text, qns_add, qns_remove, qns_show, start_qns
+from ..functions.config import update_config
 from ..functions.etc import bold, code, code_block, general_link, get_now, lang, mention_id, message_link
 from ..functions.etc import random_str, thread
 from ..functions.file import save
@@ -728,6 +729,45 @@ def remove(client: Client, message: Message) -> bool:
         result = qns_remove(client, message, gid, key)
     except Exception as e:
         logger.warning(f"Remove error: {e}", exc_info=True)
+    finally:
+        glovar.locks["config"].release()
+
+    return result
+
+
+@Client.on_message(Filters.incoming & Filters.private & Filters.command(["show"], glovar.prefix)
+                   & from_user & class_e)
+def show(client: Client, message: Message) -> bool:
+    # Show custom questions
+    result = False
+
+    glovar.locks["config"].acquire()
+
+    try:
+        # Basic data
+        uid = message.from_user.id
+        now = message.date or get_now()
+
+        # Get group id
+        gid = 0
+
+        for group_id in list(glovar.questions):
+            if now >= glovar.questions[group_id]["lock"] + 600:
+                continue
+
+            if glovar.questions[group_id]["aid"] != uid:
+                continue
+
+            gid = group_id
+            break
+
+        # Check the group id
+        if not gid:
+            return False
+
+        result = qns_show(client, message, gid)
+    except Exception as e:
+        logger.warning(f"Show error: {e}", exc_info=True)
     finally:
         glovar.locks["config"].release()
 

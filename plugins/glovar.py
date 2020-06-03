@@ -775,8 +775,8 @@ questions: Dict[int, Dict[str, Union[int, str, Dict[str, Dict[str, Union[int, st
 #                 "correct": {"answer1"},
 #                 "wrong": {"answer2"},
 #                 "issued": 0,
-#                 "answer": 0,
-#                 "pass": 0
+#                 "engaged": 0,
+#                 "solved": 0
 #             }
 #         }
 #     }

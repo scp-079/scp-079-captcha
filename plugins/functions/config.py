@@ -143,8 +143,8 @@ def qns_add(client: Client, message: Message, gid: int, key: str, text: str, the
 
         if the_type == "add":
             glovar.questions[gid]["qns"][key]["issued"] = 0
-            glovar.questions[gid]["qns"][key]["answer"] = 0
-            glovar.questions[gid]["qns"][key]["pass"] = 0
+            glovar.questions[gid]["qns"][key]["engaged"] = 0
+            glovar.questions[gid]["qns"][key]["solved"] = 0
 
         # Save the data
         save("questions")
@@ -214,6 +214,63 @@ def qns_remove(client: Client, message: Message, gid: int, key: str) -> bool:
         result = True
     except Exception as e:
         logger.warning(f"Qns remove error: {e}", exc_info=True)
+
+    return result
+
+
+def qns_show(client: Client, message: Message, gid: int) -> bool:
+    # Show all custom questions
+    result = False
+
+    try:
+        # Basic data
+        cid = message.chat.id
+        mid = message.message_id
+        questions = glovar.questions[gid]["qns"]
+
+        # Check data
+        if not questions:
+            return command_error(client, message, lang("action_qns_show"), lang("error_none"), report=False)
+
+        # Generate the text
+        group_name, group_link = get_group_info(client, gid)
+        text = (f"{lang('group_name')}{lang('colon')}{general_link(group_name, group_link)}\n"
+                f"{lang('group_id')}{lang('colon')}{code(gid)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('action_qns_show'))}\n\n")
+
+        for key in questions:
+            aid = questions[key]["aid"]
+            question = questions[key]["question"]
+            correct_list = questions[key]["correct"]
+            wrong_list = questions[key]["wrong"]
+            issued = questions[key]["issued"]
+            engaged = questions[key]["engaged"]
+            solved = questions[key]["solved"]
+            percent_passed = (solved / (issued or 1)) * 100
+            percent_engaged = (engaged / (issued or 1)) * 100
+            percent_wrong = ((engaged - solved) / (engaged or 1)) * 100
+
+            text += (f"{lang('qns_key')}{lang('colon')}{code(key)}\n"
+                     f"{lang('modified_by')}{lang('colon')}{code(aid)}\n"
+                     f"{lang('qns_issued')}{lang('colon')}{code(issued)}\n"
+                     f"{lang('percent_passed')}{lang('colon')}{code(f'{percent_passed:.1f}%')}\n"
+                     f"{lang('percent_engaged')}{lang('colon')}{code(f'{percent_engaged:.1f}%')}\n"
+                     f"{lang('percent_wrong')}{lang('colon')}{code(f'{percent_wrong:.1f}%')}\n" + code("-" * 24) + "\n"
+                     f"{lang('question')}{lang('colon')}{code(question)}\n" + code("-" * 24) + "\n")
+            text += "\n".join("\t" * 4 + f"■ {code(c)}" for c in correct_list) + "\n"
+            text += "\n".join("\t" * 4 + f"□ {code(w)}" for w in wrong_list)
+
+            if wrong_list:
+                text += "\n\n"
+            else:
+                text += "\n"
+
+        # Send the report message
+        thread(send_message, (client, cid, text, mid))
+
+        result = True
+    except Exception as e:
+        logger.warning(f"Qns show error: {e}", exc_info=True)
 
     return result
 

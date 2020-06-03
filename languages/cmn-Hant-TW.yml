@@ -58,6 +58,7 @@ error_duplicated: 答案重合
 error_exceed: 自定义问题数量已达上限
 error_qns_occupied: 已存在设置会话
 error_qns_none: 不存在该问题
+error_none: 无数据
 
 # Debug
 evidence: 證據留存
@@ -168,10 +169,15 @@ flood_count: 轟炸移除
 flood_duration: 轟炸持續時間
 flood_static: 自動靜態提示
 flood_total: 轟炸人數
+modified_by: 最后编辑者
 mention_lack: 缺少提到使用者的代號
 mention_redundant: 不應包括使用者相關的代號
 old_pinned: 原置頂訊息
+percent_passed: 通过率
+percent_engaged: 参与率
+percent_wrong: 答错率
 qns_key: 问题编号
+qns_issued: 提问次数
 question: 問題
 question_attention: 請注意哪個是屬於自己的問題再回答
 question_change: 更改問題

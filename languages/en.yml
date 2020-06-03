@@ -58,6 +58,7 @@ error_duplicated: 答案重合
 error_exceed: 自定义问题数量已达上限
 error_qns_occupied: 已存在设置会话
 error_qns_none: 不存在该问题
+error_none: 无数据
 
 # Debug
 evidence: Evidence
@@ -177,10 +178,15 @@ flood_count: Check Count
 flood_duration: Flood Duration
 flood_static: Auto Static Hint
 flood_total: Flood Total
+modified_by: 最后编辑者
 mention_lack: Lack of the Mentioning User Code
 mention_redundant: Should not Contain User-Related Codes
 old_pinned: Previous Pinned Message
+percent_passed: 通过率
+percent_engaged: 参与率
+percent_wrong: 答错率
 qns_key: 问题编号
+qns_issued: 提问次数
 question: Question
 question_attention: Please confirm which question is yours before answering
 question_change: Change the Question
