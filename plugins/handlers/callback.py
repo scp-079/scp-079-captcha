@@ -22,7 +22,7 @@ from json import loads
 from pyrogram import Client, CallbackQuery
 
 from .. import glovar
-from ..functions.captcha import question_answer, question_change
+from ..functions.captcha import question_answer, question_answer_qns, question_change
 from ..functions.etc import get_int, get_text, lang, thread
 from ..functions.filters import authorized_group, captcha_group, from_user, is_class_e_user, test_group
 from ..functions.telegram import answer_callback, edit_message_reply_markup
@@ -43,6 +43,9 @@ def check_group(client: Client, callback_query: CallbackQuery) -> bool:
         callback_data = loads(callback_query.data)
         action = callback_data["a"]
         action_type = callback_data["t"]
+
+        if action == "q" and action_type == "a":
+            return question_answer_qns(client, callback_query)
 
         if action != "hint" or action_type != "check":
             return False

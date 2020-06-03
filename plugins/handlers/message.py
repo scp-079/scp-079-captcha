@@ -82,8 +82,7 @@ def hint(client: Client, message: Message) -> bool:
                     message=message,
                     gid=gid,
                     user=new,
-                    mid=mid,
-                    now=now
+                    mid=mid
                 )
             else:
                 result = user_captcha(

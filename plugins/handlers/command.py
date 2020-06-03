@@ -137,7 +137,6 @@ def captcha(client: Client, message: Message) -> bool:
                 gid=gid,
                 user=user,
                 mid=r_message.message_id,
-                now=now,
                 aid=aid
             )
         else:

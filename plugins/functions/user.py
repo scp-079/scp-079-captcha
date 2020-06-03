@@ -29,7 +29,7 @@ from .command import get_command_type
 from .decorators import threaded
 from .etc import code, delay, get_int, get_now, get_readable_time, get_text, lang, mention_text, random_str, thread
 from .file import data_to_file, file_tsv, save
-from .filters import is_class_d_user, is_flooded, is_from_user
+from .filters import is_class_d_user, is_flooded, is_from_user, is_should_qns
 from .group import delete_hint, delete_message
 from .ids import init_user_id
 from .telegram import edit_message_photo, edit_message_text, get_messages, get_user_full, kick_chat_member
@@ -119,8 +119,19 @@ def check_timeout_user(client: Client, uid: int, now: int) -> bool:
 
         for gid in list(glovar.user_ids[uid]["wait"]):
             time = glovar.user_ids[uid]["wait"][gid]
+            qns = glovar.user_ids[uid]["qns"].get(gid, "")
 
-            if not time or now - time <= glovar.time_captcha:
+            if not time:
+                continue
+
+            if qns and is_should_qns(gid) and now - time > glovar.time_captcha / 2:
+                terminate_user_timeout_qns(
+                    client=client,
+                    gid=gid,
+                    uid=uid
+                )
+
+            if now - time <= glovar.time_captcha:
                 continue
 
             return terminate_user_timeout(
@@ -545,16 +556,20 @@ def get_uid_from_text(message: Message) -> int:
 
 
 @threaded()
-def kick_user(client: Client, gid: int, uid: Union[int, str], lock: bool = False) -> bool:
+def kick_user(client: Client, gid: int, uid: Union[int, str], until_date: int = 0, lock: bool = False) -> bool:
     # Kick a user
     result = False
 
     lock and glovar.locks["ban"].acquire()
 
     try:
+        if until_date:
+            return kick_chat_member(client, gid, uid, until_date)
+
         kick_chat_member(client, gid, uid)
         sleep(3)
         unban_chat_member(client, gid, uid)
+
         result = True
     except Exception as e:
         logger.warning(f"Kick user error: {e}", exc_info=True)
@@ -978,7 +993,7 @@ def terminate_user_succeed(client: Client, uid: int) -> bool:
         now = get_now()
 
         # Pass in all waiting groups
-        wait_group_list = list(glovar.user_ids[uid]["wait"])
+        wait_group_list = list(g for g in glovar.user_ids[uid]["wait"] if not is_should_qns(g))
 
         for gid in wait_group_list:
             unrestrict_user(client, gid, uid)
@@ -1029,7 +1044,7 @@ def terminate_user_succeed(client: Client, uid: int) -> bool:
 
         if glovar.user_ids[uid]["wait"]:
             gid = min(glovar.user_ids[uid]["wait"], key=glovar.user_ids[uid]["wait"].get)
-            glovar.user_ids[uid]["wait"] = {}
+            [glovar.user_ids[uid]["wait"].pop(g, 0) for g in wait_group_list]
             glovar.user_ids[uid]["succeeded"][gid] = now
 
         # Delete the hint
@@ -1040,7 +1055,7 @@ def terminate_user_succeed(client: Client, uid: int) -> bool:
 
         # Ask help welcome
         welcome_ids = [wid for wid in wait_group_list if wid not in glovar.user_ids[uid]["manual"]]
-        glovar.user_ids[uid]["manual"] = set()
+        glovar.user_ids[uid]["manual"] -= set(wait_group_list)
         save("user_ids")
         ask_help_welcome(client, uid, welcome_ids)
 
@@ -1111,6 +1126,48 @@ def terminate_user_succeed(client: Client, uid: int) -> bool:
     return result
 
 
+def terminate_user_succeed_qns(client: Client, gid: int, uid: int) -> bool:
+    # Qns verification succeed
+    result = False
+
+    try:
+        # Basic data
+        now = get_now()
+
+        # Pass in the group
+        unrestrict_user(client, gid, uid)
+
+        # Modify the status
+        glovar.user_ids[uid]["wait"].pop(gid, 0)
+        glovar.user_ids[uid]["failed"].pop(gid, 0)
+        glovar.user_ids[uid]["restricted"].discard(gid)
+        glovar.user_ids[uid]["banned"].discard(gid)
+        save("user_ids")
+
+        # Delete the hint
+        not is_flooded(gid) and delete_hint(client)
+
+        # Ask help welcome
+        gid not in glovar.user_ids[uid]["manual"] and ask_help_welcome(client, uid, [gid])
+        glovar.user_ids[uid]["manual"].discard(gid)
+        save("user_ids")
+
+        # Send debug message
+        send_debug(
+            client=client,
+            gids=[gid],
+            action=lang("action_verified"),
+            uid=uid,
+            time=now
+        )
+
+        result = True
+    except Exception as e:
+        logger.warning(f"Terminate user succeed qns error: {e}", exc_info=True)
+
+    return result
+
+
 def terminate_user_timeout(client: Client, uid: int) -> bool:
     # Verification timeout
     result = False
@@ -1120,7 +1177,7 @@ def terminate_user_timeout(client: Client, uid: int) -> bool:
         now = get_now()
 
         # Get the group list
-        wait_group_list = list(glovar.user_ids[uid]["wait"])
+        wait_group_list = list(g for g in glovar.user_ids[uid]["wait"] if not is_should_qns(g))
 
         # Modify the status
         glovar.user_ids[uid]["answer"] = ""
@@ -1151,18 +1208,18 @@ def terminate_user_timeout(client: Client, uid: int) -> bool:
             else:
                 glovar.user_ids[uid]["failed"][gid] = now
 
+            # Flood log
+            is_flooded(gid) and flood_user(gid, uid, now, level, "timeout")
+
             # Send debug message
-            if is_flooded(gid):
-                flood_user(gid, uid, now, level, "timeout")
-            else:
-                send_debug(
-                    client=client,
-                    gids=[gid],
-                    action=lang(f"auto_{level}"),
-                    uid=uid,
-                    time=now,
-                    more=lang("description_timeout")
-                )
+            not is_flooded(gid) and send_debug(
+                client=client,
+                gids=[gid],
+                action=lang(f"auto_{level}"),
+                uid=uid,
+                time=now,
+                more=lang("description_timeout")
+            )
 
         # Collect data
         name = glovar.user_ids[uid]["name"]
@@ -1210,6 +1267,55 @@ def terminate_user_timeout(client: Client, uid: int) -> bool:
     return result
 
 
+def terminate_user_timeout_qns(client: Client, gid: int, uid: int) -> bool:
+    # Qns verification timeout
+    result = False
+
+    try:
+        # Basic data
+        now = get_now()
+
+        # Modify the status
+        glovar.user_ids[uid]["wait"].pop(gid, 0)
+        glovar.user_ids[uid]["qns"].pop(gid, "")
+        glovar.user_ids[uid]["manual"].discard(gid)
+        glovar.user_ids[uid]["failed"].pop(gid, 0)
+        glovar.user_ids[uid]["restricted"].discard(gid)
+        glovar.user_ids[uid]["banned"].discard(gid)
+        save("user_ids")
+
+        # Get the level
+        level = get_level(gid)
+
+        # Kick the user (ban for 3600 seconds) or ban the user
+        if level == "kick":
+            kick_user(client, gid, uid, until_date=now + 3600, lock=True)
+        elif level == "ban":
+            ban_user(client, gid, uid)
+
+        # Delete all messages from the user
+        not is_flooded(gid) and ask_for_help(client, "delete", gid, uid)
+
+        # Flood log
+        is_flooded(gid) and flood_user(gid, uid, now, level, "timeout")
+
+        # Send debug message
+        not is_flooded(gid) and send_debug(
+            client=client,
+            gids=[gid],
+            action=lang(f"auto_{level}"),
+            uid=uid,
+            time=now,
+            more=lang("description_timeout")
+        )
+
+        result = True
+    except Exception as e:
+        logger.warning(f"Terminate user timeout qns error: {e}", exc_info=True)
+
+    return result
+
+
 def terminate_user_undo_pass(client: Client, uid: int, gid: int, aid: int) -> bool:
     # Undo pass in group
     result = False
@@ -1249,7 +1355,7 @@ def terminate_user_wrong(client: Client, uid: int) -> bool:
         now = get_now()
 
         # Get the group list
-        wait_group_list = list(glovar.user_ids[uid]["wait"])
+        wait_group_list = list(g for g in glovar.user_ids[uid]["wait"] if not is_should_qns(g))
 
         # Modify the status
         glovar.user_ids[uid]["answer"] = ""
@@ -1263,8 +1369,8 @@ def terminate_user_wrong(client: Client, uid: int) -> bool:
             not is_flooded(gid) and ask_for_help(client, "delete", gid, uid)
 
             # Modify the status
-            glovar.user_ids[uid]["wait"] = {}
-            glovar.user_ids[uid]["manual"] = set()
+            glovar.user_ids[uid]["wait"].pop(gid, 0)
+            glovar.user_ids[uid]["manual"].discard(gid)
 
             # Give the user one more chance
             glovar.user_ids[uid]["failed"][gid] = now
@@ -1302,7 +1408,7 @@ def terminate_user_wrong(client: Client, uid: int) -> bool:
         )
 
         # Add failed user
-        failed_user(client, uid, "timeout")
+        failed_user(client, uid, "wrong")
 
         if not mid:
             return True
@@ -1331,6 +1437,58 @@ def terminate_user_wrong(client: Client, uid: int) -> bool:
         result = True
     except Exception as e:
         logger.warning(f"Terminate user wrong error: {e}", exc_info=True)
+
+    return result
+
+
+def terminate_user_wrong_qns(client: Client, gid: int, uid: int) -> bool:
+    # Qns verification wrong
+    result = False
+
+    try:
+        # Basic data
+        now = get_now()
+
+        # Modify the status
+        glovar.user_ids[uid]["wait"].pop(gid, 0)
+        glovar.user_ids[uid]["qns"].pop(gid, "")
+        glovar.user_ids[uid]["manual"].discard(gid)
+        glovar.user_ids[uid]["failed"].pop(gid, 0)
+        glovar.user_ids[uid]["restricted"].discard(gid)
+        glovar.user_ids[uid]["banned"].discard(gid)
+        save("user_ids")
+
+        # Get the level
+        level = get_level(gid)
+
+        # Kick the user (ban for 3600 seconds) or ban the user
+        if level == "kick":
+            kick_user(client, gid, uid, until_date=now + 3600, lock=True)
+        elif level == "ban":
+            ban_user(client, gid, uid)
+
+        # Delete all messages from the user
+        not is_flooded(gid) and ask_for_help(client, "delete", gid, uid)
+
+        # Flood log
+        is_flooded(gid) and flood_user(gid, uid, now, "kick", "wrong")
+
+        # Delete the hint
+        not is_flooded(gid) and delete_hint(client)
+
+        # Send debug message
+        not is_flooded(gid) and send_debug(
+            client=client,
+            gids=[gid],
+            action=lang(f"auto_{level}"),
+            uid=uid,
+            time=now,
+            more=lang("description_wrong")
+        )
+
+        result = True
+    except Exception as e:
+        logger.warning(f"Terminate user wrong qns error: {e}", exc_info=True)
 
     return result
 

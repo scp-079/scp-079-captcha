@@ -17,13 +17,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from json import loads
 from random import choice, randint, sample, shuffle
 from string import ascii_lowercase
 from typing import Dict, List, Optional, Union
 
 from captcha.image import ImageCaptcha
 from claptcha import Claptcha
-from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message, User
+from pyrogram import CallbackQuery, Client, InlineKeyboardButton, InlineKeyboardMarkup, Message, User
 
 from .. import glovar
 from .channel import ask_help_welcome, send_debug, share_data
@@ -35,8 +36,8 @@ from .filters import is_declared_message, is_flooded, is_limited_user, is_nm_tex
 from .filters import is_wb_text
 from .group import clear_joined_messages, delete_message, get_hint_text, get_pinned
 from .ids import init_user_id
-from .user import flood_user, restrict_user, terminate_user_punish, terminate_user_succeed, terminate_user_wrong
-from .user import unrestrict_user
+from .user import flood_user, restrict_user, terminate_user_punish, terminate_user_succeed, terminate_user_succeed_qns
+from .user import terminate_user_wrong, terminate_user_wrong_qns, unrestrict_user
 from .telegram import delete_messages, edit_message_photo, pin_chat_message
 from .telegram import send_message, send_photo, send_report_message
 
@@ -128,6 +129,7 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
         # Generate the hint text
         text += mention_users_text
 
+        # Send the hint message
         if aid == glovar.nospam_id:
             result = send_hint(
                 client=client,
@@ -181,6 +183,91 @@ def add_wait(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bo
     return result
 
 
+def add_wait_qns(client: Client, gid: int, user: User, mid: int, aid: int = 0) -> bool:
+    # Add user to the qns wait list
+    result = False
+
+    try:
+        # Basic data
+        uid = user.id
+        name = get_full_name(user)
+        now = get_now()
+
+        # Add the user to the wait list
+        glovar.user_ids[uid]["name"] = name
+        glovar.user_ids[uid]["wait"][gid] = now
+        aid and glovar.user_ids[uid]["manual"].add(gid)
+        save("user_ids")
+
+        # Get group's waiting user list
+        wait_user_list = [wid for wid in glovar.user_ids if glovar.user_ids[wid]["wait"].get(gid, 0)]
+
+        # Flood situation detected
+        if len(wait_user_list) > glovar.limit_flood:
+            return add_wait(client, gid, user, mid, aid)
+
+        # Restrict the user
+        restrict_user(client, gid, uid)
+
+        # Choose the users to mention
+        if len(wait_user_list) > glovar.limit_mention:
+            mention_user_list = sample(wait_user_list, glovar.limit_mention)
+        else:
+            mention_user_list = wait_user_list
+
+        # Mention previous users text
+        mention_users_text = "".join(mention_text("\U00002060", wid) for wid in mention_user_list)
+
+        # Send the hint message
+        if aid:
+            result = send_hint_qns(
+                client=client,
+                the_type="manual",
+                gid=gid,
+                uid=uid,
+                mid=mid,
+                user=user
+            )
+        elif len(wait_user_list) == 1:
+            result = send_hint_qns(
+                client=client,
+                the_type="single",
+                gid=gid,
+                uid=uid,
+                mid=mid,
+                user=user
+            )
+        else:
+            result = send_hint_qns(
+                client=client,
+                the_type="multi",
+                gid=gid,
+                uid=uid,
+                mid=mid,
+                count=len(wait_user_list),
+                mention=mention_users_text
+            )
+
+        # Check if the message was sent successfully
+        if not result:
+            return add_failed(client, gid, uid, aid)
+
+        # Send debug message
+        result = send_debug(
+            client=client,
+            gids=[gid],
+            action=lang("action_wait"),
+            uid=uid,
+            aid=aid,
+            em=result,
+            time=now
+        )
+    except Exception as e:
+        logger.warning(f"Add wait qns error: {e}", exc_info=True)
+
+    return result
+
+
 def add_failed(client: Client, gid: int, uid: int, aid: int) -> bool:
     # Add wait failed
     result = False
@@ -188,6 +275,7 @@ def add_failed(client: Client, gid: int, uid: int, aid: int) -> bool:
     try:
         unrestrict_user(client, gid, uid)
         glovar.user_ids[uid]["wait"].pop(gid, 0)
+        glovar.user_ids[uid]["qns"].pop(gid, "")
         aid and glovar.user_ids[uid]["manual"].discard(gid)
         save("user_ids")
     except Exception as e:
@@ -653,6 +741,66 @@ def question_answer(client: Client, uid: int, text: str) -> bool:
     return result
 
 
+def question_answer_qns(client: Client, callback_query: CallbackQuery) -> bool:
+    # Answer the qns question
+    result = False
+
+    try:
+        # Basic data
+        gid = callback_query.message.chat.id
+        uid = callback_query.from_user.id
+        callback_data = loads(callback_query.data)
+        answer = callback_data["d"]
+
+        # Check user status
+        if (not glovar.user_ids.get(uid, {})
+                or not glovar.user_ids[uid]["wait"].get(gid, 0)
+                or not glovar.user_ids[uid]["qns"].get(gid, "")):
+            return False
+
+        # Get user status
+        wait_time = glovar.user_ids[uid]["wait"][gid]
+        qns_tag = glovar.user_ids[uid]["qns"][gid]
+
+        # Check the question
+        if not glovar.questions[gid]["qns"].get(qns_tag, {}):
+            return terminate_user_succeed_qns(
+                client=client,
+                gid=gid,
+                uid=uid
+            )
+
+        # Get question status
+        qns_time = glovar.questions[gid]["qns"][qns_tag]["time"]
+        correct_list = glovar.questions[gid]["qns"][qns_tag]["correct"]
+
+        # Check the question time
+        if qns_time > wait_time or not correct_list:
+            return terminate_user_succeed_qns(
+                client=client,
+                gid=gid,
+                uid=uid
+            )
+
+        # Check the answer
+        if answer and correct_list and answer in correct_list:
+            return terminate_user_succeed_qns(
+                client=client,
+                gid=gid,
+                uid=uid
+            )
+
+        result = terminate_user_wrong_qns(
+            client=client,
+            gid=gid,
+            uid=uid
+        )
+    except Exception as e:
+        logger.warning(f"Question answer qns error: {e}", exc_info=True)
+
+    return result
+
+
 def question_ask(client: Client, user: User, mid: int) -> bool:
     # Ask a new question
     result = False
@@ -928,6 +1076,88 @@ def send_hint(client: Client, the_type: str, gid: int,
     return result
 
 
+def send_hint_qns(client: Client, the_type: str, gid: int,
+                  uid: int, mid: int = None, user: User = None,
+                  count: int = 0, mention: str = "") -> Union[bool, Message]:
+    # Send hint message
+    result = False
+
+    try:
+        # Regular hint text
+        if the_type == "manual":
+            text = get_hint_text(gid, "manual", user)
+        elif the_type == "single":
+            text = get_hint_text(gid, "single", user)
+        else:
+            text = get_hint_text(gid, "multi", user, count, mention)
+
+        # Generate qns text
+        tags = list(glovar.questions[gid]["qns"])
+
+        if not tags:
+            return False
+
+        tag = choice(tags)
+        glovar.user_ids[uid]["qns"][gid] = tag
+        save("user_ids")
+        question = glovar.questions[gid]["qns"][tag]["question"]
+
+        text += code("-" * 24) + "\n"
+        text += question
+
+        # Generate qns markup
+        buttons = []
+        correct_list = glovar.questions[gid]["qns"][tag]["correct"]
+        wrong_list = glovar.questions[gid]["qns"][tag]["wrong"]
+        answers = list(correct_list | wrong_list)
+        shuffle(answers)
+
+        for answer in answers:
+            buttons.append(
+                {
+                    "text": answer,
+                    "data": button_data("q", "a", answer)
+                }
+            )
+
+        markup = get_markup_qns(buttons)
+
+        # Send the hint
+        result = send_message(
+            client=client,
+            cid=gid,
+            text=text,
+            mid=mid,
+            markup=markup
+        )
+
+        if not result:
+            return False
+
+        # Init the data
+        if the_type in {"manual"} and glovar.message_ids[gid].get(the_type) is None:
+            glovar.message_ids[gid][the_type] = {}
+
+        # Update the hint message
+        if the_type == "manual":
+            new_id = result.message_id
+            glovar.message_ids[gid]["manual"][new_id] = get_now()
+        else:
+            new_id = result.message_id
+            old_id = glovar.message_ids[gid]["hint"]
+            glovar.message_ids[gid]["hint"] = new_id
+            old_id and delete_message(client, gid, old_id)
+            old_ids = glovar.message_ids[gid]["flood"]
+            old_ids and thread(delete_messages, (client, gid, old_ids))
+
+        # Save message ids
+        save("message_ids")
+    except Exception as e:
+        logger.warning(f"Send hint qns error: {e}", exc_info=True)
+
+    return result
+
+
 @threaded()
 def send_pin(client: Client, gid: int) -> bool:
     # Send pin message
@@ -1106,9 +1336,9 @@ def user_captcha(client: Client, message: Optional[Message], gid: int, user: Use
     return result
 
 
-def user_captcha_qns(client: Client, message: Optional[Message], gid: int, user: User, mid: int, now: int,
+def user_captcha_qns(client: Client, message: Optional[Message], gid: int, user: User, mid: int,
                      aid: int = 0) -> bool:
-    # User CAPTCHA
+    # Qns user CAPTCHA
     result = False
 
     try:
@@ -1138,39 +1368,10 @@ def user_captcha_qns(client: Client, message: Optional[Message], gid: int, user:
         if wait_time:
             return True
 
-        # Check succeeded list
-        succeeded_time = user_status["succeeded"].get(gid, 0)
+        # Check qns status
+        qns_tag = user_status["qns"].get(gid, "")
 
-        if now - succeeded_time < glovar.time_recheck:
-            return True
-
-        # Check name
-        name = get_full_name(user, True, True, True)
-        ban_name = is_nm_text(name)
-        wb_name = is_wb_text(name, False)
-
-        # Succeeded auto pass
-        succeeded_time = max(user_status["succeeded"].values()) if user_status["succeeded"] else 0
-
-        still_in_captcha_group = (succeeded_time
-                                  and not (ban_name or wb_name)
-                                  and user_status["time"]
-                                  and now - succeeded_time < glovar.time_remove + 30)
-
-        if still_in_captcha_group:
-            not aid and ask_help_welcome(client, uid, [gid], mid)
-            return True
-
-        do_not_need_recheck = (succeeded_time
-                               and not (ban_name or wb_name)
-                               and glovar.configs[gid].get("pass", True)
-                               and succeeded_time and now - succeeded_time < glovar.time_recheck
-                               and not is_watch_user(user, "ban", now)
-                               and not is_watch_user(user, "delete", now)
-                               and not is_limited_user(gid, user, now, False))
-
-        if do_not_need_recheck:
-            not aid and ask_help_welcome(client, uid, [gid], mid)
+        if qns_tag:
             return True
 
         # White list auto pass
@@ -1178,24 +1379,13 @@ def user_captcha_qns(client: Client, message: Optional[Message], gid: int, user:
             not aid and ask_help_welcome(client, uid, [gid], mid)
             return True
 
-        # Check failed list
-        failed_time = user_status["failed"].get(gid, 0)
-
-        if now - failed_time <= glovar.time_punish:
-            delete_message(client, gid, mid)
-            return terminate_user_punish(
-                client=client,
-                uid=uid,
-                gid=gid
-            )
-
         # Check declare status
         if message and is_declared_message(None, message):
             return False
 
         # Add to wait list
-        result = add_wait(client, gid, user, mid, aid)
+        result = add_wait_qns(client, gid, user, mid, aid)
     except Exception as e:
-        logger.warning(f"User captcha error: {e}", exc_info=True)
+        logger.warning(f"User captcha qns error: {e}", exc_info=True)
 
     return result

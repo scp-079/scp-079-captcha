@@ -407,7 +407,7 @@ default_question_data: Dict[str, Union[int, str, Dict[str, Dict[str, Union[int, 
     "qns": {}
 }
 
-default_user_status: Dict[str, Union[int, str, Dict[Union[int, str], Union[float, int]], Set[int]]] = {
+default_user_status: Dict[str, Union[int, str, Dict[Union[int, str], Union[float, int, str]], Set[int]]] = {
     "name": "",
     "mid": 0,
     "time": 0,
@@ -648,7 +648,7 @@ trust_ids: Dict[int, Set[int]] = {}
 #     -10012345678: {12345678}
 # }
 
-user_ids: Dict[int, Dict[str, Union[int, str, Dict[Union[int, str], Union[float, int]], Set[int]]]] = {}
+user_ids: Dict[int, Dict[str, Union[int, str, Dict[Union[int, str], Union[float, int, str]], Set[int]]]] = {}
 # user_ids = {
 #     12345678: {
 #         "name": "name",
