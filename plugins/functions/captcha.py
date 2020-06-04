@@ -636,7 +636,7 @@ def get_markup_ask(captcha: dict, question_type: str = "") -> Optional[InlineKey
             data_set.add(data)
             button = button_data("q", "a", data)
 
-            if (markup_list[-1] is not []
+            if (markup_list[-1] != []
                     and (False
                          or single
                          or get_length(candidate) > 12
@@ -697,9 +697,7 @@ def get_markup_qns(buttons: List[Dict[str, Union[str, bytes]]]) -> Optional[Inli
             text = button["text"]
             data = button["data"]
 
-            logger.warning(markup_list)
-
-            if (markup_list[-1] is not []
+            if (markup_list[-1] != []
                     and (False
                          or get_length(text) > limit_length
                          or get_length(markup_list[-1][-1].text) > limit_length
