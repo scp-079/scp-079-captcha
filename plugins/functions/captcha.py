@@ -552,6 +552,21 @@ def captcha_number() -> dict:
     return result
 
 
+def get_answers(the_list: List[str]) -> List[str]:
+    # Get sorted or shuffled list
+    result = the_list
+
+    try:
+        if all(t in "ABCDEF" for t in the_list):
+            result.sort()
+        else:
+            shuffle(result)
+    except Exception as e:
+        logger.warning(f"Get answers error: {e}", exc_info=True)
+
+    return result
+
+
 def get_markup_ask(captcha: dict, question_type: str = "") -> Optional[InlineKeyboardMarkup]:
     # Question markup
     result = None
@@ -1110,7 +1125,7 @@ def send_hint_qns(client: Client, the_type: str, gid: int,
         correct_list = glovar.questions[gid]["qns"][tag]["correct"]
         wrong_list = glovar.questions[gid]["qns"][tag]["wrong"]
         answers = list(correct_list | wrong_list)
-        shuffle(answers)
+        answers = get_answers(answers)
 
         for answer in answers:
             buttons.append(

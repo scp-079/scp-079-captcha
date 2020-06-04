@@ -18,13 +18,12 @@
 
 import logging
 from copy import deepcopy
-from random import shuffle
 from typing import List
 
 from pyrogram import Client, Message
 
 from .. import glovar
-from .captcha import get_markup_qns
+from .captcha import get_answers, get_markup_qns
 from .channel import send_debug
 from .command import command_error
 from .etc import button_data, code, general_link, get_now, lang, thread
@@ -163,7 +162,7 @@ def qns_add(client: Client, message: Message, gid: int, key: str, text: str, the
         # Generate the markup
         buttons = []
         answers = list(correct_list | wrong_list)
-        shuffle(answers)
+        answers = get_answers(answers)
 
         for answer in answers:
             buttons.append(
