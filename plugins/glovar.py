@@ -414,10 +414,10 @@ default_user_status: Dict[str, Union[int, str, Dict[Union[int, str], Union[float
     "answer": "",
     "limit": 0,
     "try": 0,
-    "qns": {},
     "join": {},
     "pass": {},
     "wait": {},
+    "qns": {},
     "succeeded": {},
     "failed": {},
     "restricted": set(),
@@ -658,9 +658,6 @@ user_ids: Dict[int, Dict[str, Union[int, str, Dict[Union[int, str], Union[float,
 #         "answer": "",
 #         "limit": 5,
 #         "try": 0,
-#         "qns": {
-#             -10012345678: "tag"
-#         },
 #         "join": {
 #             -10012345678: 1512345678
 #         },
@@ -669,6 +666,9 @@ user_ids: Dict[int, Dict[str, Union[int, str, Dict[Union[int, str], Union[float,
 #         },
 #         "wait": {
 #             -10012345678: 1512345678
+#         },
+#         "qns": {
+#             -10012345678: "tag"
 #         },
 #         "succeeded": {
 #             -10012345678: 1512345678
