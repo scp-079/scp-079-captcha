@@ -110,6 +110,23 @@ def file_tsv(first_line: list, lines: List[list], prefix: str = "") -> str:
     return result
 
 
+def file_txt(text: str) -> str:
+    # Generate a txt file
+    result = ""
+
+    try:
+        file = get_new_path(".txt")
+
+        with open(file, "w") as f:
+            f.write(text)
+
+        result = file
+    except Exception as e:
+        logger.warning(f"File txt error: {e}", exc_info=True)
+
+    return result
+
+
 def get_downloaded_path(client: Client, file_id: str, file_ref: str) -> str:
     # Download file, get it's path on local machine
     result = ""
