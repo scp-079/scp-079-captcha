@@ -167,7 +167,7 @@ description_nospam: Click the button below to verify. Please complete verificati
   complete this as you triggered the rules of the anti-ad bot. Since you have
   been in the group for long, the bot did not ban you
 description_pass: Group admin passed your verification
-description_qns: 请开始使用命令来设置所指定群组的自定义问题，自于群组中发起设置会话起，您共有 600 秒的时间来调整，逾时无效
+description_qns: 请开始使用命令来设置所指定群组的自定义问题，自于群组中发起设置会话时计算，您共有 600 秒的时间来调整，逾时无效
 description_single: This group has enabled CAPTCHA. You need to pass verification before
   sending messages. Please click the button below to verify within {} seconds,
   otherwise you will be removed from this group
