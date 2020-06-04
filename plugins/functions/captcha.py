@@ -684,24 +684,30 @@ def get_markup_qns(buttons: List[Dict[str, Union[str, bytes]]]) -> Optional[Inli
         if not buttons:
             return None
 
-        markup_list = [[]]
-
-        if len(buttons) in {2, 4}:
-            limit = 2
-            limit_length = 18
-        else:
-            limit = 3
-            limit_length = 12
+        length = len(buttons)
+        markup_list: List[List[InlineKeyboardButton]] = [[]]
 
         for button in buttons:
             text = button["text"]
             data = button["data"]
 
-            if (markup_list[-1] != []
-                    and (False
-                         or get_length(text) > limit_length
-                         or get_length(markup_list[-1][-1].text) > limit_length
-                         or len(markup_list[-1]) == limit)):
+            if length <= 6 and (length % 3) and not (length % 2) and len(markup_list[-1]) == 2:
+                markup_list.append([])
+
+            elif len(markup_list[-1]) == 3:
+                markup_list.append([])
+
+            elif (len(markup_list[-1]) == 2
+                  and get_length(text) <= 12
+                  and all(get_length(m.text) <= 12 for m in markup_list[-1])):
+                pass
+
+            elif (len(markup_list[-1]) == 1
+                  and get_length(text) <= 18
+                  and get_length(markup_list[-1][-1].text) <= 18):
+                pass
+
+            elif markup_list[-1]:
                 markup_list.append([])
 
             markup_list[-1].append(
