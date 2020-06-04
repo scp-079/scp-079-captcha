@@ -38,6 +38,10 @@ def check_group(client: Client, callback_query: CallbackQuery) -> bool:
     result = False
 
     try:
+        # Check the message
+        if not callback_query.message or not callback_query.message.date:
+            return False
+
         # Basic data
         gid = callback_query.message.chat.id
         uid = callback_query.from_user.id
@@ -90,6 +94,10 @@ def example(client: Client, callback_query: CallbackQuery) -> bool:
     result = False
 
     try:
+        # Check the message
+        if not callback_query.message or not callback_query.message.date:
+            return False
+
         # Basic data
         cid = callback_query.message.chat.id
         mid = callback_query.message.message_id
@@ -116,6 +124,10 @@ def question(client: Client, callback_query: CallbackQuery) -> bool:
     glovar.locks["message"].acquire()
 
     try:
+        # Check the message
+        if not callback_query.message or not callback_query.message.date:
+            return False
+
         # Basic data
         uid = callback_query.from_user.id
         callback_data = loads(callback_query.data)
