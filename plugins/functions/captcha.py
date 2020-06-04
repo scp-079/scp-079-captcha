@@ -1118,12 +1118,17 @@ def send_hint_qns(client: Client, the_type: str, gid: int,
             text = get_hint_text(gid, "multi", user, count, mention, time_captcha=time_captcha)
 
         # Generate qns text
-        tags = list(glovar.questions[gid]["qns"])
+        if the_type in {"manual", "single"}:
+            tags = list(glovar.questions[gid]["qns"])
+        else:
+            tags = glovar.questions[gid]["last"]
 
         if not tags:
             return False
 
         tag = choice(tags)
+        glovar.questions[gid]["last"] = tag
+        save("questions")
         glovar.user_ids[uid]["qns"][gid] = tag
         save("user_ids")
         question = glovar.questions[gid]["qns"][tag]["question"]
