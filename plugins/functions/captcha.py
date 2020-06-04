@@ -600,7 +600,7 @@ def get_answer(message: Message, key: str) -> str:
                 if key != data.get("d", ""):
                     continue
 
-                return key
+                return button.text
     except Exception as e:
         logger.warning(f"Get answer error: {e}", exc_info=True)
 
