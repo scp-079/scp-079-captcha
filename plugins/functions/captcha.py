@@ -30,7 +30,7 @@ from .. import glovar
 from .channel import ask_help_welcome, send_debug, share_data
 from .decorators import threaded
 from .etc import button_data, code, get_channel_link, get_full_name, get_image_size, get_length, get_now, lang
-from .etc import mention_name, mention_text, t2t, thread
+from .etc import mention_name, mention_text, random_str, t2t, thread
 from .file import delete_file, get_new_path, save
 from .filters import is_declared_message, is_flooded, is_limited_user, is_nm_text, is_should_ignore, is_watch_user
 from .filters import is_wb_text
@@ -1142,12 +1142,19 @@ def send_hint_qns(client: Client, the_type: str, gid: int,
         wrong_list = glovar.questions[gid]["qns"][tag]["wrong"]
         answers = list(correct_list | wrong_list)
         answers = get_answers(answers)
+        data_set = set()
 
         for answer in answers:
+            data = random_str(8)
+
+            while data in data_set:
+                data = random_str(8)
+
+            data_set.add(data)
             buttons.append(
                 {
                     "text": answer,
-                    "data": button_data("q", "a", answer)
+                    "data": button_data("q", "a", data)
                 }
             )
 
