@@ -163,7 +163,7 @@ def get_group(client: Client, gid: int, cache: bool = True) -> Optional[Chat]:
 
 
 def get_hint_text(gid: int, the_type: str, user: User = None,
-                  count: int = 0, mention: str = "") -> str:
+                  count: int = 0, mention: str = "", time_captcha: int = glovar.time_captcha) -> str:
     # Get the group's hint text
     result = ""
 
@@ -180,7 +180,7 @@ def get_hint_text(gid: int, the_type: str, user: User = None,
             return result
 
         if the_type == "flood":
-            description = lang("description_hint").format(glovar.time_captcha)
+            description = lang("description_hint").format(time_captcha)
             result += (f"{lang('description')}{lang('colon')}{code(description)}\n" + code("-" * 24) + "\n"
                        f"{lang('action')}{lang('colon')}{code(lang('pin'))}\n"
                        f"{lang('reason')}{lang('colon')}{code(lang('action_flood'))}\n")
@@ -188,20 +188,20 @@ def get_hint_text(gid: int, the_type: str, user: User = None,
         elif the_type == "manual":
             result = (f"{lang('wait_user')}{lang('colon')}{mention_name(user)}\n"
                       f"{lang('user_id')}{lang('colon')}{code(user.id)}\n")
-            description = lang("description_manual").format(glovar.time_captcha)
+            description = lang("description_manual").format(time_captcha)
         elif the_type == "nospam":
             result = (f"{lang('wait_user')}{lang('colon')}{mention_name(user)}\n"
                       f"{lang('user_id')}{lang('colon')}{code(user.id)}\n")
-            description = lang("description_nospam").format(glovar.time_captcha)
+            description = lang("description_nospam").format(time_captcha)
         elif the_type == "single":
             result = f"{lang('wait_user')}{lang('colon')}{mention_id(user.id)}\n"
-            description = lang("description_single").format(glovar.time_captcha)
+            description = lang("description_single").format(time_captcha)
         elif the_type == "static":
-            description = lang("description_hint").format(glovar.time_captcha)
+            description = lang("description_hint").format(time_captcha)
         elif the_type == "multi":
             count_text = f"{count} {lang('members')}"
             result = f"{lang('wait_user')}{lang('colon')}{code(count_text)}\n"
-            description = lang("description_hint").format(glovar.time_captcha)
+            description = lang("description_hint").format(time_captcha)
         else:
             description = ""
 
