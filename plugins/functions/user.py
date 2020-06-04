@@ -114,9 +114,11 @@ def check_timeout_user(client: Client, uid: int, now: int) -> bool:
     result = False
 
     try:
+        # Check user waiting status
         if not glovar.user_ids[uid]["wait"]:
             return False
 
+        # Check regular timeout
         for gid in list(glovar.user_ids[uid]["wait"]):
             time = glovar.user_ids[uid]["wait"][gid]
             qns = glovar.user_ids[uid]["qns"].get(gid, "")
@@ -124,18 +126,35 @@ def check_timeout_user(client: Client, uid: int, now: int) -> bool:
             if not time:
                 continue
 
-            if qns and is_should_qns(gid) and now - time > glovar.time_captcha / 2:
-                terminate_user_timeout_qns(
-                    client=client,
-                    gid=gid,
-                    uid=uid
-                )
+            if qns and is_should_qns(gid):
+                continue
 
             if now - time <= glovar.time_captcha:
                 continue
 
-            return terminate_user_timeout(
+            terminate_user_timeout(
                 client=client,
+                uid=uid
+            )
+            break
+
+        # Check qns timeout
+        for gid in list(glovar.user_ids[uid]["wait"]):
+            time = glovar.user_ids[uid]["wait"][gid]
+            qns = glovar.user_ids[uid]["qns"].get(gid, "")
+
+            if not time:
+                continue
+
+            if not qns or not is_should_qns(gid):
+                continue
+
+            if now - time <= ((glovar.time_captcha // 2) or 30):
+                continue
+
+            terminate_user_timeout_qns(
+                client=client,
+                gid=gid,
                 uid=uid
             )
 
@@ -731,11 +750,13 @@ def remove_wait_user(client: Client, uid: int) -> bool:
                 continue
 
             level = get_level(gid)
-            change_member_status(client, level, gid, uid, record=True)
+            delay(3, change_member_status, [client, level, gid, uid, True])
             glovar.user_ids[uid]["wait"].pop(gid, 0)
+            glovar.user_ids[uid]["qns"].pop(gid, "")
             glovar.user_ids[uid]["manual"].discard(gid)
             glovar.user_ids[uid]["failed"][gid] = 0
 
+        # Delete hint
         not all(is_flooded(gid) for gid in wait_group_list) and delete_hint(client)
         save("user_ids")
 
@@ -814,8 +835,11 @@ def terminate_user_banned(client: Client, uid: int, gid: int) -> bool:
     try:
         # Check the user's status in that group
         failed = glovar.user_ids[uid]["wait"].pop(gid, 0)
-        failed and not is_flooded(gid) and delete_hint(client)
+        glovar.user_ids[uid]["qns"].pop(gid, "")
         glovar.user_ids[uid]["manual"].discard(gid)
+
+        # Delete hint
+        failed and not is_flooded(gid) and delete_hint(client)
 
         # Reset all groups' success records
         for gid in glovar.user_ids[uid]["succeeded"]:
@@ -894,6 +918,7 @@ def terminate_user_pass(client: Client, uid: int, gid: int, aid: int) -> bool:
         # Modify the status
         glovar.user_ids[uid]["pass"][gid] = now
         waiting = glovar.user_ids[uid]["wait"].pop(gid, 0)
+        glovar.user_ids[uid]["qns"].pop(gid, "")
         glovar.user_ids[uid]["failed"].pop(gid, 0)
         glovar.user_ids[uid]["banned"].discard(gid)
         glovar.user_ids[uid]["restricted"].discard(gid)
