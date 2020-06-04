@@ -644,6 +644,43 @@ def lift_ban(client: Client, uid: int, now: int) -> bool:
     return result
 
 
+@threaded()
+def qns_count(gid: int, key: str, the_type: str) -> bool:
+    # Qns count
+    result = False
+
+    glovar.locks["config"].acquire()
+
+    try:
+        if not key:
+            return False
+
+        if not glovar.questions[gid]["qns"]:
+            return False
+
+        if not glovar.questions[gid]["qns"].get(key, {}):
+            return False
+
+        if the_type == "issue":
+            glovar.questions[gid]["qns"][key]["issued"] += 1
+
+        if the_type in {"succeed", "wrong"}:
+            glovar.questions[gid]["qns"][key]["engaged"] += 1
+
+        if the_type == "succeed":
+            glovar.questions[gid]["qns"][key]["solved"] += 1
+
+        save("questions")
+
+        result = True
+    except Exception as e:
+        logger.warning(f"Qns count error: {e}", exc_info=True)
+    finally:
+        glovar.locks["config"].release()
+
+    return result
+
+
 def remove_captcha_group(client: Client, uid: int) -> bool:
     # Remove user from captcha group
     result = False
@@ -1157,6 +1194,7 @@ def terminate_user_succeed_qns(client: Client, gid: int, uid: int, qid: str) -> 
 
     try:
         # Basic data
+        key = glovar.user_ids[uid]["qns"].get(gid, "")
         now = get_now()
 
         # Pass in the group
@@ -1188,6 +1226,9 @@ def terminate_user_succeed_qns(client: Client, gid: int, uid: int, qid: str) -> 
 
         # Answer the callback
         thread(answer_callback, (client, qid, lang("action_verified"), True))
+
+        # Count
+        qns_count(gid, key, "succeed")
 
         result = True
     except Exception as e:
@@ -1475,6 +1516,7 @@ def terminate_user_wrong_qns(client: Client, gid: int, uid: int, qid: str) -> bo
 
     try:
         # Basic data
+        key = glovar.user_ids[uid]["qns"].get(gid, "")
         now = get_now()
 
         # Modify the status
@@ -1516,6 +1558,9 @@ def terminate_user_wrong_qns(client: Client, gid: int, uid: int, qid: str) -> bo
 
         # Answer the callback
         thread(answer_callback, (client, qid, lang("description_wrong"), True))
+
+        # Count
+        qns_count(gid, key, "wrong")
 
         result = True
     except Exception as e:

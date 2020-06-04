@@ -36,8 +36,8 @@ from .filters import is_declared_message, is_flooded, is_limited_user, is_nm_tex
 from .filters import is_wb_text
 from .group import clear_joined_messages, delete_message, get_hint_text, get_pinned
 from .ids import init_user_id
-from .user import flood_user, restrict_user, terminate_user_punish, terminate_user_succeed, terminate_user_succeed_qns
-from .user import terminate_user_wrong, terminate_user_wrong_qns, unrestrict_user
+from .user import flood_user, qns_count, restrict_user, terminate_user_punish, terminate_user_succeed
+from .user import terminate_user_succeed_qns, terminate_user_wrong, terminate_user_wrong_qns, unrestrict_user
 from .telegram import delete_messages, edit_message_photo, pin_chat_message
 from .telegram import send_message, send_photo, send_report_message
 
@@ -1164,6 +1164,9 @@ def send_hint_qns(client: Client, the_type: str, gid: int,
 
         if not result:
             return False
+
+        # Count
+        qns_count(gid, tag, "issue")
 
         # Init the data
         if the_type in {"manual"} and glovar.message_ids[gid].get(the_type) is None:
