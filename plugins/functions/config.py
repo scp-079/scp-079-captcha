@@ -269,8 +269,8 @@ def qns_show(client: Client, message: Message, gid: int, file: bool = False) -> 
                      f"{lang('qns_issued')}{lang('colon')}{code(issued)}\n"
                      f"{lang('percent_passed')}{lang('colon')}{code(f'{percent_passed:.1f}%')}\n"
                      f"{lang('percent_engaged')}{lang('colon')}{code(f'{percent_engaged:.1f}%')}\n"
-                     f"{lang('percent_wrong')}{lang('colon')}{code(f'{percent_wrong:.1f}%')}\n" + code("-" * 24) + "\n"
-                     f"{lang('question')}{lang('colon')}{code(question)}\n" + code("-" * 24) + "\n")
+                     f"{lang('percent_wrong')}{lang('colon')}{code(f'{percent_wrong:.1f}%')}\n"
+                     f"{lang('question')}{lang('colon')}{code(question)}\n")
             text += "\n".join("\t" * 4 + f"■ {code(c)}" for c in correct_list) + "\n"
             text += "\n".join("\t" * 4 + f"□ {code(w)}" for w in wrong_list)
 
