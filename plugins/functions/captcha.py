@@ -670,15 +670,18 @@ def get_markup_hint(single: bool = False, static: bool = False,
     result = None
 
     try:
-        query_data = button_data("hint", "check", None)
-
         if static:
             captcha_link = glovar.captcha_link
+            data = "static"
         elif glovar.locks["invite"].acquire(blocking=False):
+            data = None
             captcha_link = glovar.invite.get("link", glovar.captcha_link)
             glovar.locks["invite"].release()
         else:
+            data = None
             captcha_link = glovar.captcha_link
+
+        query_data = button_data("hint", "check", data)
 
         markup_list = [[]]
 
