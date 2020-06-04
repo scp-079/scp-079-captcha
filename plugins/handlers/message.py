@@ -222,34 +222,34 @@ def verify_check(client: Client, message: Message) -> bool:
 
         # Check message
         if message.service:
-            return True
+            return False
 
         # Check if the user is Class E personnel
         if is_class_e_user(message.from_user):
-            return True
+            return False
 
         # Check data
         if not glovar.user_ids.get(uid, {}):
-            return True
+            return False
 
         # User wait list
         wait_group_list = list(glovar.user_ids[uid]["wait"])
 
         # Check wait list
-        if not wait_group_list:
-            return True
+        if not wait_group_list or all(is_should_qns(g) for g in wait_group_list):
+            return False
 
         # Check if the user is Class D personnel
         if is_class_d_user(message.from_user) and all(gid not in glovar.ignore_ids["user"] for gid in wait_group_list):
-            return True
+            return False
 
         # Check the question status
         if not glovar.user_ids[uid]["mid"]:
-            return True
+            return False
 
         # Check the message
         if not message.text and not message.caption:
-            return True
+            return False
 
         # Answer the question
         result = question_answer(client, uid, message.text or message.caption)
