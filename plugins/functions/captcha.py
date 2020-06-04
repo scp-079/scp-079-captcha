@@ -567,6 +567,46 @@ def get_answers(the_list: List[str]) -> List[str]:
     return result
 
 
+def get_answer(message: Message, key: str) -> str:
+    # Get answer from message's button
+    result = ""
+
+    try:
+        if not message.reply_markup:
+            return ""
+
+        if not isinstance(message.reply_markup, InlineKeyboardMarkup):
+            return ""
+
+        if not message.reply_markup.inline_keyboard:
+            return ""
+
+        for button_row in message.reply_markup.inline_keyboard:
+            for button in button_row:
+                if not button:
+                    continue
+
+                if not button.text:
+                    continue
+
+                if not button.callback_data:
+                    continue
+
+                data = loads(button.callback_data)
+
+                if not data:
+                    continue
+
+                if key != data.get("d", ""):
+                    continue
+
+                return key
+    except Exception as e:
+        logger.warning(f"Get answer error: {e}", exc_info=True)
+
+    return result
+
+
 def get_markup_ask(captcha: dict, question_type: str = "") -> Optional[InlineKeyboardMarkup]:
     # Question markup
     result = None
@@ -769,7 +809,8 @@ def question_answer_qns(client: Client, callback_query: CallbackQuery) -> bool:
         uid = callback_query.from_user.id
         qid = callback_query.id
         callback_data = loads(callback_query.data)
-        answer = callback_data["d"]
+        key = callback_data["d"]
+        answer = get_answer(callback_query.message, key)
 
         # Check user status
         if (not glovar.user_ids.get(uid, {})
