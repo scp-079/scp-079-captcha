@@ -1121,7 +1121,7 @@ def send_hint_qns(client: Client, the_type: str, gid: int,
         if the_type in {"manual", "single"}:
             tags = list(glovar.questions[gid]["qns"])
         else:
-            tags = glovar.questions[gid]["last"]
+            tags = [glovar.questions[gid]["last"]] or list(glovar.questions[gid]["qns"])
 
         if not tags:
             return False
