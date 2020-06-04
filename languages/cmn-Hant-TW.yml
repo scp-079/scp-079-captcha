@@ -51,11 +51,11 @@ command_para: 錯誤指令參數
 command_type: 錯誤指令類型
 command_usage: 錯誤用法
 detail_qns_occupied: 会话被 {} 占用中
-error_140: 问题不得超过 140 字
-error_15: 单个回答不得超过 15 字节
-error_6: 备选答案个数不得超过 6 个
 error_duplicated: 答案重合
-error_exceed: 自定义问题数量已达上限
+error_exceed_qn: 问题不得超过 140 字
+error_exceed_qns: 自定义问题数量已达上限
+error_exceed_answer: 单个回答不得超过 15 字节
+error_exceed_answers: 备选答案个数不得超过 6 个
 error_qns_occupied: 已存在设置会话
 error_qns_none: 不存在该问题
 error_none: 无数据

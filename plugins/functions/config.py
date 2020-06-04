@@ -91,7 +91,7 @@ def qns_add(client: Client, message: Message, gid: int, key: str, text: str, the
 
         # Check questions count
         if the_type == "add" and len(glovar.questions[gid]["qns"]) >= 5:
-            return command_error(client, message, lang(f"action_qns_{the_type}"), lang("error_exceed"),
+            return command_error(client, message, lang(f"action_qns_{the_type}"), lang("error_exceed_qns"),
                                  report=False)
 
         # Get text list
@@ -109,7 +109,7 @@ def qns_add(client: Client, message: Message, gid: int, key: str, text: str, the
         # Check the question
         if len(question) > 140:
             return command_error(client, message, lang(f"action_qns_{the_type}"), lang("command_para"),
-                                 lang("error_140"), False)
+                                 lang("error_exceed_qn"), False)
 
         correct_list = {c for c in correct.split("\n") if c.strip()}
 
@@ -125,11 +125,11 @@ def qns_add(client: Client, message: Message, gid: int, key: str, text: str, the
 
         if len(correct_list | wrong_list) > 6:
             return command_error(client, message, lang(f"action_qns_{the_type}"), lang("command_para"),
-                                 lang("error_6"), False)
+                                 lang("error_exceed_answers"), False)
 
-        if any(len(a.encode()) > 15 for a in correct_list) or any(len(a.encode()) > 15 for a in wrong_list):
+        if any(len(a.encode()) > 15 for a in correct_list) or any(len(a.encode()) > 64 for a in wrong_list):
             return command_error(client, message, lang(f"action_qns_{the_type}"), lang("command_para"),
-                                 lang("error_15"), False)
+                                 lang("error_exceed_answer"), False)
 
         # Add or edit the answer
         if the_type == "add":
