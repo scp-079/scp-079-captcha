@@ -32,8 +32,8 @@ from .file import data_to_file, file_tsv, save
 from .filters import is_class_d_user, is_flooded, is_from_user, is_should_qns
 from .group import delete_hint, delete_message
 from .ids import init_user_id
-from .telegram import edit_message_photo, edit_message_text, get_messages, get_user_full, kick_chat_member
-from .telegram import resolve_username, restrict_chat_member, unban_chat_member
+from .telegram import answer_callback, edit_message_photo, edit_message_text, get_messages, get_user_full
+from .telegram import kick_chat_member, resolve_username, restrict_chat_member, unban_chat_member
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -1126,7 +1126,7 @@ def terminate_user_succeed(client: Client, uid: int) -> bool:
     return result
 
 
-def terminate_user_succeed_qns(client: Client, gid: int, uid: int) -> bool:
+def terminate_user_succeed_qns(client: Client, gid: int, uid: int, qid: str) -> bool:
     # Qns verification succeed
     result = False
 
@@ -1160,6 +1160,9 @@ def terminate_user_succeed_qns(client: Client, gid: int, uid: int) -> bool:
             uid=uid,
             time=now
         )
+
+        # Answer the callback
+        thread(answer_callback, (client, qid, lang("action_verified"), True))
 
         result = True
     except Exception as e:
@@ -1441,7 +1444,7 @@ def terminate_user_wrong(client: Client, uid: int) -> bool:
     return result
 
 
-def terminate_user_wrong_qns(client: Client, gid: int, uid: int) -> bool:
+def terminate_user_wrong_qns(client: Client, gid: int, uid: int, qid: str) -> bool:
     # Qns verification wrong
     result = False
 
@@ -1485,6 +1488,9 @@ def terminate_user_wrong_qns(client: Client, gid: int, uid: int) -> bool:
             time=now,
             more=lang("description_wrong")
         )
+
+        # Answer the callback
+        thread(answer_callback, (client, qid, lang("description_wrong"), True))
 
         result = True
     except Exception as e:

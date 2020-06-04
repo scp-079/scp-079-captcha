@@ -671,8 +671,8 @@ def get_markup_hint(single: bool = False, static: bool = False,
 
     try:
         if static:
-            captcha_link = glovar.captcha_link
             data = "static"
+            captcha_link = glovar.captcha_link
         elif glovar.locks["invite"].acquire(blocking=False):
             data = None
             captcha_link = glovar.invite.get("link", glovar.captcha_link)
@@ -767,6 +767,7 @@ def question_answer_qns(client: Client, callback_query: CallbackQuery) -> bool:
         # Basic data
         gid = callback_query.message.chat.id
         uid = callback_query.from_user.id
+        qid = callback_query.id
         callback_data = loads(callback_query.data)
         answer = callback_data["d"]
 
@@ -785,7 +786,8 @@ def question_answer_qns(client: Client, callback_query: CallbackQuery) -> bool:
             return terminate_user_succeed_qns(
                 client=client,
                 gid=gid,
-                uid=uid
+                uid=uid,
+                qid=qid
             )
 
         # Get question status
@@ -797,7 +799,8 @@ def question_answer_qns(client: Client, callback_query: CallbackQuery) -> bool:
             return terminate_user_succeed_qns(
                 client=client,
                 gid=gid,
-                uid=uid
+                uid=uid,
+                qid=qid
             )
 
         # Check the answer
@@ -805,13 +808,15 @@ def question_answer_qns(client: Client, callback_query: CallbackQuery) -> bool:
             return terminate_user_succeed_qns(
                 client=client,
                 gid=gid,
-                uid=uid
+                uid=uid,
+                qid=qid
             )
 
         result = terminate_user_wrong_qns(
             client=client,
             gid=gid,
-            uid=uid
+            uid=uid,
+            qid=qid
         )
     except Exception as e:
         logger.warning(f"Question answer qns error: {e}", exc_info=True)
