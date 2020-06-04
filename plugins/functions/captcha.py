@@ -634,10 +634,14 @@ def get_markup_ask(captcha: dict, question_type: str = "") -> Optional[InlineKey
                 data = random_str(8)
 
             data_set.add(data)
-            length = len(candidate.encode())
             button = button_data("q", "a", data)
 
-            if markup_list[-1] is not [] and (single or length > 12):
+            if (markup_list[-1] is not []
+                    and (False
+                         or single
+                         or get_length(candidate) > 12
+                         or get_length(markup_list[-1][-1].text) > 12
+                         or len(markup_list[-1]) == 3)):
                 markup_list.append([])
 
             markup_list[-1].append(
@@ -693,10 +697,11 @@ def get_markup_qns(buttons: List[Dict[str, Union[str, bytes]]]) -> Optional[Inli
             text = button["text"]
             data = button["data"]
 
-            length = get_length(text)
-
-            if (len(markup_list[-1]) == limit
-                    or (length > limit_length and markup_list[-1] is not [])):
+            if (markup_list[-1] is not []
+                    and (False
+                         or get_length(text) > limit_length
+                         or get_length(markup_list[-1][-1].text) > limit_length
+                         or len(markup_list[-1]) == limit)):
                 markup_list.append([])
 
             markup_list[-1].append(
@@ -705,6 +710,9 @@ def get_markup_qns(buttons: List[Dict[str, Union[str, bytes]]]) -> Optional[Inli
                     callback_data=data
                 )
             )
+
+        if not markup_list:
+            return None
 
         result = InlineKeyboardMarkup(markup_list)
     except Exception as e:
