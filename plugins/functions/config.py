@@ -318,7 +318,7 @@ def qns_show_file(client: Client, message: Message, gid: int,
             percent_engaged = (engaged / (issued or 1)) * 100
             percent_wrong = ((engaged - solved) / (engaged or 1)) * 100
 
-            text += code("-" * 24) + "\n\n"
+            text += ("-" * 24) + "\n\n"
             text += (f"{lang('qns_key')}{lang('colon')}{key}\n"
                      f"{lang('modified_by')}{lang('colon')}{aid}\n"
                      f"{lang('qns_issued')}{lang('colon')}{issued}\n"
@@ -326,8 +326,8 @@ def qns_show_file(client: Client, message: Message, gid: int,
                      f"{lang('percent_engaged')}{lang('colon')}{f'{percent_engaged:.1f}%'}\n"
                      f"{lang('percent_wrong')}{lang('colon')}{f'{percent_wrong:.1f}%'}\n"
                      f"{lang('question')}{lang('colon')}{question}\n")
-            text += "\n".join("\t" * 4 + f"■ {c}" for c in correct_list) + "\n"
-            text += "\n".join("\t" * 4 + f"□ {w}" for w in wrong_list)
+            text += "\n".join("\t" + f"■ {c}" for c in correct_list) + "\n"
+            text += "\n".join("\t" + f"□ {w}" for w in wrong_list)
 
             if wrong_list:
                 text += "\n\n"
