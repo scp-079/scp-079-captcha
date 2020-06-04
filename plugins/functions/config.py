@@ -248,7 +248,8 @@ def qns_show(client: Client, message: Message, gid: int, file: bool = False) -> 
         group_name, group_link = get_group_info(client, gid)
         text = (f"{lang('group_name')}{lang('colon')}{general_link(group_name, group_link)}\n"
                 f"{lang('group_id')}{lang('colon')}{code(gid)}\n"
-                f"{lang('action')}{lang('colon')}{code(lang('action_qns_show'))}\n\n")
+                f"{lang('action')}{lang('colon')}{code(lang('action_qns_show'))}\n"
+                f"{lang('qns_total')}{lang('colon')}{code(len(questions))}\n\n")
 
         for key in questions:
             aid = questions[key]["aid"]
@@ -304,7 +305,8 @@ def qns_show_file(client: Client, message: Message, gid: int,
                    f"{lang('group_id')}{lang('colon')}{code(gid)}\n"
                    f"{lang('action')}{lang('colon')}{code(lang('action_qns_show'))}\n\n")
         text = (f"{lang('group_name')}{lang('colon')}{group_name}\n"
-                f"{lang('group_id')}{lang('colon')}{gid}\n\n")
+                f"{lang('group_id')}{lang('colon')}{gid}\n"
+                f"{lang('qns_total')}{lang('colon')}{len(questions)}\n\n")
 
         for key in questions:
             aid = questions[key]["aid"]

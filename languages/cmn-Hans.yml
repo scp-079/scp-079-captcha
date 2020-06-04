@@ -178,6 +178,7 @@ percent_engaged: 参与率
 percent_wrong: 答错率
 qns_key: 问题编号
 qns_issued: 提问次数
+qns_total: 问题总数
 question: 问题
 question_attention: 请确认哪个是对自己发出的问题再回答
 question_change: 更换问题

@@ -188,6 +188,7 @@ percent_engaged: 参与率
 percent_wrong: 答错率
 qns_key: 问题编号
 qns_issued: 提问次数
+qns_total: 问题总数
 question: Question
 question_attention: Please confirm which question is yours before answering
 question_change: Change the Question
