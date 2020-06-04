@@ -23,8 +23,9 @@ from pyrogram import Client, CallbackQuery
 
 from .. import glovar
 from ..functions.captcha import question_answer, question_answer_qns, question_change
-from ..functions.etc import get_int, get_text, lang, thread
+from ..functions.etc import get_int, get_now, get_text, lang, thread
 from ..functions.filters import authorized_group, captcha_group, from_user, is_class_e_user, test_group
+from ..functions.group import delete_message
 from ..functions.telegram import answer_callback, edit_message_reply_markup
 
 # Enable logging
@@ -40,13 +41,23 @@ def check_group(client: Client, callback_query: CallbackQuery) -> bool:
         # Basic data
         gid = callback_query.message.chat.id
         uid = callback_query.from_user.id
+        mid = callback_query.message.message_id
         callback_data = loads(callback_query.data)
         action = callback_data["a"]
         action_type = callback_data["t"]
+        data = callback_data["d"]
+        date = callback_query.message.date
+        now = get_now()
 
+        # Check the date
+        if now - date > 3600 and not(action == "hint" and action_type == "check" and data == "static"):
+            return delete_message(client, gid, mid)
+
+        # Answer qns
         if action == "q" and action_type == "a":
             return question_answer_qns(client, callback_query)
 
+        # Check the waiting status
         if action != "hint" or action_type != "check":
             return False
 
