@@ -1098,13 +1098,16 @@ def send_hint_qns(client: Client, the_type: str, gid: int,
     result = False
 
     try:
+        # Basic data
+        time_captcha = (glovar.time_captcha // 2) or 30
+
         # Regular hint text
         if the_type == "manual":
-            text = get_hint_text(gid, "manual", user, time_captcha=glovar.time_captcha // 2)
+            text = get_hint_text(gid, "manual", user, time_captcha=time_captcha)
         elif the_type == "single":
-            text = get_hint_text(gid, "single", user, time_captcha=glovar.time_captcha // 2)
+            text = get_hint_text(gid, "single", user, time_captcha=time_captcha)
         else:
-            text = get_hint_text(gid, "multi", user, count, mention, time_captcha=glovar.time_captcha // 2)
+            text = get_hint_text(gid, "multi", user, count, mention, time_captcha=time_captcha)
 
         # Generate qns text
         tags = list(glovar.questions[gid]["qns"])
