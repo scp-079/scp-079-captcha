@@ -694,7 +694,7 @@ def qns(client: Client, message: Message) -> bool:
     return result
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(["remove"], glovar.prefix)
+@Client.on_message(Filters.incoming & Filters.private & Filters.command(["remove", "rm"], glovar.prefix)
                    & from_user & class_e)
 def remove(client: Client, message: Message) -> bool:
     # Remove a custom question
