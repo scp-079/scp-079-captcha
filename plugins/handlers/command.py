@@ -454,7 +454,7 @@ def edit(client: Client, message: Message) -> bool:
             return False
 
         # Get key and custom text
-        key, text = get_command_type(message)
+        key, text = get_command_context(message)
 
         # Check the command format
         if not key or not text:
