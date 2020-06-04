@@ -266,13 +266,13 @@ def new_invite_link(client: Client, manual: bool = False) -> bool:
         if any(is_flooded(gid) for gid in list(glovar.configs)):
             return False
 
+        # Copy the data
         with glovar.locks["message"]:
-            # Copy the data
             user_ids = deepcopy(glovar.user_ids)
 
-            # Check if there is a waiting
-            if any(user_ids[uid]["wait"] for uid in user_ids):
-                return False
+        # Check if there is a waiting
+        if any(user_ids[uid]["wait"] for uid in user_ids):
+            return False
 
         # Check the link time
         if not manual and now - glovar.invite.get("time", 0) < glovar.time_invite:
