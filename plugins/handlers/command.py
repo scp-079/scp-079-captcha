@@ -775,7 +775,10 @@ def show(client: Client, message: Message) -> bool:
         if not gid:
             return False
 
-        result = qns_show(client, message, gid)
+        # Get key
+        file = get_command_type(message)
+
+        result = qns_show(client, message, gid, file == "file")
     except Exception as e:
         logger.warning(f"Show error: {e}", exc_info=True)
     finally:

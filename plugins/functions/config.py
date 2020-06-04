@@ -18,7 +18,7 @@
 
 import logging
 from copy import deepcopy
-from typing import List
+from typing import Dict, List, Set, Union
 
 from pyrogram import Client, Message
 
@@ -26,9 +26,10 @@ from .. import glovar
 from .captcha import get_answers, get_markup_qns
 from .channel import send_debug
 from .command import command_error
+from .decorators import threaded
 from .etc import button_data, code, general_link, get_now, lang, thread
-from .file import save
-from .telegram import get_group_info, send_message, send_report_message
+from .file import delete_file, file_txt, save
+from .telegram import get_group_info, send_document, send_message, send_report_message
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -90,7 +91,7 @@ def qns_add(client: Client, message: Message, gid: int, key: str, text: str, the
         now = get_now()
 
         # Check questions count
-        if the_type == "add" and len(glovar.questions[gid]["qns"]) >= 5:
+        if the_type == "add" and len(glovar.questions[gid]["qns"]) >= 20:
             return command_error(client, message, lang(f"action_qns_{the_type}"), lang("error_exceed_qns"),
                                  report=False)
 
@@ -222,7 +223,8 @@ def qns_remove(client: Client, message: Message, gid: int, key: str) -> bool:
     return result
 
 
-def qns_show(client: Client, message: Message, gid: int) -> bool:
+@threaded()
+def qns_show(client: Client, message: Message, gid: int, file: bool = False) -> bool:
     # Show all custom questions
     result = False
 
@@ -230,11 +232,17 @@ def qns_show(client: Client, message: Message, gid: int) -> bool:
         # Basic data
         cid = message.chat.id
         mid = message.message_id
-        questions = glovar.questions[gid]["qns"]
+
+        with glovar.locks["config"]:
+            questions = glovar.questions[gid]["qns"]
 
         # Check data
         if not questions:
             return command_error(client, message, lang("action_qns_show"), lang("error_none"), report=False)
+
+        # Send as file
+        if file or len(questions) > 5:
+            return qns_show_file(client, message, gid, questions)
 
         # Generate the text
         group_name, group_link = get_group_info(client, gid)
@@ -254,7 +262,7 @@ def qns_show(client: Client, message: Message, gid: int) -> bool:
             percent_engaged = (engaged / (issued or 1)) * 100
             percent_wrong = ((engaged - solved) / (engaged or 1)) * 100
 
-            text += code("-" * 24) + "\n"
+            text += code("-" * 24) + "\n\n"
             text += (f"{lang('qns_key')}{lang('colon')}{code(key)}\n"
                      f"{lang('modified_by')}{lang('colon')}{code(aid)}\n"
                      f"{lang('qns_issued')}{lang('colon')}{code(issued)}\n"
@@ -271,11 +279,73 @@ def qns_show(client: Client, message: Message, gid: int) -> bool:
                 text += "\n"
 
         # Send the report message
-        thread(send_message, (client, cid, text, mid))
+        send_message(client, cid, text, mid)
 
         result = True
     except Exception as e:
         logger.warning(f"Qns show error: {e}", exc_info=True)
+
+    return result
+
+
+def qns_show_file(client: Client, message: Message, gid: int,
+                  questions: Dict[str, Dict[str, Union[int, str, Set[str]]]]) -> bool:
+    # Show all custom questions as TXT file
+    result = False
+
+    try:
+        # Basic data
+        cid = message.chat.id
+        mid = message.message_id
+
+        # Generate the text
+        group_name, group_link = get_group_info(client, gid)
+        caption = (f"{lang('group_name')}{lang('colon')}{general_link(group_name, group_link)}\n"
+                   f"{lang('group_id')}{lang('colon')}{code(gid)}\n"
+                   f"{lang('action')}{lang('colon')}{code(lang('action_qns_show'))}\n\n")
+        text = (f"{lang('group_name')}{lang('colon')}{group_name}\n"
+                f"{lang('group_id')}{lang('colon')}{gid}\n\n")
+
+        for key in questions:
+            aid = questions[key]["aid"]
+            question = questions[key]["question"]
+            correct_list = questions[key]["correct"]
+            wrong_list = questions[key]["wrong"]
+            issued = questions[key]["issued"]
+            engaged = questions[key]["engaged"]
+            solved = questions[key]["solved"]
+            percent_passed = (solved / (issued or 1)) * 100
+            percent_engaged = (engaged / (issued or 1)) * 100
+            percent_wrong = ((engaged - solved) / (engaged or 1)) * 100
+
+            text += code("-" * 24) + "\n\n"
+            text += (f"{lang('qns_key')}{lang('colon')}{key}\n"
+                     f"{lang('modified_by')}{lang('colon')}{aid}\n"
+                     f"{lang('qns_issued')}{lang('colon')}{issued}\n"
+                     f"{lang('percent_passed')}{lang('colon')}{f'{percent_passed:.1f}%'}\n"
+                     f"{lang('percent_engaged')}{lang('colon')}{f'{percent_engaged:.1f}%'}\n"
+                     f"{lang('percent_wrong')}{lang('colon')}{f'{percent_wrong:.1f}%'}\n"
+                     f"{lang('question')}{lang('colon')}{question}\n")
+            text += "\n".join("\t" * 4 + f"■ {c}" for c in correct_list) + "\n"
+            text += "\n".join("\t" * 4 + f"□ {w}" for w in wrong_list)
+
+            if wrong_list:
+                text += "\n\n"
+            else:
+                text += "\n"
+
+        # Save to a file
+        file = file_txt(text)
+
+        # Send the report message
+        send_document(client, cid, file, None, caption, mid)
+
+        # Delete the file
+        delete_file(file)
+
+        result = True
+    except Exception as e:
+        logger.warning(f"Qns show file error: {e}", exc_info=True)
 
     return result
 

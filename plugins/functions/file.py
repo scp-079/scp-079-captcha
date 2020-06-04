@@ -111,7 +111,7 @@ def file_tsv(first_line: list, lines: List[list], prefix: str = "") -> str:
 
 
 def file_txt(text: str) -> str:
-    # Generate a txt file
+    # Generate a TXT file
     result = ""
 
     try:
