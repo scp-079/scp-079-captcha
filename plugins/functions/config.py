@@ -131,19 +131,24 @@ def qns_add(client: Client, message: Message, gid: int, key: str, text: str, the
             return command_error(client, message, lang(f"action_qns_{the_type}"), lang("command_para"),
                                  lang("error_15"), False)
 
-        # Add the answer
-        glovar.questions[gid]["qns"][key] = {
-            "time": now,
-            "aid": aid,
-            "question": question,
-            "correct": correct_list,
-            "wrong": wrong_list
-        }
-
+        # Add or edit the answer
         if the_type == "add":
-            glovar.questions[gid]["qns"][key]["issued"] = 0
-            glovar.questions[gid]["qns"][key]["engaged"] = 0
-            glovar.questions[gid]["qns"][key]["solved"] = 0
+            glovar.questions[gid]["qns"][key] = {
+                "time": now,
+                "aid": aid,
+                "question": question,
+                "correct": correct_list,
+                "wrong": wrong_list,
+                "issued": 0,
+                "engaged": 0,
+                "solved": 0
+            }
+        else:
+            glovar.questions[gid]["qns"][key]["time"] = now
+            glovar.questions[gid]["qns"][key]["aid"] = aid
+            glovar.questions[gid]["qns"][key]["question"] = question
+            glovar.questions[gid]["qns"][key]["correct"] = correct_list
+            glovar.questions[gid]["qns"][key]["wrong"] = wrong_list
 
         # Save the data
         save("questions")
