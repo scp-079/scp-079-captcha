@@ -813,6 +813,9 @@ def question_answer_qns(client: Client, callback_query: CallbackQuery) -> bool:
         callback_data = loads(callback_query.data)
         key = callback_data["d"]
         answer = get_answer(callback_query.message, key)
+        logger.warning(key)
+        logger.warning(answer)
+        logger.warning(callback_query.message)
 
         # Check user status
         if (not glovar.user_ids.get(uid, {})
