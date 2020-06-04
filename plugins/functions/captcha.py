@@ -782,7 +782,7 @@ def question_answer_qns(client: Client, callback_query: CallbackQuery) -> bool:
         qns_tag = glovar.user_ids[uid]["qns"][gid]
 
         # Check the question
-        if not glovar.questions[gid]["qns"].get(qns_tag, {}):
+        if not glovar.configs[gid].get("qns", False) or not glovar.questions[gid]["qns"].get(qns_tag, {}):
             return terminate_user_succeed_qns(
                 client=client,
                 gid=gid,
