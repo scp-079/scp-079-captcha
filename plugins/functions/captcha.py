@@ -711,9 +711,6 @@ def get_markup_qns(buttons: List[Dict[str, Union[str, bytes]]]) -> Optional[Inli
                 )
             )
 
-        if not markup_list:
-            return None
-
         result = InlineKeyboardMarkup(markup_list)
     except Exception as e:
         logger.warning(f"Get markup qns error: {e}", exc_info=True)
