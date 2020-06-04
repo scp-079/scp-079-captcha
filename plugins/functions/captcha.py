@@ -697,6 +697,8 @@ def get_markup_qns(buttons: List[Dict[str, Union[str, bytes]]]) -> Optional[Inli
             text = button["text"]
             data = button["data"]
 
+            logger.warning(markup_list)
+
             if (markup_list[-1] is not []
                     and (False
                          or get_length(text) > limit_length
