@@ -625,10 +625,17 @@ def get_markup_ask(captcha: dict, question_type: str = "") -> Optional[InlineKey
         image_path = captcha.get("image")
         width, _ = get_image_size(image_path)
         single = width and width < 300
+        data_set = set()
 
         for candidate in candidates:
+            data = random_str(8)
+
+            while data in data_set:
+                data = random_str(8)
+
+            data_set.add(data)
             length = len(candidate.encode())
-            button = button_data("q", "a", candidate)
+            button = button_data("q", "a", data)
 
             if markup_list[-1] is not [] and (single or length > 12):
                 markup_list.append([])
@@ -813,9 +820,6 @@ def question_answer_qns(client: Client, callback_query: CallbackQuery) -> bool:
         callback_data = loads(callback_query.data)
         key = callback_data["d"]
         answer = get_answer(callback_query.message, key)
-        logger.warning(key)
-        logger.warning(answer)
-        logger.warning(callback_query.message)
 
         # Check user status
         if (not glovar.user_ids.get(uid, {})

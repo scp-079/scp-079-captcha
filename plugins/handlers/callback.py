@@ -22,7 +22,7 @@ from json import loads
 from pyrogram import Client, CallbackQuery
 
 from .. import glovar
-from ..functions.captcha import question_answer, question_answer_qns, question_change
+from ..functions.captcha import get_answer, question_answer, question_answer_qns, question_change
 from ..functions.etc import get_int, get_now, get_text, lang, thread
 from ..functions.filters import authorized_group, captcha_group, from_user, is_class_e_user, test_group
 from ..functions.group import delete_message
@@ -154,7 +154,7 @@ def question(client: Client, callback_query: CallbackQuery) -> bool:
 
         # Answer the question
         if action_type == "a":
-            text = data
+            text = get_answer(callback_query.message, data)
             question_answer(client, uid, text)
 
         # Change the question

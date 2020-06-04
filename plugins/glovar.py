@@ -518,7 +518,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.6.2"
+version: str = "0.6.3"
 
 # Load data from pics database
 
@@ -532,7 +532,7 @@ else:
 for dir_path in dir_list:
     dir_name = dir_path.split("/")[-1]
 
-    if not 0 < len(dir_name.encode()) <= 15:
+    if not 0 < len(dir_name.encode()) <= 64:
         continue
 
     pics[dir_name] = []
@@ -561,7 +561,7 @@ for word_type in ["chengyu", "food"]:
         text = f.read()
         lines = text.split("\n")
         candidates = {line.split("\t")[0].strip() for line in lines}
-        words = [word for word in candidates if 0 < len(word) < 6]
+        words = [word for word in candidates if 0 < len(word.encode()) <= 64]
         chinese_words[word_type] = words
 
 # Load data from pickle
