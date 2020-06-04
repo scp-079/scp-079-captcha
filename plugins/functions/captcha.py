@@ -1400,11 +1400,6 @@ def user_captcha_qns(client: Client, message: Optional[Message], gid: int, user:
         if qns_tag:
             return True
 
-        # White list auto pass
-        if glovar.configs[gid].get("pass", True) and uid in glovar.white_ids:
-            not aid and ask_help_welcome(client, uid, [gid], mid)
-            return True
-
         # Check declare status
         if message and is_declared_message(None, message):
             return False
