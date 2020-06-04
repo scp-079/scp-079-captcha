@@ -677,8 +677,10 @@ def get_markup_qns(buttons: List[Dict[str, Union[str, bytes]]]) -> Optional[Inli
 
         if len(buttons) == 4:
             limit = 2
+            limit_length = 18
         else:
             limit = 3
+            limit_length = 12
 
         for button in buttons:
             text = button["text"]
@@ -687,7 +689,7 @@ def get_markup_qns(buttons: List[Dict[str, Union[str, bytes]]]) -> Optional[Inli
             length = get_length(text)
 
             if (len(markup_list[-1]) == limit
-                    or (length > 12 and markup_list[-1] is not [])):
+                    or (length > limit_length and markup_list[-1] is not [])):
                 markup_list.append([])
 
             markup_list[-1].append(
