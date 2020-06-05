@@ -166,7 +166,7 @@ description_succeed: 验证成功，您可在相应群组中正常发言
 description_timeout: 验证超时
 description_wrong: 回答错误，验证失败
 description_wrong_qns: 回答错误，验证失败，请在 {} 小时后加入群组重新验证
-flood_count: 轰炸移除
+flood_count: 核查移除
 flood_duration: 轰炸时长
 flood_static: 自动静态提示
 flood_total: 轰炸总人数
