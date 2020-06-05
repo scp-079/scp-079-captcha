@@ -175,6 +175,7 @@ description_single: This group has enabled CAPTCHA. You need to pass verificatio
 description_succeed: The verification is successful and you can speak in certain groups
 description_timeout: Verification Timeout
 description_wrong: Wrong answer. Verification failed
+description_wrong_qns: 回答错误，验证失败，请在 {} 小时后加入群组重新验证
 flood_count: Check Count
 flood_duration: Flood Duration
 flood_static: Auto Static Hint

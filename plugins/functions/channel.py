@@ -373,7 +373,8 @@ def update_score(client: Client, uid: int) -> bool:
     try:
         pass_count = len(glovar.user_ids[uid]["pass"])
         succeeded_count = len(glovar.user_ids[uid]["succeeded"])
-        failed_count = len(glovar.user_ids[uid]["failed"])
+        failed_count = len([gid for gid in glovar.user_ids[uid]["failed"]
+                            if glovar.user_ids[uid]["failed"][gid] >= 0])
         score = pass_count * -0.2 + succeeded_count * -0.3 + failed_count * 0.6
         glovar.user_ids[uid]["score"][glovar.sender.lower()] = score
         save("user_ids")

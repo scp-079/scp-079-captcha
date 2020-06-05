@@ -165,6 +165,7 @@ description_single: 本群開啟了進群驗證，您需要通過驗證才可以
 description_succeed: 驗證成功成功，您可以在相應群組裡正常講話
 description_timeout: 驗證超時
 description_wrong: 回答錯誤，驗證失败
+description_wrong_qns: 回答错误，验证失败，请在 {} 小时后加入群组重新验证
 flood_count: 轟炸移除
 flood_duration: 轟炸持續時間
 flood_static: 自動靜態提示

@@ -1348,17 +1348,24 @@ def terminate_user_timeout_qns(client: Client, gid: int, uid: int) -> bool:
         glovar.user_ids[uid]["wait"].pop(gid, 0)
         glovar.user_ids[uid]["qns"].pop(gid, "")
         glovar.user_ids[uid]["manual"].discard(gid)
-        glovar.user_ids[uid]["failed"].pop(gid, 0)
         glovar.user_ids[uid]["restricted"].discard(gid)
         glovar.user_ids[uid]["banned"].discard(gid)
         save("user_ids")
 
+        # Count the failure
+        if glovar.user_ids[uid]["failed"].get(gid) is None or glovar.user_ids[uid]["failed"][gid] > 0:
+            glovar.user_ids[uid]["failed"][gid] = 0
+        else:
+            glovar.user_ids[uid]["failed"][gid] -= 1
+
         # Get the level
         level = get_level(gid)
 
-        # Kick the user (ban for 86400 seconds) or ban the user
+        # Kick the user (ban for 86400 * 2^failed seconds) or ban the user
         if level == "kick":
-            kick_user(client, gid, uid, until_date=now + 86400, lock=True)
+            failed = abs(int(glovar.user_ids[uid]["failed"][gid]))
+            n = pow(2, failed)
+            kick_user(client, gid, uid, until_date=now + 86400 * n, lock=True)
         elif level == "ban":
             ban_user(client, gid, uid)
 
@@ -1523,19 +1530,30 @@ def terminate_user_wrong_qns(client: Client, gid: int, uid: int, qid: str) -> bo
         glovar.user_ids[uid]["wait"].pop(gid, 0)
         glovar.user_ids[uid]["qns"].pop(gid, "")
         glovar.user_ids[uid]["manual"].discard(gid)
-        glovar.user_ids[uid]["failed"].pop(gid, 0)
         glovar.user_ids[uid]["restricted"].discard(gid)
         glovar.user_ids[uid]["banned"].discard(gid)
         save("user_ids")
 
+        # Count the failure
+        if glovar.user_ids[uid]["failed"].get(gid) is None or glovar.user_ids[uid]["failed"][gid] > 0:
+            glovar.user_ids[uid]["failed"][gid] = 0
+        else:
+            glovar.user_ids[uid]["failed"][gid] -= 1
+
         # Get the level
         level = get_level(gid)
 
-        # Kick the user (ban for 3600 seconds) or ban the user
+        # Kick the user (ban for 3600 * 2^failed seconds) or ban the user
         if level == "kick":
-            kick_user(client, gid, uid, until_date=now + 3600, lock=True)
+            failed = abs(int(glovar.user_ids[uid]["failed"][gid]))
+            n = pow(2, failed)
+            kick_user(client, gid, uid, until_date=now + 3600 * n, lock=True)
+            callback_text = lang("description_wrong_qns").format(n)
         elif level == "ban":
             ban_user(client, gid, uid)
+            callback_text = lang("description_wrong")
+        else:
+            callback_text = lang("description_wrong")
 
         # Delete all messages from the user
         not is_flooded(gid) and ask_for_help(client, "delete", gid, uid)
@@ -1557,7 +1575,7 @@ def terminate_user_wrong_qns(client: Client, gid: int, uid: int, qid: str) -> bo
         )
 
         # Answer the callback
-        thread(answer_callback, (client, qid, lang("description_wrong"), True))
+        thread(answer_callback, (client, qid, callback_text, True))
 
         # Count
         qns_count(gid, key, "wrong")
