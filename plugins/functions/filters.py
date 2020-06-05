@@ -189,7 +189,8 @@ def is_from_user(_, update: Union[CallbackQuery, Message]) -> bool:
     result = False
 
     try:
-        if isinstance(update, CallbackQuery) and update.message.chat.id < 0:
+        if (isinstance(update, CallbackQuery)
+                and (not update.message or not update.message.chat or update.message.chat.id < 0)):
             return False
 
         if update.from_user and update.from_user.id != 777000:
