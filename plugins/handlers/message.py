@@ -318,6 +318,8 @@ def init_group(client: Client, message: Message) -> bool:
     # Initiate new groups
     result = False
 
+    glovar.locks["admin"].acquire()
+
     try:
         # Basic data
         gid = message.chat.id
@@ -375,6 +377,8 @@ def init_group(client: Client, message: Message) -> bool:
         result = True
     except Exception as e:
         logger.warning(f"Init group error: {e}", exc_info=True)
+    finally:
+        glovar.locks["admin"].release()
 
     return result
 
