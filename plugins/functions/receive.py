@@ -125,7 +125,9 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
             flood_user(gid, uid, now, "kick", "check")
             manual and logger.warning(f"Banned flood user {uid} in {gid}")
             log_users.discard(uid)
-            count += 1
+
+        # Update the count
+        count += len(kick_list)
 
         kick_users(client, gid, kick_list)
         manual and logger.warning(f"Checked members of {gid}")
@@ -151,7 +153,9 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
             kick_list.add(uid)
             manual and logger.warning(f"Need USER to kick {uid} in {gid}")
             flood_user(gid, uid, now, "kick", "log")
-            count += 1
+
+        # Update the count
+        count += len(kick_list)
 
         # Try kicking them without USER's help
         kick_users(client, gid, kick_list)
