@@ -133,7 +133,7 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
         kick_list = set()
 
         for uid in log_users:
-            if manual or members_count and members_count < 10000:
+            if manual or (members_count and members_count < 10000):
                 continue
 
             if is_should_ignore(gid, uid):
