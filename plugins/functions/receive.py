@@ -79,8 +79,6 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
     try:
         # Basic data
         gid = data["group_id"]
-        begin = data["begin"]
-        end = data["end"]
         manual = data["manual"]
         now = get_now()
         count = 0
@@ -106,7 +104,7 @@ def receive_check_log(client: Client, message: Message, data: dict) -> bool:
 
             uid = member.user.id
 
-            if uid not in log_users and not begin < member.joined_date < end:
+            if uid not in log_users:
                 continue
 
             if is_should_ignore(gid, uid):
