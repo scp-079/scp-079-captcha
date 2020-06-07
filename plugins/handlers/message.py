@@ -69,7 +69,7 @@ def hint(client: Client, message: Message) -> bool:
         # Check config
         if glovar.configs[gid].get("manual", False) or is_class_e_user(message.from_user):
             return bool([ask_help_welcome(client, new.id, [gid], mid)
-                         for new in message.new_chat_members])
+                         for new in message.new_chat_members if not new.is_bot])
 
         for new in message.new_chat_members:
             # Basic data

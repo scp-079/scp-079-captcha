@@ -1353,6 +1353,10 @@ def user_captcha(client: Client, message: Optional[Message], gid: int, user: Use
         # Basic data
         uid = user.id
 
+        # Check if the user is bot
+        if user.is_bot:
+            return False
+
         # Init the user's status
         if not init_user_id(uid):
             return False
@@ -1447,6 +1451,10 @@ def user_captcha_qns(client: Client, message: Optional[Message], gid: int, user:
     try:
         # Basic data
         uid = user.id
+
+        # Check if the user is bot
+        if user.is_bot:
+            return False
 
         # Init the user's status
         if not init_user_id(uid):
