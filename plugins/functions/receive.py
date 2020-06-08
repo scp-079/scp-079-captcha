@@ -403,6 +403,25 @@ def receive_flood_check(client: Client, data: dict) -> bool:
         end = data["end"]
         force = data["force"]
 
+        # Check the group status
+        if glovar.admin_ids.get(gid) is None:
+            return share_data(
+                client=client,
+                receivers=["MANAGE"],
+                action="flood",
+                action_type="reply",
+                data={
+                    "admin_id": aid,
+                    "message_id": mid,
+                    "group_id": gid,
+                    "begin": 0,
+                    "end": 0,
+                    "force": False,
+                    "alert": False,
+                    "invalid": True
+                }
+            )
+
         # Check the begin time
         if not force and begin < glovar.reset_time[0]:
             alert = True
@@ -437,7 +456,8 @@ def receive_flood_check(client: Client, data: dict) -> bool:
                 "begin": begin,
                 "end": end,
                 "force": force,
-                "alert": alert and not force
+                "alert": alert and not force,
+                "invalid": False
             }
         )
 
