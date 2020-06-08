@@ -343,7 +343,6 @@ all_commands: List[str] = [
     "show",
     "start",
     "static",
-    "time",
     "version"
 ]
 
