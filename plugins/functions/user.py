@@ -305,6 +305,10 @@ def flood_end(client: Client, gid: int, manual: bool = False) -> bool:
             file=file
         )
 
+        # Check the flood log
+        if not glovar.flood_logs[gid]:
+            return False
+
         # Send report
         first_line = list(glovar.flood_logs[gid][0])
         lines = [[user.get(key) for key in first_line] for user in glovar.flood_logs[gid]]
@@ -324,7 +328,7 @@ def flood_end(client: Client, gid: int, manual: bool = False) -> bool:
         save("flood_logs")
 
         # Share flood end status
-        share_data(
+        not is_flooded(gid) and share_data(
             client=client,
             receivers=glovar.receivers["flood"],
             action="flood",
