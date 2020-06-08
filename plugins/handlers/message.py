@@ -33,11 +33,11 @@ from ..functions.group import delete_message, save_admins, leave_group
 from ..functions.ids import init_group_id
 from ..functions.receive import receive_add_bad, receive_check_log, receive_clear_data, receive_config_commit
 from ..functions.receive import receive_config_reply, receive_config_show, receive_declared_message
-from ..functions.receive import receive_help_captcha, receive_help_confirm, receive_warn_kicked_user
-from ..functions.receive import receive_ignore_ids, receive_leave_approve, receive_regex, receive_refresh
-from ..functions.receive import receive_remove_bad, receive_remove_score, receive_remove_watch, receive_remove_white
-from ..functions.receive import receive_rollback, receive_text_data, receive_user_score, receive_watch_user
-from ..functions.receive import receive_white_users
+from ..functions.receive import receive_flood_check, receive_help_captcha, receive_help_confirm
+from ..functions.receive import receive_warn_kicked_user, receive_ignore_ids, receive_leave_approve, receive_regex
+from ..functions.receive import receive_refresh, receive_remove_bad, receive_remove_score, receive_remove_watch
+from ..functions.receive import receive_remove_white, receive_rollback, receive_text_data, receive_user_score
+from ..functions.receive import receive_watch_user, receive_white_users
 from ..functions.telegram import get_admins, send_message
 from ..functions.timers import backup_files, send_count, share_failed_users
 from ..functions.user import kick_user, terminate_user_delete
@@ -482,6 +482,10 @@ def process_data(client: Client, message: Message) -> bool:
                 elif action == "config":
                     if action_type == "show":
                         receive_config_show(client, data)
+
+                elif action == "flood":
+                    if action_type == "check":
+                        receive_flood_check(client, data)
 
                 elif action == "leave":
                     if action_type == "approve":

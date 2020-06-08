@@ -41,6 +41,9 @@ app.start()
 # Send online status
 update_status(app, "online")
 
+# Reset data
+not glovar.reset_time[1] and reset_data(app)
+
 # Timer
 scheduler = BackgroundScheduler(job_defaults={"misfire_grace_time": 60})
 scheduler.add_job(interval_min_01, "interval", [app], minutes=1)

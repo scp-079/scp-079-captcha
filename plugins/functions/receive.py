@@ -388,6 +388,68 @@ def receive_file_data(client: Client, message: Message, decrypt: bool = True) ->
     return result
 
 
+def receive_flood_check(client: Client, data: dict) -> bool:
+    # Receive flood check
+    result = False
+
+    glovar.locks["message"].acquire()
+
+    try:
+        # Basic data
+        aid = data["admin_id"]
+        mid = data["message_id"]
+        gid = data["group_id"]
+        begin = data["begin"]
+        end = data["end"]
+        force = data["force"]
+
+        # Check the begin time
+        if not force and begin < glovar.reset_time[0]:
+            alert = True
+            begin = glovar.reset_time[0]
+        else:
+            alert = False
+
+        # Ask USER to help check recent actions
+        share_data(
+            client=client,
+            receivers=["USER"],
+            action="help",
+            action_type="log",
+            data={
+                "group_id": gid,
+                "begin": begin,
+                "end": end,
+                "manual": True
+            }
+        )
+
+        # Reply the result to MANAGE
+        share_data(
+            client=client,
+            receivers=["MANAGE"],
+            action="flood",
+            action_type="reply",
+            data={
+                "admin_id": aid,
+                "message_id": mid,
+                "group_id": gid,
+                "begin": begin,
+                "end": end,
+                "force": force,
+                "alert": alert and not force
+            }
+        )
+
+        result = True
+    except Exception as e:
+        logger.warning(f"Receive flood check error: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
+
+    return result
+
+
 def receive_help_captcha(client: Client, data: dict) -> bool:
     # Receive help captcha
     result = False
@@ -494,7 +556,8 @@ def receive_help_confirm(client: Client, data: dict) -> bool:
             data={
                 "group_id": gid,
                 "begin": start,
-                "end": now
+                "end": now,
+                "manual": False
             }
         )
 

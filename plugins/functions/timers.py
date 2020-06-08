@@ -303,6 +303,15 @@ def reset_data(client: Client) -> bool:
     glovar.locks["message"].acquire()
 
     try:
+        if any(is_flooded(gid) for gid in list(glovar.pinned_ids)):
+            glovar.reset_time[1] = False
+            save("reset_time")
+            logger.warning("Attention: Resetting job delayed until next restart, because some groups are under attack")
+            return False
+
+        glovar.reset_time = [get_now(), True]
+        save("reset_time")
+
         glovar.bad_ids = {
             "users": set()
         }
