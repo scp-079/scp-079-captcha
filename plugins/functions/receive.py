@@ -38,8 +38,8 @@ from .ids import init_group_id, init_user_id
 from .telegram import get_chat_member, get_chat_members_count, get_members, pin_chat_message, send_message
 from .telegram import send_report_message
 from .timers import update_admins
-from .user import flood_end, flood_user, forgive_user, forgive_users, kick_users, remove_failed_user, remove_new_users
-from .user import remove_wait_user, terminate_user_banned
+from .user import flood_end, flood_user, forgive_user, forgive_users, kick_users, restrict_user, remove_failed_user
+from .user import remove_new_users, remove_wait_user, terminate_user_banned
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -489,6 +489,13 @@ def receive_help_captcha(client: Client, data: dict) -> bool:
 
         # Get the chat member
         member = get_chat_member(client, gid, uid)
+
+        # Check if the user is restricted
+        if (member
+                and member.status == "restricted"
+                and member.restricted_by
+                and not member.restricted_by.is_self):
+            return restrict_user(client, gid, uid)
 
         # Check the member
         if not member or not member.user:

@@ -38,7 +38,7 @@ from .group import clear_joined_messages, delete_message, get_hint_text, get_pin
 from .ids import init_user_id
 from .user import flood_user, qns_count, restrict_user, terminate_user_punish, terminate_user_succeed
 from .user import terminate_user_succeed_qns, terminate_user_wrong, terminate_user_wrong_qns, unrestrict_user
-from .telegram import delete_messages, edit_message_photo, pin_chat_message
+from .telegram import delete_messages, edit_message_photo, get_chat_member, pin_chat_message
 from .telegram import send_message, send_photo, send_report_message
 
 # Enable logging
@@ -1352,6 +1352,7 @@ def user_captcha(client: Client, message: Optional[Message], gid: int, user: Use
     try:
         # Basic data
         uid = user.id
+        member = not is_flooded(gid) and get_chat_member(client, gid, uid)
 
         # Check if the user is bot
         if user.is_bot:
@@ -1364,6 +1365,13 @@ def user_captcha(client: Client, message: Optional[Message], gid: int, user: Use
         # Check if the user should be added to the wait list
         if is_should_ignore(gid, user, aid):
             return True
+
+        # Check if the user is restricted
+        if (member
+                and member.status == "restricted"
+                and member.restricted_by
+                and not member.restricted_by.is_self):
+            return False
 
         # Get user status
         user_status = glovar.user_ids[uid]
@@ -1451,6 +1459,7 @@ def user_captcha_qns(client: Client, message: Optional[Message], gid: int, user:
     try:
         # Basic data
         uid = user.id
+        member = not is_flooded(gid) and get_chat_member(client, gid, uid)
 
         # Check if the user is bot
         if user.is_bot:
@@ -1463,6 +1472,13 @@ def user_captcha_qns(client: Client, message: Optional[Message], gid: int, user:
         # Check if the user should be added to the wait list
         if is_should_ignore(gid, user, aid):
             return True
+
+        # Check if the user is restricted
+        if (member
+                and member.status == "restricted"
+                and member.restricted_by
+                and not member.restricted_by.is_self):
+            return False
 
         # Get user status
         user_status = glovar.user_ids[uid]
