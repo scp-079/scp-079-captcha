@@ -881,8 +881,16 @@ def version(client: Client, message: Message) -> bool:
         aid = message.from_user.id
         mid = message.message_id
 
+        # Get command type
+        command_type = get_command_type(message)
+
+        # Check the command type
+        if command_type and command_type.upper() != glovar.sender:
+            return False
+
         # Generate the text
         text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n\n"
+                f"{lang('project')}{lang('colon')}{code(glovar.sender)}\n"
                 f"{lang('version')}{lang('colon')}{bold(glovar.version)}\n")
 
         # Send the report message
