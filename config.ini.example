@@ -60,12 +60,12 @@ project_link = https://scp-079.org/captcha/
 project_name = SCP-079-CAPTCHA
 
 [emoji]
-emoji_ad_single = [DATA EXPUNGED]
-emoji_ad_total = [DATA EXPUNGED]
+emoji_ad_single = 15
+emoji_ad_total = 30
 emoji_many = 15
 emoji_protect = \U0001F642
-emoji_wb_single = [DATA EXPUNGED]
-emoji_wb_total = [DATA EXPUNGED]
+emoji_wb_single = 10
+emoji_wb_total = 15
 
 [encrypt]
 key = [DATA EXPUNGED]
