@@ -37,7 +37,7 @@ captcha_link = [DATA EXPUNGED]
 font_chinese = /usr/share/fonts/truetype/arphic-gkai00mp/gkai00mp.ttf
 font_english = /usr/share/fonts/truetype/freefont/FreeMono.ttf
 font_number = /usr/share/fonts/truetype/freefont/FreeMono.ttf
-noise = [DATA EXPUNGED]
+noise = 0.4
 
 [channels]
 captcha_group_id = [DATA EXPUNGED]
@@ -78,7 +78,7 @@ normalize = True
 [limit]
 limit_flood = 10
 limit_mention = 20
-limit_track = [DATA EXPUNGED]
+limit_track = 8
 limit_try = 2
 
 [mode]
@@ -91,10 +91,10 @@ simple_only = False
 [time]
 date_reset = 1st mon
 time_captcha = 240
-time_invite = [DATA EXPUNGED]
-time_new = [DATA EXPUNGED]
+time_invite = 1800
+time_new = 1800
 time_punish = 600
-time_recheck = [DATA EXPUNGED]
+time_recheck = 3600
 time_remove = 300
-time_short = [DATA EXPUNGED]
-time_track = [DATA EXPUNGED]
+time_short = 300
+time_track = 3600
