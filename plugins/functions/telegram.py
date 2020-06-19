@@ -23,9 +23,9 @@ from pyrogram import Chat, ChatMember, ChatPermissions, ChatPreview, Client, Use
 from pyrogram import InputMediaPhoto, InlineKeyboardMarkup, ReplyKeyboardMarkup, Message
 from pyrogram.api.functions.users import GetFullUser
 from pyrogram.api.types import InputPeerUser, InputPeerChannel, UserFull
-from pyrogram.errors import ChatAdminRequired, ChatNotModified, ButtonDataInvalid, ChannelInvalid, ChannelPrivate
-from pyrogram.errors import FloodWait, MessageDeleteForbidden, MessageNotModified, PeerIdInvalid, QueryIdInvalid
-from pyrogram.errors import UsernameInvalid, UsernameNotOccupied, UserNotParticipant
+from pyrogram.errors import ChatAdminRequired, ChatNotModified, ButtonDataInvalid, ButtonUrlInvalid, ChannelInvalid
+from pyrogram.errors import ChannelPrivate, FloodWait, MessageDeleteForbidden, MessageNotModified, PeerIdInvalid
+from pyrogram.errors import QueryIdInvalid, UsernameInvalid, UsernameNotOccupied, UserNotParticipant
 
 from .. import glovar
 from .decorators import retry
@@ -128,7 +128,7 @@ def edit_message_photo(client: Client, cid: int, mid: int, photo: str, file_ref:
         )
     except FloodWait as e:
         raise e
-    except ButtonDataInvalid:
+    except (ButtonDataInvalid, ButtonUrlInvalid):
         logger.warning(f"Edit message {mid} photo {photo} in {cid} - invalid markup: {markup}")
     except (ChannelInvalid, ChannelPrivate, ChatAdminRequired, PeerIdInvalid):
         return False
@@ -152,7 +152,7 @@ def edit_message_reply_markup(client: Client, cid: int, mid: int,
         )
     except FloodWait as e:
         raise e
-    except ButtonDataInvalid:
+    except (ButtonDataInvalid, ButtonUrlInvalid):
         logger.warning(f"Edit message {mid} reply markup in {cid} - invalid markup: {markup}")
     except MessageNotModified:
         return None
@@ -184,7 +184,7 @@ def edit_message_text(client: Client, cid: int, mid: int, text: str,
         )
     except FloodWait as e:
         raise e
-    except ButtonDataInvalid:
+    except (ButtonDataInvalid, ButtonUrlInvalid):
         logger.warning(f"Edit message {mid} text in {cid} - invalid markup: {markup}")
     except MessageNotModified:
         return None
@@ -586,7 +586,7 @@ def send_document(client: Client, cid: int, document: str, file_ref: str = None,
         )
     except FloodWait as e:
         raise e
-    except ButtonDataInvalid:
+    except (ButtonDataInvalid, ButtonUrlInvalid):
         logger.warning(f"Send document {document} to {cid} - invalid markup: {markup}")
     except (ChannelInvalid, ChannelPrivate, ChatAdminRequired, PeerIdInvalid):
         return False
@@ -616,7 +616,7 @@ def send_message(client: Client, cid: int, text: str, mid: int = None,
         )
     except FloodWait as e:
         raise e
-    except ButtonDataInvalid:
+    except (ButtonDataInvalid, ButtonUrlInvalid):
         logger.warning(f"Send message to {cid} - invalid markup: {markup}")
     except (ChannelInvalid, ChannelPrivate, ChatAdminRequired, PeerIdInvalid):
         return False
@@ -647,7 +647,7 @@ def send_photo(client: Client, cid: int, photo: str, file_ref: str = None, capti
         )
     except FloodWait as e:
         raise e
-    except ButtonDataInvalid:
+    except (ButtonDataInvalid, ButtonUrlInvalid):
         logger.warning(f"Send photo {photo} to {cid} - invalid markup: {markup}")
     except (ChannelInvalid, ChannelPrivate, ChatAdminRequired, PeerIdInvalid):
         return False
@@ -684,7 +684,7 @@ def send_report_message(secs: int, client: Client, cid: int, text: str, mid: int
         result = delay(secs, delete_messages, [client, cid, mids])
     except FloodWait as e:
         raise e
-    except ButtonDataInvalid:
+    except (ButtonDataInvalid, ButtonUrlInvalid):
         logger.warning(f"Send report message to {cid} - invalid markup: {markup}")
     except (ChannelInvalid, ChannelPrivate, ChatAdminRequired, PeerIdInvalid):
         return None
