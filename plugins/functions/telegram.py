@@ -205,7 +205,8 @@ def export_chat_invite_link(client: Client, cid: int) -> Union[bool, str, None]:
         result = client.export_chat_invite_link(chat_id=cid)
     except FloodWait as e:
         raise e
-    except (ChannelInvalid, ChannelPrivate, ChatAdminRequired, PeerIdInvalid):
+    except (ChannelInvalid, ChannelPrivate, ChatAdminRequired, PeerIdInvalid) as e:
+        logger.warning(f"Export chat invite link in {cid} error: {e}")
         return ""
     except Exception as e:
         logger.warning(f"Export chat invite link in {cid} error: {e}", exc_info=True)
