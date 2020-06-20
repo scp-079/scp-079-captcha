@@ -21,7 +21,6 @@ score: 评分
 status_failed: 未执行
 status_succeeded: 成功执行
 type: 类别
-version: 版本
 
 # Config
 config: 设置
@@ -45,6 +44,7 @@ qns: 自定义问题
 manual: 仅手动
 
 # Command
+command_date: 命令发送时间
 command_flood: 命令发送频繁，请稍后重试
 command_lack: 命令参数缺失
 command_para: 命令参数有误
@@ -101,7 +101,6 @@ ser: 服务消息
 contact: 联系方式
 from_name: 来源名称
 level: 操作等级
-project: 项目编号
 project_origin: 原始项目
 message_freq: 消息频率
 message_game: 游戏标识
@@ -219,3 +218,10 @@ watch_user: 敏感追踪
 # Unit
 members: 名
 seconds: 秒
+
+# Version
+git_change: 本地修改
+git_date: 提交时间
+git_hash: 哈希值
+project: 项目编号
+version: 版本

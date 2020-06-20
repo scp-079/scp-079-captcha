@@ -19,6 +19,7 @@
 import logging
 import re
 from copy import deepcopy
+from subprocess import run, PIPE
 
 from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
@@ -29,8 +30,8 @@ from ..functions.command import delete_normal_command, delete_shared_command, co
 from ..functions.command import get_command_type
 from ..functions.config import conflict_config, get_config_text, qns_add, qns_remove, qns_show, start_qns
 from ..functions.config import update_config
-from ..functions.etc import bold, code, code_block, general_link, get_now, lang, mention_id, message_link
-from ..functions.etc import random_str, thread
+from ..functions.etc import code, code_block, general_link, get_int, get_now, get_readable_time, lang, mention_id
+from ..functions.etc import message_link, random_str, thread
 from ..functions.file import save
 from ..functions.filters import authorized_group, captcha_group, class_e, from_user
 from ..functions.filters import is_class_c, is_class_e, is_class_e_user, is_from_user, is_should_qns, test_group
@@ -888,10 +889,22 @@ def version(client: Client, message: Message) -> bool:
         if command_type and command_type.upper() != glovar.sender:
             return False
 
+        # Version info
+        git_change = bool(run("git diff-index HEAD --", stdout=PIPE, shell=True).stdout.decode().strip())
+        git_date = run("git log -1 --format='%at'", stdout=PIPE, shell=True).stdout.decode()
+        git_date = get_readable_time(get_int(git_date), "%Y/%m/%d %H:%M:%S")
+        git_hash = run("git rev-parse --short HEAD", stdout=PIPE, shell=True).stdout.decode()
+        get_hash_link = f"https://github.com/scp-079/scp-079-{glovar.sender.lower()}/commit/{git_hash}"
+        command_date = get_readable_time(message.date, "%Y/%m/%d %H:%M:%S")
+
         # Generate the text
         text = (f"{lang('admin')}{lang('colon')}{mention_id(aid)}\n\n"
                 f"{lang('project')}{lang('colon')}{code(glovar.sender)}\n"
-                f"{lang('version')}{lang('colon')}{bold(glovar.version)}\n")
+                f"{lang('version')}{lang('colon')}{code(glovar.version)}\n"
+                f"{lang('git_change')}{lang('colon')}{code(git_change)}\n"
+                f"{lang('git_hash')}{lang('colon')}{general_link(git_hash, get_hash_link)}\n"
+                f"{lang('git_date')}{lang('colon')}{code(git_date)}\n"
+                f"{lang('command_date')}{lang('colon')}{code(command_date)}\n")
 
         # Send the report message
         result = send_message(client, cid, text, mid)

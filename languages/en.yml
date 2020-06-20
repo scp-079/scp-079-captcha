@@ -21,7 +21,6 @@ score: Score
 status_failed: Failed
 status_succeeded: Succeeded
 type: Type
-version: Version
 
 # Config
 config: Settings
@@ -45,6 +44,7 @@ qns: Custom Questions
 manual: Manual Only
 
 # Command
+command_date: 命令发送时间
 command_flood: Commands are sent frequently, please try again later
 command_lack: Lack of Parameter
 command_para: Incorrect Command Parameter
@@ -102,7 +102,6 @@ ser: Service
 contact: Contact Info
 from_name: Forward Name
 level: Level
-project: Project
 project_origin: Original Project
 message_freq: Message Frequency
 message_game: Game Short Name
@@ -231,3 +230,10 @@ watch_user: Watched User
 # Unit
 members: member(s)
 seconds: second(s)
+
+# Version
+git_change: 本地修改
+git_date: 提交时间
+git_hash: 哈希值
+project: 项目编号
+version: 版本

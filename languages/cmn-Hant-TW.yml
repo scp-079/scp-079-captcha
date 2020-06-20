@@ -21,7 +21,6 @@ score: 得分
 status_failed: 執行失敗
 status_succeeded: 執行成功
 type: 類型
-version: 版本
 
 # Config
 config: 配置
@@ -45,6 +44,7 @@ qns: 自定义问题
 manual: 僅手動
 
 # Command
+command_date: 命令发送时间
 command_flood: 頻繁傳送指令，請稍後再試
 command_lack: 缺乏指令參數
 command_para: 錯誤指令參數
@@ -101,7 +101,6 @@ ser: 服務訊息
 contact: 聯絡方式
 from_name: 來源名
 level: 操作級別
-project: 項目編號
 project_origin: 來源項目
 message_freq: 訊息頻率
 message_game: 遊戲標誌
@@ -219,3 +218,10 @@ watch_user: 敏感追蹤
 # Unit
 members: 位
 seconds: 秒
+
+# Version
+git_change: 本地修改
+git_date: 提交时间
+git_hash: 哈希值
+project: 项目编号
+version: 版本
