@@ -96,7 +96,7 @@ def qns_add(client: Client, message: Message, gid: int, key: str, text: str, the
                                  report=False)
 
         # Get text list
-        text_list = [t for t in text.split("\n+++") if t]
+        text_list = [t.strip() for t in text.split("\n+++\n") if t.strip()]
 
         # Check the text list
         if not text_list or len(text_list) < 2:
@@ -112,12 +112,12 @@ def qns_add(client: Client, message: Message, gid: int, key: str, text: str, the
             return command_error(client, message, lang(f"action_qns_{the_type}"), lang("command_para"),
                                  lang("error_exceed_qn"), False)
 
-        correct_list = {c for c in correct.split("\n") if c.strip()}
+        correct_list = {c.strip() for c in correct.split("\n") if c.strip()}
 
         if wrong == correct:
             wrong_list = set()
         else:
-            wrong_list = {w for w in wrong.split("\n") if w.strip()}
+            wrong_list = {w.strip() for w in wrong.split("\n") if w.strip()}
 
         # Check the answers
         if any(w in correct_list for w in wrong_list):
