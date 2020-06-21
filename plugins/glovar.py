@@ -32,6 +32,8 @@ from emoji import UNICODE_EMOJI
 from pyrogram import Chat
 from yaml import safe_load
 
+from .checker import check_all
+
 # Enable logging
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -42,6 +44,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Read data from config.ini
+
+# [flag]
+broken: bool = True
 
 # [basic]
 bot_token: str = ""
@@ -64,10 +69,10 @@ warn_id: int = 0
 
 # [captcha]
 captcha_link: str = ""
-font_chinese: str = ""
-font_english: str = ""
-font_number: str = ""
-noise: float = 0.0
+font_chinese: str = "/usr/share/fonts/truetype/arphic-gkai00mp/gkai00mp.ttf"
+font_english: str = "/usr/share/fonts/truetype/freefont/FreeMono.ttf"
+font_number: str = "/usr/share/fonts/truetype/freefont/FreeMono.ttf"
+noise: float = 0.4
 
 # [channels]
 captcha_group_id: int = 0
@@ -79,243 +84,248 @@ logging_channel_id: int = 0
 test_group_id: int = 0
 
 # [custom]
-default_group_link: str = ""
-leave_button: str = ""
-leave_link: str = ""
-leave_reason: str = ""
-more: Union[bool, str] = ""
-more_link: str = ""
-more_text: str = ""
-project_link: str = ""
-project_name: str = ""
+default_group_link: str = "https://t.me/SCP_079_DEBUG"
+leave_button: str = "申请使用"
+leave_link: str = "https://scp-079.org/ApplyForUse/"
+leave_reason: str = "需要授权方可使用"
+more: Union[bool, str] = "True"
+more_link: str = "https://scp-079.org/readme/"
+more_text: str = "点击了解本项目"
+project_link: str = "https://scp-079.org/captcha/"
+project_name: str = "SCP-079-CAPTCHA"
 
 # [emoji]
-emoji_ad_single: int = 0
-emoji_ad_total: int = 0
-emoji_many: int = 0
-emoji_protect: str = ""
-emoji_wb_single: int = 0
-emoji_wb_total: int = 0
+emoji_ad_single: int = 15
+emoji_ad_total: int = 30
+emoji_many: int = 15
+emoji_protect: str = "\\U0001F642"
+emoji_wb_single: int = 10
+emoji_wb_total: int = 15
 
 # [encrypt]
 key: Union[bytes, str] = ""
 password: str = ""
 
 # [language]
-lang: str = ""
-normalize: Union[bool, str] = ""
+lang: str = "cmn-Hans"
+normalize: Union[bool, str] = "True"
 
 # [limit]
-limit_flood: int = 0
-limit_mention: int = 0
-limit_track: int = 0
-limit_try: int = 0
+limit_flood: int = 10
+limit_mention: int = 20
+limit_track: int = 8
+limit_try: int = 2
 
 # [mode]
-aio: Union[bool, str] = ""
-backup: Union[bool, str] = ""
-failed: Union[bool, str] = ""
-simple: Union[bool, str] = ""
-simple_only: Union[bool, str] = ""
+aio: Union[bool, str] = "False"
+backup: Union[bool, str] = "False"
+failed: Union[bool, str] = "False"
+simple: Union[bool, str] = "False"
+simple_only: Union[bool, str] = "False"
 
 # [time]
-date_reset: str = ""
-time_captcha: int = 0
-time_invite: int = 0
-time_new: int = 0
-time_punish: int = 0
-time_recheck: int = 0
-time_remove: int = 0
-time_short: int = 0
-time_track: int = 0
+date_reset: str = "1st mon"
+time_captcha: int = 240
+time_invite: int = 1800
+time_new: int = 1800
+time_punish: int = 600
+time_recheck: int = 3600
+time_remove: int = 300
+time_short: int = 300
+time_track: int = 3600
 
 try:
     config = RawConfigParser()
     config.read("config.ini")
 
     # [basic]
-    bot_token = config["basic"].get("bot_token", bot_token)
-    prefix = list(config["basic"].get("prefix", prefix_str))
+    bot_token = config.get("basic", "bot_token", fallback=bot_token)
+    prefix_str = config.get("basic", "prefix", fallback=prefix_str)
+    prefix = [p for p in list(prefix_str) if p]
 
     # [bots]
-    avatar_id = int(config["bots"].get("avatar_id", str(avatar_id)))
-    captcha_id = int(config["bots"].get("captcha_id", str(captcha_id)))
-    clean_id = int(config["bots"].get("clean_id", str(clean_id)))
-    index_id = int(config["bots"].get("index_id", str(index_id)))
-    lang_id = int(config["bots"].get("lang_id", str(lang_id)))
-    long_id = int(config["bots"].get("long_id", str(long_id)))
-    noflood_id = int(config["bots"].get("noflood_id", str(noflood_id)))
-    noporn_id = int(config["bots"].get("noporn_id", str(noporn_id)))
-    nospam_id = int(config["bots"].get("nospam_id", str(nospam_id)))
-    tip_id = int(config["bots"].get("tip_id", str(tip_id)))
-    user_id = int(config["bots"].get("user_id", str(user_id)))
-    warn_id = int(config["bots"].get("warn_id", str(warn_id)))
+    avatar_id = int(config.get("bots", "avatar_id", fallback=avatar_id))
+    captcha_id = int(config.get("bots", "captcha_id", fallback=captcha_id))
+    clean_id = int(config.get("bots", "clean_id", fallback=clean_id))
+    index_id = int(config.get("bots", "index_id", fallback=index_id))
+    lang_id = int(config.get("bots", "lang_id", fallback=lang_id))
+    long_id = int(config.get("bots", "long_id", fallback=long_id))
+    noflood_id = int(config.get("bots", "noflood_id", fallback=noflood_id))
+    noporn_id = int(config.get("bots", "noporn_id", fallback=noporn_id))
+    nospam_id = int(config.get("bots", "nospam_id", fallback=nospam_id))
+    tip_id = int(config.get("bots", "tip_id", fallback=tip_id))
+    user_id = int(config.get("bots", "user_id", fallback=user_id))
+    warn_id = int(config.get("bots", "warn_id", fallback=warn_id))
 
     # [captcha]
-    captcha_link = config["captcha"].get("captcha_link", captcha_link)
-    font_chinese = config["captcha"].get("font_chinese", font_chinese)
-    font_english = config["captcha"].get("font_english", font_english)
-    font_number = config["captcha"].get("font_number", font_number)
-    noise = float(config["captcha"].get("noise", str(noise)))
+    captcha_link = config.get("captcha", "captcha_link", fallback=captcha_link)
+    font_chinese = config.get("captcha", "font_chinese", fallback=font_chinese)
+    font_english = config.get("captcha", "font_english", fallback=font_english)
+    font_number = config.get("captcha", "font_english", fallback=font_number)
+    noise = float(config.get("captcha", "noise", fallback=noise))
 
     # [channels]
-    captcha_group_id = int(config["channels"].get("captcha_group_id", str(captcha_group_id)))
-    critical_channel_id = int(config["channels"].get("critical_channel_id", str(critical_channel_id)))
-    debug_channel_id = int(config["channels"].get("debug_channel_id", str(debug_channel_id)))
-    exchange_channel_id = int(config["channels"].get("exchange_channel_id", str(exchange_channel_id)))
-    hide_channel_id = int(config["channels"].get("hide_channel_id", str(hide_channel_id)))
-    logging_channel_id = int(config["channels"].get("logging_channel_id", str(logging_channel_id)))
-    test_group_id = int(config["channels"].get("test_group_id", str(test_group_id)))
+    captcha_group_id = int(config.get("channels", "captcha_group_id", fallback=captcha_group_id))
+    critical_channel_id = int(config.get("channels", "critical_channel_id", fallback=critical_channel_id))
+    debug_channel_id = int(config.get("channels", "debug_channel_id", fallback=debug_channel_id))
+    exchange_channel_id = int(config.get("channels", "exchange_channel_id", fallback=exchange_channel_id))
+    hide_channel_id = int(config.get("channels", "hide_channel_id", fallback=hide_channel_id))
+    logging_channel_id = int(config.get("channels", "logging_channel_id", fallback=logging_channel_id))
+    test_group_id = int(config.get("channels", "test_group_id", fallback=test_group_id))
 
     # [custom]
-    default_group_link = config["custom"].get("default_group_link", default_group_link)
-    leave_button = config["custom"].get("leave_button", leave_button)
-    leave_link = config["custom"].get("leave_link", leave_link)
-    leave_reason = config["custom"].get("leave_reason", leave_reason)
-    more = config["custom"].get("more", more)
+    default_group_link = config.get("custom", "default_group_link", fallback=default_group_link)
+    leave_button = config.get("custom", "leave_button", fallback=leave_button)
+    leave_link = config.get("custom", "leave_link", fallback=leave_link)
+    leave_reason = config.get("custom", "leave_reason", fallback=leave_reason)
+    more = config.get("custom", "more", fallback=more)
     more = eval(more)
-    more_link = config["custom"].get("more_link", more_link)
-    more_text = config["custom"].get("more_text", more_text)
-    project_link = config["custom"].get("project_link", project_link)
-    project_name = config["custom"].get("project_name", project_name)
+    more_link = config.get("custom", "more_link", fallback=more_link)
+    more_text = config.get("custom", "more_text", fallback=more_text)
+    project_link = config.get("custom", "project_link", fallback=project_link)
+    project_name = config.get("custom", "project_name", fallback=project_name)
 
     # [emoji]
-    emoji_ad_single = int(config["emoji"].get("emoji_ad_single", str(emoji_ad_single)))
-    emoji_ad_total = int(config["emoji"].get("emoji_ad_total", str(emoji_ad_total)))
-    emoji_many = int(config["emoji"].get("emoji_many", str(emoji_many)))
-    emoji_protect = getdecoder("unicode_escape")(config["emoji"].get("emoji_protect", emoji_protect))[0]
-    emoji_wb_single = int(config["emoji"].get("emoji_wb_single", str(emoji_wb_single)))
-    emoji_wb_total = int(config["emoji"].get("emoji_wb_total", str(emoji_wb_total)))
+    emoji_ad_single = int(config.get("emoji", "emoji_ad_single", fallback=emoji_ad_single))
+    emoji_ad_total = int(config.get("emoji", "emoji_ad_total", fallback=emoji_ad_total))
+    emoji_many = int(config.get("emoji", "emoji_many", fallback=emoji_many))
+    emoji_protect = config.get("emoji", "emoji_protect", fallback=emoji_protect)
+    emoji_protect = getdecoder("unicode_escape")(emoji_protect)[0]
+    emoji_wb_single = int(config.get("emoji", "emoji_wb_single", fallback=emoji_wb_single))
+    emoji_wb_total = int(config.get("emoji", "emoji_wb_total", fallback=emoji_wb_total))
 
     # [encrypt]
-    key = config["encrypt"].get("key", key)
+    key = config.get("encrypt", "key", fallback=key)
     key = key.encode("utf-8")
-    password = config["encrypt"].get("password", password)
+    password = config.get("encrypt", "password", fallback=password)
 
     # [language]
-    lang = config["language"].get("lang", lang)
-    normalize = config["language"].get("normalize", normalize)
+    lang = config.get("language", "lang", fallback=lang)
+    normalize = config.get("language", "normalize", fallback=normalize)
     normalize = eval(normalize)
 
     # [limit]
-    limit_flood = int(config["limit"].get("limit_flood", str(limit_flood)))
-    limit_mention = int(config["limit"].get("limit_mention", str(limit_mention)))
-    limit_track = int(config["limit"].get("limit_track", str(limit_track)))
-    limit_try = int(config["limit"].get("limit_try", str(limit_try)))
+    limit_flood = int(config.get("limit", "limit_flood", fallback=limit_flood))
+    limit_mention = int(config.get("limit", "limit_mention", fallback=limit_mention))
+    limit_track = int(config.get("limit", "limit_track", fallback=limit_track))
+    limit_try = int(config.get("limit", "limit_try", fallback=limit_try))
 
     # [mode]
-    aio = config["mode"].get("aio", aio)
+    aio = config.get("mode", "aio", fallback=aio)
     aio = eval(aio)
-    backup = config["mode"].get("backup", backup)
+    backup = config.get("mode", "backup", fallback=backup)
     backup = eval(backup)
-    failed = config["mode"].get("failed", failed)
+    failed = config.get("mode", "failed", fallback=failed)
     failed = eval(failed)
-    simple = config["mode"].get("simple", simple)
+    simple = config.get("mode", "simple", fallback=simple)
     simple = eval(simple)
-    simple_only = config["mode"].get("simple_only", simple_only)
+    simple_only = config.get("mode", "simple_only", fallback=simple_only)
     simple_only = eval(simple_only)
 
     # [time]
-    date_reset = config["time"].get("date_reset", date_reset)
-    time_captcha = int(config["time"].get("time_captcha", str(time_captcha)))
-    time_invite = int(config["time"].get("time_invite", str(time_invite)))
-    time_new = int(config["time"].get("time_new", str(time_new)))
-    time_punish = int(config["time"].get("time_punish", str(time_punish)))
-    time_recheck = int(config["time"].get("time_recheck", str(time_recheck)))
-    time_remove = int(config["time"].get("time_remove", str(time_remove)))
-    time_short = int(config["time"].get("time_short", str(time_short)))
-    time_track = int(config["time"].get("time_track", str(time_track)))
+    date_reset = config.get("time", "date_reset", fallback=date_reset)
+    time_captcha = int(config.get("time", "time_captcha", fallback=time_captcha))
+    time_invite = int(config.get("time", "time_invite", fallback=time_invite))
+    time_new = int(config.get("time", "time_new", fallback=time_new))
+    time_punish = int(config.get("time", "time_punish", fallback=time_punish))
+    time_recheck = int(config.get("time", "time_recheck", fallback=time_recheck))
+    time_remove = int(config.get("time", "time_remove", fallback=time_remove))
+    time_short = int(config.get("time", "time_short", fallback=time_short))
+    time_track = int(config.get("time", "time_track", fallback=time_track))
+
+    # [flag]
+    broken = False
 except Exception as e:
+    print("[ERROR] Read data from config.ini error, please check the log file")
     logger.warning(f"Read data from config.ini error: {e}", exc_info=True)
 
 # Check
-if (False
-        # [basic]
-        or bot_token in {"", "[DATA EXPUNGED]"}
-        or prefix == []
-
-        # [bots]
-        or avatar_id == 0
-        or captcha_id == 0
-        or clean_id == 0
-        or index_id == 0
-        or lang_id == 0
-        or long_id == 0
-        or noflood_id == 0
-        or noporn_id == 0
-        or nospam_id == 0
-        or tip_id == 0
-        or user_id == 0
-        or warn_id == 0
-
-        # [captcha]
-        or captcha_link in {"", "[DATA EXPUNGED]"}
-        or font_chinese in {"", "[DATA EXPUNGED]"}
-        or font_english in {"", "[DATA EXPUNGED]"}
-        or font_number in {"", "[DATA EXPUNGED]"}
-        or noise == 0.0
-
-        # [channels]
-        or captcha_group_id == 0
-        or critical_channel_id == 0
-        or debug_channel_id == 0
-        or exchange_channel_id == 0
-        or hide_channel_id == 0
-        or logging_channel_id == 0
-        or test_group_id == 0
-
-        # [custom]
-        or default_group_link in {"", "[DATA EXPUNGED]"}
-        or leave_button in {"", "[DATA EXPUNGED]"}
-        or leave_link in {"", "[DATA EXPUNGED]"}
-        or leave_reason in {"", "[DATA EXPUNGED]"}
-        or more not in {False, True}
-        or more_link in {"", "[DATA EXPUNGED]"}
-        or more_text in {"", "[DATA EXPUNGED]"}
-        or project_link in {"", "[DATA EXPUNGED]"}
-        or project_name in {"", "[DATA EXPUNGED]"}
-
-        # [emoji]
-        or emoji_ad_single == 0
-        or emoji_ad_total == 0
-        or emoji_many == 0
-        or emoji_protect in {"", "[DATA EXPUNGED]"}
-        or emoji_wb_single == 0
-        or emoji_wb_total == 0
-
-        # [encrypt]
-        or key in {b"", b"[DATA EXPUNGED]", "", "[DATA EXPUNGED]"}
-        or password in {"", "[DATA EXPUNGED]"}
-
-        # [language]
-        or lang in {"", "[DATA EXPUNGED]"}
-        or normalize not in {False, True}
-
-        # [limit]
-        or limit_mention == 0
-        or limit_flood == 0
-        or limit_track == 0
-        or limit_try == 0
-
-        # [mode]
-        or aio not in {False, True}
-        or backup not in {False, True}
-        or failed not in {False, True}
-        or simple not in {False, True}
-        or simple_only not in {False, True}
-
-        # [time]
-        or date_reset in {"", "[DATA EXPUNGED]"}
-        or time_captcha == 0
-        or time_invite == 0
-        or time_new == 0
-        or time_punish == 0
-        or time_recheck == 0
-        or time_remove == 0
-        or time_short == 0
-        or time_track == 0):
-    logger.critical("No proper settings")
-    raise SystemExit("No proper settings")
+check_all(
+    {
+        "bots": {
+            "avatar_id": avatar_id,
+            "captcha_id": captcha_id,
+            "clean_id": clean_id,
+            "index_id": index_id,
+            "lang_id": lang_id,
+            "long_id": long_id,
+            "noflood_id": noflood_id,
+            "noporn_id": noporn_id,
+            "nospam_id": nospam_id,
+            "tip_id": tip_id,
+            "user_id": user_id,
+            "warn_id": warn_id
+        },
+        "captcha": {
+            "captcha_link": captcha_link,
+            "font_chinese": font_chinese,
+            "font_english": font_english,
+            "font_number": font_number,
+            "noise": noise
+        },
+        "channels": {
+            "captcha_group_id": captcha_group_id,
+            "critical_channel_id": critical_channel_id,
+            "debug_channel_id": debug_channel_id,
+            "exchange_channel_id": exchange_channel_id,
+            "hide_channel_id": hide_channel_id,
+            "logging_channel_id": logging_channel_id,
+            "test_group_id": test_group_id
+        },
+        "custom": {
+            "default_group_link": default_group_link,
+            "leave_button": leave_button,
+            "leave_link": leave_link,
+            "leave_reason": leave_reason,
+            "more": more,
+            "more_link": more_link,
+            "more_text": more_text,
+            "project_link": project_link,
+            "project_name": project_name
+        },
+        "emoji": {
+            "emoji_ad_single": emoji_ad_single,
+            "emoji_ad_total": emoji_ad_total,
+            "emoji_many": emoji_many,
+            "emoji_protect": emoji_protect,
+            "emoji_wb_single": emoji_wb_single,
+            "emoji_wb_total": emoji_wb_total
+        },
+        "encrypt": {
+            "key": key,
+            "password": password
+        },
+        "language": {
+            "lang": lang,
+            "normalize": normalize
+        },
+        "limit": {
+            "limit_flood": limit_flood,
+            "limit_mention": limit_mention,
+            "limit_track": limit_track,
+            "limit_try": limit_try
+        },
+        "mode": {
+            "aio": aio,
+            "backup": backup,
+            "failed": failed,
+            "simple": simple,
+            "simple_only": simple_only
+        },
+        "time": {
+            "date_reset": date_reset,
+            "time_captcha": time_captcha,
+            "time_invite": time_invite,
+            "time_new": time_new,
+            "time_punish": time_punish,
+            "time_recheck": time_recheck,
+            "time_remove": time_remove,
+            "time_short": time_short,
+            "time_track": time_track
+        }
+    },
+    broken
+)
 
 # Language Dictionary
 lang_dict: dict = {}
