@@ -188,6 +188,7 @@ question_letter: 请发送上图所显示的一串英文字母（无数字，全
 question_math_pic: 正确答案在下方按钮中，请选择或发送上图中所显示的加减法算术题的正确答案
 question_number: 请发送上图所显示的一串数字（无英文字母，全部为数字）
 question_pic: 正确答案在下方按钮中，请选择或发送上图中所显示物体的正确名称
+return_group: 返回原群组
 suggestion: 建议
 suggestion_wrong: 请您等待 {} 秒后，再重新加入原始群组（非本群）触发新的验证请求
 triggered_time: 触发时间

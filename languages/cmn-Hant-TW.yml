@@ -188,6 +188,7 @@ question_letter: 請傳送上圖裡顯示的一串英文字母（沒有數字，
 question_math_pic: 正確答案在下方按鈕中，请點按或傳送上圖裡顯示的加減算術題的正確答案
 question_number: 請傳送上圖裡顯示的一串數字（沒有英文字母，全部是數字）
 question_pic: 正確答案在下方按鈕中，请點按或傳送上圖裡顯示物體的正確名稱
+return_group: 返回原群组
 suggestion: 建議
 suggestion_wrong: 請您等待 {} 秒後，再重新進入原群組（不是本組）觸發新的驗證請求
 triggered_time: 觸法時間

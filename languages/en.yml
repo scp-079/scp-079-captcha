@@ -200,6 +200,7 @@ question_math_pic: The correct answer is in the buttons below, please select or 
 question_number: Please send a string of numbers as shown above
 question_pic: The correct answer is in the buttons below, please select or send the
   correct name of the object shown in the image above
+return_group: 返回原群组
 suggestion: Suggestion
 suggestion_wrong: Please wait {} seconds before re-joining the original group for verification
 triggered_time: Triggered Time
