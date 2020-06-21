@@ -16,3 +16,34 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+
+from . import glovar
+from .functions.file import delete_file, save
+
+# Enable logging
+logger = logging.getLogger(__name__)
+
+
+def renew() -> bool:
+    # Renew the session
+    result = False
+
+    try:
+        if not glovar.token:
+            glovar.token = glovar.bot_token
+            save("token")
+            return False
+
+        if glovar.token == glovar.bot_token:
+            return False
+
+        delete_file("bot.session")
+        glovar.token = glovar.bot_token
+        save("token")
+
+        result = True
+    except Exception as e:
+        logger.warning(f"Renew error: {e}", exc_info=True)
+
+    return result

@@ -27,9 +27,13 @@ from pyrogram import Client
 from plugins import glovar
 from plugins.functions.timers import backup_files, interval_hour_01, interval_min_01, interval_min_10, new_invite_link
 from plugins.functions.timers import reset_data, send_count, share_failed_users, update_admins, update_status
+from plugins.session import renew
 
 # Enable logging
 logger = logging.getLogger(__name__)
+
+# Renew session
+renew()
 
 # Config session
 app = Client(

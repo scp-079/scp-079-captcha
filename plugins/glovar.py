@@ -654,6 +654,8 @@ pinned_ids: Dict[int, Dict[str, int]] = {}
 #     }
 # }
 
+token: str = ""
+
 trust_ids: Dict[int, Set[int]] = {}
 # trust_ids = {
 #     -10012345678: {12345678}
@@ -818,7 +820,8 @@ for word_type in regex:
 file_list: List[str] = ["admin_ids", "bad_ids", "failed_ids", "flooded_ids", "ignore_ids", "lack_group_ids",
                         "left_group_ids", "message_ids", "pinned_ids", "trust_ids", "user_ids", "watch_ids",
                         "white_ids",
-                        "configs", "custom_texts", "flood_logs", "invite", "questions", "reset_time", "starts"]
+                        "configs", "custom_texts", "flood_logs", "invite", "questions", "reset_time", "starts",
+                        "token"]
 file_list += [f"{f}_words" for f in regex]
 
 for file in file_list:
