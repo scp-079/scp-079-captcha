@@ -37,6 +37,7 @@ from ..functions.filters import authorized_group, captcha_group, class_e, from_u
 from ..functions.filters import is_class_c, is_class_e, is_class_e_user, is_from_user, is_should_qns, test_group
 from ..functions.group import delete_message
 from ..functions.ids import init_user_id
+from ..functions.markup import get_text_and_markup
 from ..functions.telegram import forward_messages, get_group_info, get_start, send_message, send_report_message
 from ..functions.user import add_start, get_uid, terminate_user_pass, terminate_user_succeed, terminate_user_undo_pass
 
@@ -788,8 +789,8 @@ def show(client: Client, message: Message) -> bool:
     return result
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(["start"], glovar.prefix)
-                   & from_user & class_e)
+@Client.on_message(Filters.incoming & Filters.private & Filters.command(["start", "help"], glovar.prefix)
+                   & from_user)
 def start(client: Client, message: Message) -> bool:
     # Process /start command in private chat
     result = False
@@ -798,28 +799,49 @@ def start(client: Client, message: Message) -> bool:
 
     try:
         # Basic data
+        cid = message.chat.id
+        mid = message.message_id
         now = message.date or get_now()
 
         # Get start key
         key = get_command_type(message)
 
-        # Check the key
-        if not key or not glovar.starts.get(key):
+        # Start session
+        if is_class_e_user(message.from_user) and key and glovar.starts.get(key):
+            # Get until time
+            until = glovar.starts[key]["until"]
+
+            # Check the until time
+            if now >= until:
+                return False
+
+            # Get action
+            action = glovar.starts[key]["action"]
+
+            # Proceed
+            if action == "qns":
+                return start_qns(client, message, key)
+
+        # Check started ids
+        if cid in glovar.started_ids:
             return False
 
-        # Get until time
-        until = glovar.starts[key]["until"]
+        # Add to started ids
+        glovar.started_ids.add(cid)
 
-        # Check the until time
-        if now >= until:
+        # Check aio mode
+        if glovar.aio:
             return False
 
-        # Get action
-        action = glovar.starts[key]["action"]
+        # Check start text
+        if not glovar.start_text:
+            return False
 
-        # Proceed
-        if action == "qns":
-            return start_qns(client, message, key)
+        # Generate the text and markup
+        text, markup = get_text_and_markup(glovar.start_text)
+
+        # Send the report message
+        thread(send_message, (client, cid, text, mid, markup))
 
         result = True
     except Exception as e:

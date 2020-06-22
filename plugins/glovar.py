@@ -442,7 +442,6 @@ default_user_status: Dict[str, Union[int, str, Dict[Union[int, str], Union[float
         "noflood": 0.0,
         "noporn": 0.0,
         "nospam": 0.0,
-        "recheck": 0.0,
         "warn": 0.0
     }
 }
@@ -521,6 +520,9 @@ sender: str = "CAPTCHA"
 
 should_hide: bool = False
 
+started_ids: Set[int] = set()
+# started_ids = {12345678}
+
 usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 # usernames = {
 #     "SCP_079": {
@@ -560,7 +562,7 @@ else:
 for question_type in append_types:
     question_types[question_type].append("pic")
 
-# Load data from text
+# Load data from TXT file
 
 chinese_words: Dict[str, List[str]] = {
     "chengyu": [],
@@ -574,6 +576,12 @@ for word_type in ["chengyu", "food"]:
         candidates = {line.split("\t")[0].strip() for line in lines}
         words = [word for word in candidates if 0 < len(word.encode()) <= 64]
         chinese_words[word_type] = words
+
+if exists("start.txt"):
+    with open("start.txt", "r", encoding="utf-8") as f:
+        start_text = f.read()
+else:
+    start_text = ""
 
 # Load data from pickle
 
@@ -700,7 +708,6 @@ user_ids: Dict[int, Dict[str, Union[int, str, Dict[Union[int, str], Union[float,
 #             "noflood": 0.0,
 #             "noporn": 0.0,
 #             "nospam": 0.0,
-#             "recheck": 0.0,
 #             "warn": 0.0
 #         }
 #     }
