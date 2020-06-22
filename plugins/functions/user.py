@@ -1229,7 +1229,8 @@ def terminate_user_succeed_qns(client: Client, gid: int, uid: int, qid: str) -> 
         )
 
         # Answer the callback
-        thread(answer_callback, (client, qid, lang("action_verified"), True))
+        answer_text = glovar.custom_texts[gid].get("correct") or lang("action_verified")
+        thread(answer_callback, (client, qid, answer_text, True))
 
         # Count
         qns_count(gid, key, "succeed")
@@ -1548,16 +1549,18 @@ def terminate_user_wrong_qns(client: Client, gid: int, uid: int, qid: str) -> bo
         level = get_level(gid)
 
         # Kick the user (ban for 3600 * 2^failed seconds) or ban the user
+        custom_text = glovar.custom_texts[gid].get("wrong", "")
+
         if level == "kick":
             failed = abs(int(glovar.user_ids[uid]["failed"][gid]))
             n = pow(2, failed)
             kick_user(client, gid, uid, until_date=now + 3600 * n, lock=True)
-            callback_text = lang("description_wrong_qns").format(n)
+            callback_text = custom_text.format(n) or lang("description_wrong_qns").format(n)
         elif level == "ban":
             ban_user(client, gid, uid)
-            callback_text = lang("description_wrong")
+            callback_text = custom_text or lang("description_wrong")
         else:
-            callback_text = lang("description_wrong")
+            callback_text = custom_text or lang("description_wrong")
 
         # Delete all messages from the user
         not is_flooded(gid) and ask_for_help(client, "delete", gid, uid)
