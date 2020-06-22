@@ -133,6 +133,9 @@ def interval_hour_01() -> bool:
         # Basic data
         now = get_now()
 
+        # Clear started ids
+        glovar.started_ids = set()
+
         # Clear starts data
         for key in list(glovar.starts):
             if glovar.starts[key]["until"] > now:

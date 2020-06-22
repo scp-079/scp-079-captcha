@@ -52,6 +52,7 @@ command_type: 錯誤指令類型
 command_usage: 錯誤用法
 detail_qns_occupied: 会话被 {} 占用中
 error_duplicated: 答案重合
+error_exceed_popup: 弹窗提示不得超过 140 字
 error_exceed_qn: 问题不得超过 140 字
 error_exceed_qns: 自定义问题数量已达上限
 error_exceed_answer: 单个回答不得超过 64 字节
@@ -141,12 +142,14 @@ check_admin: 您是管理員，可自由進入驗證群組裡查看機器人運�
 check_no: 您無需驗證即可在本群發言
 check_pass: 您已在本群通過驗證
 check_yes: 您需要驗證才可以在本群發言
+custom_correct: 通过提示
 custom_flood: 進群轟炸
 custom_manual: 手動驗證
 custom_multi: 多用户验证
 custom_nospam: NOSPAM 降級
 custom_single: 單個使用者
 custom_static: 靜態提示
+custom_wrong: 失败提示
 description_again: 回答錯誤，請調整答案，再次嘗試
 description_ask: "請您儘快回答下方的問題來完成驗證，您可以點正確答案的按鈕或直接傳送正確答案。\
   注意，您總共有 {} 次機會回答問題，錯誤會導致驗證失敗。您在本群的任何訊息都視作對問題的回答，請謹慎發言"

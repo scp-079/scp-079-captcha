@@ -356,7 +356,7 @@ def custom(client: Client, message: Message) -> bool:
                 f"{lang('action')}{lang('colon')}{code(lang('action_custom'))}\n")
 
         # Check command format
-        if command_type not in {"flood", "manual", "nospam", "single", "static", "multi"}:
+        if command_type not in {"correct", "flood", "manual", "multi", "nospam", "single", "static", "wrong"}:
             return command_error(client, message, lang("action_custom"), lang("command_usage"))
 
         # Show the config
@@ -388,11 +388,15 @@ def custom(client: Client, message: Message) -> bool:
                         and all(mention not in command_context for mention in mention_only_list))
         mention_redundant = (command_type in {"flood", "static"}
                              and any(mention in command_context for mention in mention_all_list))
+        too_long = command_type in {"correct", "wrong"} and len(command_context) > 140
 
         # Set the custom text
         if command_context != "off" and (mention_lack or mention_redundant):
             detail = (mention_lack and lang("mention_lack")) or lang("mention_redundant")
             return command_error(client, message, lang("action_custom"), lang("command_usage"), detail)
+        elif command_context != "off" and too_long:
+            return command_error(client, message, lang("action_custom"), lang("command_para"),
+                                 lang("error_exceed_popup"))
         elif command_context != "off":
             glovar.custom_texts[gid][command_type] = command_context
         else:
