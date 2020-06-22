@@ -732,6 +732,20 @@ def get_markup_hint(single: bool = False, static: bool = False,
     return result
 
 
+def get_return_link(uid: int) -> str:
+    # Get return group link
+    result = ""
+
+    try:
+        gid = min(glovar.user_ids[uid]["wait"], key=glovar.user_ids[uid]["wait"].get)
+        mid = glovar.message_ids[gid].get("hint") or 1
+        result = f"{get_channel_link(gid)}/{mid}"
+    except Exception as e:
+        logger.warning(f"Get return link error: {e}", exc_info=True)
+
+    return result
+
+
 def question_answer(client: Client, uid: int, text: str) -> bool:
     # Answer the question
     result = False
@@ -749,7 +763,7 @@ def question_answer(client: Client, uid: int, text: str) -> bool:
             answer = t2t(answer, True, True)
 
         if text and answer and text == answer:
-            question_status(client, uid, "succeed")
+            question_status(client, uid, "succeed", get_return_link(uid))
             return terminate_user_succeed(
                 client=client,
                 uid=uid
@@ -883,7 +897,7 @@ def question_ask(client: Client, user: User, mid: int) -> bool:
                 mid=mid,
                 markup=markup
             )
-            image_path.startswith("tmp/") and delete_file(image_path)
+            image_path.startswith("tmp/") and thread(delete_file, (image_path,))
         else:
             result = send_message(
                 client=client,
@@ -972,7 +986,7 @@ def question_change(client: Client, uid: int, mid: int) -> bool:
             caption=text,
             markup=markup
         )
-        image_path.startswith("tmp/") and delete_file(image_path)
+        image_path.startswith("tmp/") and thread(delete_file, (image_path,))
 
         # Check if the message was edited successfully
         if not result:
@@ -992,7 +1006,7 @@ def question_change(client: Client, uid: int, mid: int) -> bool:
 
 
 @threaded()
-def question_status(client: Client, uid: int, the_type: str) -> bool:
+def question_status(client: Client, uid: int, the_type: str, link: str) -> bool:
     # Reply question status
     result = False
 
@@ -1015,8 +1029,8 @@ def question_status(client: Client, uid: int, the_type: str) -> bool:
                 [
                     [
                         InlineKeyboardButton(
-                            text=glovar.more_text,
-                            url=glovar.more_link
+                            text=lang("return_group"),
+                            url=link
                         )
                     ]
                 ]

@@ -344,7 +344,7 @@ def qns_show_file(client: Client, message: Message, gid: int,
         send_document(client, cid, file, None, caption, mid)
 
         # Delete the file
-        delete_file(file)
+        thread(delete_file, (file,))
 
         result = True
     except Exception as e:

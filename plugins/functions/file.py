@@ -75,7 +75,6 @@ def data_to_file(data: Any) -> str:
     return result
 
 
-@threaded()
 def delete_file(path: str) -> bool:
     # Delete a file
     result = False

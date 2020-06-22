@@ -243,7 +243,7 @@ def send_debug(client: Client, gids: List[int], action: str,
 
         if file:
             result = bool(send_document(client, glovar.debug_channel_id, file, None, text))
-            delete_file(file)
+            thread(delete_file, (file,))
         else:
             result = bool(send_message(client, glovar.debug_channel_id, text))
     except Exception as e:
@@ -308,7 +308,7 @@ def share_data(client: Client, receivers: List[str], action: str, action_type: s
 
         # Delete the tmp file
         for f in {file, file_path}:
-            f.startswith("tmp/") and delete_file(f)
+            f.startswith("tmp/") and thread(delete_file, (f,))
 
         result = bool(result)
     except Exception as e:

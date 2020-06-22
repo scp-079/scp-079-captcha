@@ -381,7 +381,7 @@ def receive_file_data(client: Client, message: Message, decrypt: bool = True) ->
             result = pickle.load(f)
 
         for f in {path, path_decrypted}:
-            delete_file(f)
+            thread(delete_file, (f,))
     except Exception as e:
         logger.warning(f"Receive file error: {e}", exc_info=True)
 
