@@ -23,12 +23,13 @@ from typing import Dict, List, Set, Union
 from pyrogram import Client, Message
 
 from .. import glovar
-from .captcha import get_answers, get_markup_qns
+from .captcha import get_answers
 from .channel import send_debug
 from .command import command_error
 from .decorators import threaded
 from .etc import button_data, code, general_link, get_now, lang, thread
 from .file import delete_file, file_txt, save
+from .markup import get_inline
 from .telegram import get_group_info, send_document, send_message, send_report_message
 
 # Enable logging
@@ -178,7 +179,7 @@ def qns_add(client: Client, message: Message, gid: int, key: str, text: str, the
                 }
             )
 
-        markup = get_markup_qns(buttons)
+        markup = get_inline(buttons)
 
         # Send the report message
         thread(send_message, (client, cid, text, mid, markup))

@@ -20,7 +20,7 @@ import logging
 from json import loads
 from random import choice, randint, sample, shuffle
 from string import ascii_lowercase
-from typing import Dict, List, Optional, Union
+from typing import List, Optional, Union
 
 from captcha.image import ImageCaptcha
 from claptcha import Claptcha
@@ -36,6 +36,7 @@ from .filters import is_declared_message, is_flooded, is_limited_user, is_nm_tex
 from .filters import is_wb_text
 from .group import clear_joined_messages, delete_message, get_hint_text, get_pinned
 from .ids import init_user_id
+from .markup import get_inline
 from .user import flood_user, qns_count, restrict_user, terminate_user_punish, terminate_user_succeed
 from .user import terminate_user_succeed_qns, terminate_user_wrong, terminate_user_wrong_qns, unrestrict_user
 from .telegram import delete_messages, edit_message_photo, get_chat_member, pin_chat_message
@@ -676,54 +677,6 @@ def get_markup_ask(captcha: dict, question_type: str = "") -> Optional[InlineKey
     return result
 
 
-def get_markup_qns(buttons: List[Dict[str, Union[str, bytes]]]) -> Optional[InlineKeyboardMarkup]:
-    # Get the qns message's markup
-    result = None
-
-    try:
-        if not buttons:
-            return None
-
-        length = len(buttons)
-        markup_list: List[List[InlineKeyboardButton]] = [[]]
-
-        for button in buttons:
-            text = button["text"]
-            data = button["data"]
-
-            if length <= 6 and (length % 3) and not (length % 2) and len(markup_list[-1]) == 2:
-                markup_list.append([])
-
-            elif len(markup_list[-1]) == 3:
-                markup_list.append([])
-
-            elif (len(markup_list[-1]) == 2
-                  and get_length(text) <= 12
-                  and all(get_length(m.text) <= 12 for m in markup_list[-1])):
-                pass
-
-            elif (len(markup_list[-1]) == 1
-                  and get_length(text) <= 18
-                  and get_length(markup_list[-1][-1].text) <= 18):
-                pass
-
-            elif markup_list[-1]:
-                markup_list.append([])
-
-            markup_list[-1].append(
-                InlineKeyboardButton(
-                    text=text,
-                    callback_data=data
-                )
-            )
-
-        result = InlineKeyboardMarkup(markup_list)
-    except Exception as e:
-        logger.warning(f"Get markup qns error: {e}", exc_info=True)
-
-    return result
-
-
 def get_markup_hint(single: bool = False, static: bool = False,
                     pinned: Message = None, gid: int = None) -> Optional[InlineKeyboardMarkup]:
     # Get the hint message's markup
@@ -1220,7 +1173,7 @@ def send_hint_qns(client: Client, the_type: str, gid: int,
                 }
             )
 
-        markup = get_markup_qns(buttons)
+        markup = get_inline(buttons)
 
         # Send the hint
         result = send_message(
