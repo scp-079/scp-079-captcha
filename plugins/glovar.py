@@ -388,12 +388,14 @@ default_config: Dict[str, Union[bool, int]] = {
 }
 
 default_custom_text: Dict[str, str] = {
+    "correct": "",
     "flood": "",
     "manual": "",
     "multi": "",
     "nospam": "",
     "single": "",
-    "static": ""
+    "static": "",
+    "wrong": ""
 }
 
 default_message_data: Dict[str, Union[int, Dict[int, int], Set[int]]] = {
@@ -749,12 +751,14 @@ configs: Dict[int, Dict[str, Union[bool, int]]] = {}
 custom_texts: Dict[int, Dict[str, str]] = {}
 # custom_texts = {
 #     -10012345678: {
+#         "correct": "",
 #         "flood": "",
 #         "manual": "",
 #         "multi": "",
 #         "nospam": "",
 #         "single": "",
-#         "static": ""
+#         "static": "",
+#         "wrong": ""
 #     }
 # }
 
