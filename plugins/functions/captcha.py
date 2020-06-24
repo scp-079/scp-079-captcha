@@ -742,7 +742,7 @@ def get_return_link(uid: int) -> str:
 
         if not mid:
             mid = 1
-        elif mid <= 0:
+        elif mid <= 1:
             mid = 1
         else:
             mid -= 1
