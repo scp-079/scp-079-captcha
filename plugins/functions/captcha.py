@@ -738,7 +738,15 @@ def get_return_link(uid: int) -> str:
 
     try:
         gid = min(glovar.user_ids[uid]["wait"], key=glovar.user_ids[uid]["wait"].get)
-        mid = glovar.message_ids[gid].get("hint") or 1
+        mid = glovar.message_ids[gid].get("hint", 0)
+
+        if not mid:
+            mid = 1
+        elif mid <= 0:
+            mid = 1
+        else:
+            mid -= 1
+
         result = f"{get_channel_link(gid)}/{mid}"
     except Exception as e:
         logger.warning(f"Get return link error: {e}", exc_info=True)
