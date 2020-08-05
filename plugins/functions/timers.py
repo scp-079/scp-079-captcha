@@ -285,8 +285,12 @@ def new_invite_link(client: Client, force: bool = False) -> bool:
         link = export_chat_invite_link(client, glovar.captcha_group_id)
 
         if not link:
-            logger.warning(f"New invite link failed!")
+            force and logger.warning(f"Generating CAPTCHA group invite link failed! "
+                                     f"Please check the bot's permissions in CAPTCHA group "
+                                     f"and the captcha_group_id's value in config.ini")
             return False
+        elif force:
+            logger.warning(f"CAPTCHA group temporary invite link: {link}")
 
         glovar.invite["link"] = link
         save("invite")
