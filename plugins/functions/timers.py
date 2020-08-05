@@ -274,7 +274,7 @@ def new_invite_link(client: Client, force: bool = False) -> bool:
             user_ids = deepcopy(glovar.user_ids)
 
         # Check if there is a waiting
-        if any(user_ids[uid]["wait"] for uid in user_ids):
+        if not force and any(user_ids[uid]["wait"] for uid in user_ids):
             return False
 
         # Check the link time
