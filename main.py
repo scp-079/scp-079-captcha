@@ -49,7 +49,7 @@ update_status(app, "online")
 not glovar.reset_time[1] and reset_data(app)
 
 # Check invite link
-not glovar.invite.get("link") and new_invite_link(app)
+not glovar.invite.get("link") and new_invite_link(app, True)
 
 # Timer
 scheduler = BackgroundScheduler(job_defaults={"misfire_grace_time": 60})

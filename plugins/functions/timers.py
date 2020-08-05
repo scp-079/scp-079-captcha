@@ -255,7 +255,7 @@ def interval_min_10(client: Client) -> bool:
     return result
 
 
-def new_invite_link(client: Client, manual: bool = False) -> bool:
+def new_invite_link(client: Client, force: bool = False) -> bool:
     # Generate new invite link
     result = False
 
@@ -266,7 +266,7 @@ def new_invite_link(client: Client, manual: bool = False) -> bool:
         now = get_now()
 
         # Check flood status
-        if any(is_flooded(gid) for gid in list(glovar.configs)):
+        if not force and any(is_flooded(gid) for gid in list(glovar.configs)):
             return False
 
         # Copy the data
@@ -278,7 +278,7 @@ def new_invite_link(client: Client, manual: bool = False) -> bool:
             return False
 
         # Check the link time
-        if not manual and now - glovar.invite.get("time", 0) < glovar.time_invite:
+        if not force and now - glovar.invite.get("time", 0) < glovar.time_invite:
             return False
 
         # Generate link

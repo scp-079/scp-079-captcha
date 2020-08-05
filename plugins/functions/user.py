@@ -521,10 +521,6 @@ def get_uid_from_reply(client: Client, message: Message) -> int:
         if not message:
             return 0
 
-        # Further
-        if message.reply_to_message:
-            return get_uid_from_reply(client, message.reply_to_message)
-
         # Get the uid
         if message.from_user.is_self:
             result = get_uid_from_self(message)
