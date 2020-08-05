@@ -22,6 +22,24 @@ status_failed: 未执行
 status_succeeded: 成功执行
 type: 类别
 
+# Command
+command_date: 命令发送时间
+command_flood: 命令发送频繁，请稍后重试
+command_lack: 命令参数缺失
+command_para: 命令参数有误
+command_type: 命令类别有误
+command_usage: 用法有误
+detail_qns_occupied: 会话被 {} 占用中
+error_duplicated: 答案重合
+error_exceed_popup: 弹窗提示不得超过 140 字
+error_exceed_qn: 问题不得超过 140 字
+error_exceed_qns: 自定义问题数量已达上限
+error_exceed_answer: 单个回答不得超过 64 字节
+error_exceed_answers: 备选答案个数不得超过 6 个
+error_qns_occupied: 已存在设置会话
+error_qns_none: 不存在该问题
+error_none: 无数据
+
 # Config
 config: 设置
 config_button: 请点击下方按钮进行设置
@@ -42,24 +60,6 @@ pass: 自动免验证
 pin: 自动置顶
 qns: 自定义问题
 manual: 仅手动
-
-# Command
-command_date: 命令发送时间
-command_flood: 命令发送频繁，请稍后重试
-command_lack: 命令参数缺失
-command_para: 命令参数有误
-command_type: 命令类别有误
-command_usage: 用法有误
-detail_qns_occupied: 会话被 {} 占用中
-error_duplicated: 答案重合
-error_exceed_popup: 弹窗提示不得超过 140 字
-error_exceed_qn: 问题不得超过 140 字
-error_exceed_qns: 自定义问题数量已达上限
-error_exceed_answer: 单个回答不得超过 64 字节
-error_exceed_answers: 备选答案个数不得超过 6 个
-error_qns_occupied: 已存在设置会话
-error_qns_none: 不存在该问题
-error_none: 无数据
 
 # Debug
 evidence: 证据留存

@@ -98,7 +98,7 @@ project_name: str = "SCP-079-CAPTCHA"
 emoji_ad_single: int = 15
 emoji_ad_total: int = 30
 emoji_many: int = 15
-emoji_protect: str = "\\U0001F642"
+emoji_protect: [bytes, str] = "\\U0001F642"
 emoji_wb_single: int = 10
 emoji_wb_total: int = 15
 
@@ -189,7 +189,7 @@ try:
     emoji_ad_single = int(config.get("emoji", "emoji_ad_single", fallback=emoji_ad_single))
     emoji_ad_total = int(config.get("emoji", "emoji_ad_total", fallback=emoji_ad_total))
     emoji_many = int(config.get("emoji", "emoji_many", fallback=emoji_many))
-    emoji_protect = config.get("emoji", "emoji_protect", fallback=emoji_protect)
+    emoji_protect = config.get("emoji", "emoji_protect", fallback=emoji_protect).encode()
     emoji_protect = getdecoder("unicode_escape")(emoji_protect)[0]
     emoji_wb_single = int(config.get("emoji", "emoji_wb_single", fallback=emoji_wb_single))
     emoji_wb_total = int(config.get("emoji", "emoji_wb_total", fallback=emoji_wb_total))
