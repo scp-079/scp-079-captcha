@@ -285,6 +285,7 @@ def new_invite_link(client: Client, force: bool = False) -> bool:
         link = export_chat_invite_link(client, glovar.captcha_group_id)
 
         if not link:
+            logger.warning(f"New invite link failed!")
             return False
 
         glovar.invite["link"] = link
