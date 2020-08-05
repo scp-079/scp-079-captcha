@@ -37,33 +37,33 @@ delete: 協助刪除
 restrict: 限制模式
 ban: 封禁模式
 forgive: 自動解除
-hint: 進組提示
+hint: 進群提示
 pass: 自動通過
 pin: 自動置頂
-qns: 自定义问题
+qns: 自訂問題
 manual: 僅手動
 
 # Command
-command_date: 命令发送时间
+command_date: 指令發送時間
 command_flood: 頻繁傳送指令，請稍後再試
 command_lack: 缺乏指令參數
 command_para: 錯誤指令參數
 command_type: 錯誤指令類型
 command_usage: 錯誤用法
-detail_qns_occupied: 会话被 {} 占用中
+detail_qns_occupied: 會話被 {} 佔用中
 error_duplicated: 答案重合
-error_exceed_popup: 弹窗提示不得超过 140 字
-error_exceed_qn: 问题不得超过 140 字
-error_exceed_qns: 自定义问题数量已达上限
-error_exceed_answer: 单个回答不得超过 64 字节
-error_exceed_answers: 备选答案个数不得超过 6 个
-error_qns_occupied: 已存在设置会话
-error_qns_none: 不存在该问题
-error_none: 无数据
+error_exceed_popup: 跳出視窗提示不得超過 140 字
+error_exceed_qn: 問題不得超過 140 字
+error_exceed_qns: 自訂問題已達到上限
+error_exceed_answer: 單個回答不得超過 64 位元組
+error_exceed_answers: 備選答案不得超過 6 個
+error_qns_occupied: 已存在設置會話
+error_qns_none: 不存在該問題
+error_none: 無數據
 
 # Debug
 evidence: 證據留存
-triggered_by: 觸法訊息
+triggered_by: 觸發訊息
 
 # Emergency
 auto_fix: 自動修復
@@ -111,90 +111,90 @@ message_type: 訊息類型
 more: 額外訊息
 rule: 規則
 status: 狀態
-user_bio: 使用者簡歷
-user_id: 使用者 ID
-user_name: 使用者名
-user_score: 使用者得分
+user_bio: 用戶簡歷
+user_id: 用戶 ID
+user_name: 使用者名稱
+user_score: 用戶得分
 
 # Special
 action_count: 檢查計數
-action_custom: 配置自定義提示
+action_custom: 配置自訂提示
 action_flood: 檢測到轟炸
-action_invite: 重新生成邀請鏈接
+action_invite: 重新生成邀請連結
 action_normal: 轟炸已停止
 action_pass: 手動通過
-action_qns: 自定义问题设置
-action_qns_add: 添加自定义问题
-action_qns_edit: 编辑自定义问题
-action_qns_remove: 移除自定义问题
-action_qns_show: 查看自定义问题
-action_qns_start: 发起自定义问题设置会话
+action_qns: 自訂問題設置
+action_qns_add: 添加自訂問題
+action_qns_edit: 編輯自訂問題
+action_qns_remove: 移除自訂問題
+action_qns_show: 查看自訂問題
+action_qns_start: 發起自訂問題設置會話
 action_report: 傳送報告
-action_show: 顯示自定義提示
+action_show: 顯示自訂提示
 action_static: 傳送靜態提示訊息
 action_undo_pass: 撤銷通過
 action_verified: 已驗證
 action_wait: 等待驗證
 attention: 注意
 captcha_check: 我需要驗證嗎
-captcha_go: 去驗證
+captcha_go: 前往驗證
 check_admin: 您是管理員，可自由進入驗證群組裡查看機器人運行狀況
 check_no: 您無需驗證即可在本群發言
 check_pass: 您已在本群通過驗證
 check_yes: 您需要驗證才可以在本群發言
-custom_correct: 通过提示
+custom_correct: 通過提示
 custom_flood: 進群轟炸
 custom_manual: 手動驗證
-custom_multi: 多用户验证
+custom_multi: 多用戶驗證
 custom_nospam: NOSPAM 降級
-custom_single: 單個使用者
+custom_single: 單個用戶
 custom_static: 靜態提示
-custom_wrong: 失败提示
+custom_wrong: 失敗提示
 description_again: 回答錯誤，請調整答案，再次嘗試
 description_ask: "請您儘快回答下方的問題來完成驗證，您可以點正確答案的按鈕或直接傳送正確答案。\
   注意，您總共有 {} 次機會回答問題，錯誤會導致驗證失敗。您在本群的任何訊息都視作對問題的回答，請謹慎發言"
 description_bad: 全域黑名單
 description_banned: 群組管理員封禁
-description_hint: 新進群用戶，請您點下方右側按鈕來驗證，請在 {} 秒内完成驗證，否則您會被移出本群
+description_hint: 新進群用戶，請您點下方右側按鈕來驗證，請在 {} 秒內完成驗證，否則您會被移出本群
 description_log: 日誌檢查
-description_manual: "請您按下方按鈕來驗證，請在 {} 秒内完成驗證，否則您會被移出本群。\
+description_manual: "請您按下方按鈕來驗證，請在 {} 秒內完成驗證，否則您會被移出本群。\
   這次驗證是群組管理者的手動要求"
-description_nospam: "請您點下方按鈕來驗證，請在 {} 秒内完成驗證，否則您會被移出本群。\
-  您觸發了防廣告機器人的封禁規則，由于您進群時間較長，故未封禁您，但要求您完成一次驗證"
+description_nospam: "請您點擊下方按鈕來驗證，請在 {} 秒內完成驗證，否則您會被移出本群。\
+  您觸發了防廣告機器人的封禁規則，由於您進群時間較長，故未封禁您，但要求您完成一次驗證"
 description_pass: 管理員放行
-description_qns: 请开始使用命令来设置所指定群组的自定义问题，自于群组中发起设置会话时计算，您共有 600 秒的时间来调整，逾时无效
-description_single: 本群開啟了進群驗證，您需要通過驗證才可以發言。請您點下方按鈕來驗證，您需在 {} 秒内完成驗證，否則您會被移出本群
+description_qns: 請開始使用命令來設置所指定群組的自訂問題，自於群組中發起設置會話時計算，您共有 600 秒的時間來調整，逾時無效
+description_single: 本群開啟了進群驗證，您需要通過驗證才可以發言。請您點下方按鈕來驗證，您需在 {} 秒內完成驗證，否則您會被移出本群
 description_succeed: 驗證成功成功，您可以在相應群組裡正常講話
 description_timeout: 驗證超時
-description_wrong: 回答錯誤，驗證失败
-description_wrong_qns: 回答错误，验证失败，请在 {} 小时后加入群组重新验证
+description_wrong: 回答錯誤，驗證失敗
+description_wrong_qns: 回答錯誤，驗證失敗，請在 {} 小時後加入群組重新驗證
 flood_count: 核查移除
 flood_duration: 轟炸持續時間
 flood_static: 自動靜態提示
 flood_total: 轟炸人數
-modified_by: 最后编辑者
-mention_lack: 缺少提到使用者的代號
-mention_redundant: 不應包括使用者相關的代號
+modified_by: 最後編輯者
+mention_lack: 缺少提到用戶的代號
+mention_redundant: 不應包括用戶相關的代號
 old_pinned: 原置頂訊息
-percent_passed: 通过率
-percent_engaged: 参与率
-percent_wrong: 答错率
-qns_key: 问题编号
-qns_issued: 提问次数
-qns_total: 问题总数
+percent_passed: 通過率
+percent_engaged: 參與率
+percent_wrong: 答錯率
+qns_key: 問題編號
+qns_issued: 提問次數
+qns_total: 問題總數
 question: 問題
 question_attention: 請注意哪個是屬於自己的問題再回答
 question_change: 更改問題
 question_chengyu: 請傳送上圖裡顯示的成語
 question_food: 正確答案在下方按鈕裡，請點按或傳送上圖裡顯示的食物
 question_letter: 請傳送上圖裡顯示的一串英文字母（沒有數字，全部是英文字母），不區分大小寫
-question_math_pic: 正確答案在下方按鈕中，请點按或傳送上圖裡顯示的加減算術題的正確答案
-question_number: 請傳送上圖裡顯示的一串數字（沒有英文字母，全部是數字）
-question_pic: 正確答案在下方按鈕中，请點按或傳送上圖裡顯示物體的正確名稱
-return_group: 返回原群组
+question_math_pic: 正確答案在下方按鈕中，請點按或傳送上圖裡顯示的加減算術題的正確答案
+question_number: 請傳送上圖裡顯示的一串數位（沒有英文字母，全部是數字）
+question_pic: 正確答案在下方按鈕中，請點按或傳送上圖裡顯示物體的正確名稱
+return_group: 返回原群組
 suggestion: 建議
-suggestion_wrong: 請您等待 {} 秒後，再重新進入原群組（不是本組）觸發新的驗證請求
-triggered_time: 觸法時間
+suggestion_wrong: 請您等待 {} 秒後，再重新進入原群組（不是本群組）觸發新的驗證請求
+triggered_time: 觸發時間
 
 # Symbol
 colon: "："
@@ -210,11 +210,11 @@ name_examine: 名稱檢查
 name_recheck: 名稱複查
 op_downgrade: 操作降級
 op_upgrade: 操作升級
-rule_custom: 群組自定義
+rule_custom: 群組自訂
 rule_global: 全局規則
 score_ban: 得分封禁
-score_user: 使用者得分
-wait_user: 等待驗證的使用者
+score_user: 用戶得分
+wait_user: 等待驗證的用戶
 watch_ban: 追蹤封禁
 watch_delete: 追蹤刪除
 watch_user: 敏感追蹤
@@ -225,7 +225,7 @@ seconds: 秒
 
 # Version
 git_change: 本地修改
-git_date: 提交时间
+git_date: 提交時間
 git_hash: 哈希值
-project: 项目编号
+project: 項目編號
 version: 版本
