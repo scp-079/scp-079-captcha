@@ -293,6 +293,7 @@ def new_invite_link(client: Client, force: bool = False) -> bool:
             logger.warning(f"CAPTCHA group temporary invite link: {link}")
 
         glovar.invite["link"] = link
+        # glovar.invite["time"] = now
         save("invite")
 
         result = True
