@@ -141,12 +141,11 @@ def check_timeout_user(client: Client, uid: int, now: int) -> bool:
         # Check qns timeout
         for gid in list(glovar.user_ids[uid]["wait"]):
             time = glovar.user_ids[uid]["wait"][gid]
-            qns = glovar.user_ids[uid]["qns"].get(gid, "")
 
             if not time:
                 continue
 
-            if not qns or not is_should_qns(gid):
+            if not is_should_qns(gid):
                 continue
 
             if now - time <= ((glovar.time_captcha // 2) or 30):
