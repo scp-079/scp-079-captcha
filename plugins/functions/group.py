@@ -168,10 +168,10 @@ def get_hint_text(gid: int, the_type: str, user: User = None,
     result = ""
 
     try:
-        custom_text = glovar.custom_texts[gid].get(the_type, "")
+        custom_text = glovar.custom_texts[gid].get(the_type, "").strip()
 
         if custom_text and user:
-            result = get_text_user(custom_text, user)
+            result = get_text_user(custom_text, user) + "\n"
 
         if result and count:
             result += mention
