@@ -245,6 +245,7 @@ def receive_config_commit(data: dict) -> bool:
         gid = data["group_id"]
         config = data["config"]
 
+        config["lock"] = get_now() - 300
         glovar.configs[gid] = config
         save("configs")
 
