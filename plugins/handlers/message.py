@@ -40,7 +40,7 @@ from ..functions.receive import receive_remove_white, receive_rollback, receive_
 from ..functions.receive import receive_watch_user, receive_white_users
 from ..functions.telegram import get_admins, send_message
 from ..functions.timers import backup_files, send_count, share_failed_users
-from ..functions.user import kick_user, terminate_user_delete
+from ..functions.user import get_level, kick_user, terminate_user_delete
 
 # Enable logging
 logger = logging.getLogger(__name__)
@@ -74,6 +74,17 @@ def hint(client: Client, message: Message) -> bool:
         for new in message.new_chat_members:
             # Basic data
             uid = new.id
+
+            # Check user status
+            if not (glovar.user_ids.get(uid, {})
+                    and (glovar.user_ids[uid]["wait"].get(gid, 0)
+                         or (glovar.user_ids[uid]["failed"].get(gid, 0) > 0 and get_level(gid) != "kick"))):
+                terminate_user_delete(
+                    client=client,
+                    gid=gid,
+                    mid=mid
+                )
+                continue
 
             # Process
             if is_should_qns(gid):
