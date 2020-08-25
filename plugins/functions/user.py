@@ -630,7 +630,7 @@ def lift_ban(client: Client, uid: int, now: int) -> bool:
 
             time = glovar.user_ids[uid]["failed"][gid]
 
-            if not time and time < 0 or now - time <= glovar.time_punish:
+            if not time or time < 0 or now - time <= glovar.time_punish:
                 continue
 
             glovar.user_ids[uid]["failed"][gid] = 0
