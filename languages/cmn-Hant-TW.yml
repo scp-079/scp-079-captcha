@@ -31,11 +31,11 @@ command_type: 錯誤指令類型
 command_usage: 錯誤用法
 detail_qns_occupied: 會話被 {} 佔用中
 error_duplicated: 答案重合
-error_exceed_popup: 跳出視窗提示不得超過 140 字
-error_exceed_qn: 問題不得超過 140 字
+error_exceed_popup: 跳出視窗提示不能超過 140 字
+error_exceed_qn: 問題不能超過 140 字
 error_exceed_qns: 自訂問題已達到上限
-error_exceed_answer: 單個回答不得超過 64 位元組
-error_exceed_answers: 備選答案不得超過 6 個
+error_exceed_answer: 單個回答不能超過 64 位元組
+error_exceed_answers: 備選答案不能超過 6 個
 error_qns_occupied: 已存在設置會話
 error_qns_none: 不存在該問題
 error_none: 無數據
