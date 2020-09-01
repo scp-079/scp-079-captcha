@@ -20,7 +20,8 @@ import logging
 from json import dumps
 from typing import List, Union
 
-from pyrogram import Chat, Client, Message
+from pyrogram import Client
+from pyrogram.types import Chat, Message
 
 from .. import glovar
 from .decorators import threaded

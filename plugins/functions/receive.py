@@ -22,7 +22,8 @@ from copy import deepcopy
 from json import loads
 from typing import Any
 
-from pyrogram import Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
+from pyrogram import Client
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
 from .captcha import send_static, user_captcha

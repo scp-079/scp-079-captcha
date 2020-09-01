@@ -29,7 +29,7 @@ from threading import Lock
 from typing import Dict, List, Set, Union
 
 from emoji import UNICODE_EMOJI
-from pyrogram import Chat
+from pyrogram.types import Chat
 from yaml import safe_load
 
 from .checker import check_all

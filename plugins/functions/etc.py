@@ -32,7 +32,7 @@ from unicodedata import normalize
 from cryptography.fernet import Fernet
 from opencc import OpenCC
 from PIL import Image
-from pyrogram import Message, User
+from pyrogram.types import Message, User
 from pyrogram.errors import FloodWait
 
 from .. import glovar
