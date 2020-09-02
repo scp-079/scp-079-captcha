@@ -25,8 +25,10 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from pyrogram import Client, idle
 
 from plugins import glovar
-from plugins.functions.timers import backup_files, interval_hour_01, interval_min_01, interval_min_10, new_invite_link
-from plugins.functions.timers import reset_data, send_count, share_failed_users, update_admins, update_status
+from plugins.functions.etc import delay
+from plugins.functions.timers import (backup_files, interval_hour_01, interval_min_01, interval_min_10,
+                                      new_invite_link, reset_data, send_count, share_failed_users, update_admins,
+                                      update_status)
 from plugins.session import renew
 
 # Enable logging
@@ -43,7 +45,7 @@ app = Client(
 app.start()
 
 # Send online status
-update_status(app, "online")
+delay(3, update_status, [app, "online"])
 
 # Reset data
 not glovar.reset_time[1] and reset_data(app)
