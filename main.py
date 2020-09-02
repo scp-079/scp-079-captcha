@@ -22,7 +22,7 @@
 import logging
 
 from apscheduler.schedulers.background import BackgroundScheduler
-from pyrogram import Client
+from pyrogram import Client, idle
 
 from plugins import glovar
 from plugins.functions.timers import backup_files, interval_hour_01, interval_min_01, interval_min_10, new_invite_link
@@ -65,7 +65,7 @@ scheduler.add_job(update_admins, "cron", [app], hour=22, minute=30)
 scheduler.start()
 
 # Hold
-app.idle()
+idle()
 
 # Stop
 app.stop()

@@ -24,7 +24,8 @@ from typing import List, Optional, Union
 
 from captcha.image import ImageCaptcha
 from claptcha import Claptcha
-from pyrogram import CallbackQuery, Client, InlineKeyboardButton, InlineKeyboardMarkup, Message, User
+from pyrogram import Client
+from pyrogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message, User
 
 from .. import glovar
 from .channel import ask_help_welcome, send_debug, share_data

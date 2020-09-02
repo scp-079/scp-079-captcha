@@ -21,7 +21,8 @@ import re
 from copy import deepcopy
 from subprocess import run, PIPE
 
-from pyrogram import Client, Filters, InlineKeyboardButton, InlineKeyboardMarkup, Message
+from pyrogram import Client, filters
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
 from ..functions.captcha import send_static, user_captcha, user_captcha_qns
@@ -45,7 +46,7 @@ from ..functions.user import add_start, get_uid, terminate_user_pass, terminate_
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(["add"], glovar.prefix)
+@Client.on_message(filters.incoming & filters.private & filters.command(["add"], glovar.prefix)
                    & from_user & class_e)
 def add(client: Client, message: Message) -> bool:
     # Add a custom question
@@ -97,8 +98,8 @@ def add(client: Client, message: Message) -> bool:
     return result
 
 
-@Client.on_message(Filters.incoming & Filters.group
-                   & Filters.command(["captcha"], glovar.prefix)
+@Client.on_message(filters.incoming & filters.group
+                   & filters.command(["captcha"], glovar.prefix)
                    & ~captcha_group & ~test_group & authorized_group
                    & from_user)
 def captcha(client: Client, message: Message) -> bool:
@@ -160,7 +161,7 @@ def captcha(client: Client, message: Message) -> bool:
     return result
 
 
-@Client.on_message(Filters.incoming & Filters.group & Filters.command(["config"], glovar.prefix)
+@Client.on_message(filters.incoming & filters.group & filters.command(["config"], glovar.prefix)
                    & ~captcha_group & ~test_group & authorized_group
                    & from_user)
 def config(client: Client, message: Message) -> bool:
@@ -255,8 +256,8 @@ def config(client: Client, message: Message) -> bool:
     return result
 
 
-@Client.on_message(Filters.incoming & Filters.group
-                   & Filters.command([f"config_{glovar.sender.lower()}"], glovar.prefix)
+@Client.on_message(filters.incoming & filters.group
+                   & filters.command([f"config_{glovar.sender.lower()}"], glovar.prefix)
                    & ~captcha_group & ~test_group & authorized_group
                    & from_user)
 def config_directly(client: Client, message: Message) -> bool:
@@ -330,7 +331,7 @@ def config_directly(client: Client, message: Message) -> bool:
     return result
 
 
-@Client.on_message(Filters.incoming & Filters.group & Filters.command(["custom"], glovar.prefix)
+@Client.on_message(filters.incoming & filters.group & filters.command(["custom"], glovar.prefix)
                    & ~captcha_group & ~test_group & authorized_group
                    & from_user)
 def custom(client: Client, message: Message) -> bool:
@@ -429,7 +430,7 @@ def custom(client: Client, message: Message) -> bool:
     return result
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(["edit"], glovar.prefix)
+@Client.on_message(filters.incoming & filters.private & filters.command(["edit"], glovar.prefix)
                    & from_user & class_e)
 def edit(client: Client, message: Message) -> bool:
     # Edit a custom question
@@ -480,7 +481,7 @@ def edit(client: Client, message: Message) -> bool:
     return result
 
 
-@Client.on_message(Filters.incoming & Filters.group & Filters.command(["pass"], glovar.prefix)
+@Client.on_message(filters.incoming & filters.group & filters.command(["pass"], glovar.prefix)
                    & captcha_group & ~test_group
                    & from_user & class_e)
 def pass_captcha(client: Client, message: Message) -> bool:
@@ -539,7 +540,7 @@ def pass_captcha(client: Client, message: Message) -> bool:
     return result
 
 
-@Client.on_message(Filters.incoming & Filters.group & Filters.command(["pass"], glovar.prefix)
+@Client.on_message(filters.incoming & filters.group & filters.command(["pass"], glovar.prefix)
                    & ~captcha_group & ~test_group & authorized_group
                    & from_user)
 def pass_group(client: Client, message: Message) -> bool:
@@ -605,7 +606,7 @@ def pass_group(client: Client, message: Message) -> bool:
     return result
 
 
-@Client.on_message(Filters.incoming & Filters.group & Filters.command(["qns"], glovar.prefix)
+@Client.on_message(filters.incoming & filters.group & filters.command(["qns"], glovar.prefix)
                    & ~captcha_group & ~test_group & authorized_group
                    & from_user)
 def qns(client: Client, message: Message) -> bool:
@@ -700,7 +701,7 @@ def qns(client: Client, message: Message) -> bool:
     return result
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(["remove", "rm"], glovar.prefix)
+@Client.on_message(filters.incoming & filters.private & filters.command(["remove", "rm"], glovar.prefix)
                    & from_user & class_e)
 def remove(client: Client, message: Message) -> bool:
     # Remove a custom question
@@ -751,7 +752,7 @@ def remove(client: Client, message: Message) -> bool:
     return result
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(["show"], glovar.prefix)
+@Client.on_message(filters.incoming & filters.private & filters.command(["show"], glovar.prefix)
                    & from_user & class_e)
 def show(client: Client, message: Message) -> bool:
     # Show custom questions
@@ -793,7 +794,7 @@ def show(client: Client, message: Message) -> bool:
     return result
 
 
-@Client.on_message(Filters.incoming & Filters.private & Filters.command(["start", "help"], glovar.prefix)
+@Client.on_message(filters.incoming & filters.private & filters.command(["start", "help"], glovar.prefix)
                    & from_user)
 def start(client: Client, message: Message) -> bool:
     # Process /start command in private chat
@@ -856,7 +857,7 @@ def start(client: Client, message: Message) -> bool:
     return result
 
 
-@Client.on_message(Filters.incoming & Filters.group & Filters.command(["static"], glovar.prefix)
+@Client.on_message(filters.incoming & filters.group & filters.command(["static"], glovar.prefix)
                    & ~captcha_group & ~test_group & authorized_group
                    & from_user)
 def static(client: Client, message: Message) -> bool:
@@ -895,7 +896,7 @@ def static(client: Client, message: Message) -> bool:
     return result
 
 
-@Client.on_message(Filters.incoming & Filters.group & Filters.command(["version"], glovar.prefix)
+@Client.on_message(filters.incoming & filters.group & filters.command(["version"], glovar.prefix)
                    & test_group
                    & from_user)
 def version(client: Client, message: Message) -> bool:

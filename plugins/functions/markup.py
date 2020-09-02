@@ -19,7 +19,7 @@
 import logging
 from typing import Dict, List, Optional, Tuple, Union
 
-from pyrogram import CallbackGame, InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram.types import CallbackGame, InlineKeyboardButton, InlineKeyboardMarkup
 
 from .etc import get_length
 

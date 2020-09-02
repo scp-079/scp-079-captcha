@@ -18,7 +18,7 @@
 
 import logging
 
-from pyrogram import Client, Filters, Message
+from pyrogram import Client, filters, Message
 
 from .. import glovar
 from ..functions.captcha import question_answer, question_ask, user_captcha, user_captcha_qns
@@ -46,7 +46,7 @@ from ..functions.user import get_level, kick_user, terminate_user_delete
 logger = logging.getLogger(__name__)
 
 
-@Client.on_message(Filters.incoming & Filters.group & Filters.new_chat_members
+@Client.on_message(filters.incoming & filters.group & filters.new_chat_members
                    & ~captcha_group & ~test_group & ~new_group & authorized_group
                    & from_user & ~class_c
                    & ~declared_message)
@@ -121,7 +121,7 @@ def hint(client: Client, message: Message) -> bool:
     return result
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~Filters.new_chat_members
+@Client.on_message(filters.incoming & filters.group & ~filters.new_chat_members
                    & ~captcha_group & ~test_group & authorized_group
                    & from_user & ~class_c & ~class_d & ~class_e
                    & ~declared_message)
@@ -156,7 +156,7 @@ def check(client: Client, message: Message) -> bool:
     return result
 
 
-@Client.on_message(Filters.incoming & Filters.group & Filters.new_chat_members
+@Client.on_message(filters.incoming & filters.group & filters.new_chat_members
                    & captcha_group & ~new_group
                    & from_user
                    & ~declared_message)
@@ -219,7 +219,7 @@ def verify_ask(client: Client, message: Message) -> bool:
     return result
 
 
-@Client.on_message(Filters.incoming & Filters.group & ~Filters.new_chat_members
+@Client.on_message(filters.incoming & filters.group & ~filters.new_chat_members
                    & captcha_group
                    & from_user)
 def verify_check(client: Client, message: Message) -> bool:
@@ -275,8 +275,8 @@ def verify_check(client: Client, message: Message) -> bool:
     return result
 
 
-@Client.on_message((Filters.incoming | aio) & Filters.channel
-                   & ~Filters.command(glovar.all_commands, glovar.prefix)
+@Client.on_message((filters.incoming | aio) & filters.channel
+                   & ~filters.command(glovar.all_commands, glovar.prefix)
                    & hide_channel, group=-1)
 def exchange_emergency(client: Client, message: Message) -> bool:
     # Sent emergency channel transfer request
@@ -323,8 +323,8 @@ def exchange_emergency(client: Client, message: Message) -> bool:
     return result
 
 
-@Client.on_message(Filters.incoming & Filters.group
-                   & (Filters.new_chat_members | Filters.group_chat_created | Filters.supergroup_chat_created)
+@Client.on_message(filters.incoming & filters.group
+                   & (filters.new_chat_members | filters.group_chat_created | filters.supergroup_chat_created)
                    & ~captcha_group & ~test_group & new_group
                    & from_user)
 def init_group(client: Client, message: Message) -> bool:
@@ -396,8 +396,8 @@ def init_group(client: Client, message: Message) -> bool:
     return result
 
 
-@Client.on_message((Filters.incoming | aio) & Filters.channel
-                   & ~Filters.command(glovar.all_commands, glovar.prefix)
+@Client.on_message((filters.incoming | aio) & filters.channel
+                   & ~filters.command(glovar.all_commands, glovar.prefix)
                    & exchange_channel)
 def process_data(client: Client, message: Message) -> bool:
     # Process the data in exchange channel

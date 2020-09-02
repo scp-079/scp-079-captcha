@@ -18,7 +18,8 @@
 
 import logging
 
-from pyrogram import Client, Message
+from pyrogram import Client
+from pyrogram.types import Message
 
 from .etc import code, delay, get_text, lang, thread
 from .filters import is_class_c

@@ -20,7 +20,8 @@ import logging
 from copy import deepcopy
 from typing import Dict, List, Set, Union
 
-from pyrogram import Client, Message
+from pyrogram import Client
+from pyrogram.types import Message
 
 from .. import glovar
 from .captcha import get_answers
