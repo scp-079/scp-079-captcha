@@ -20,34 +20,17 @@ import logging
 from typing import Generator, Iterable, List, Optional, Union
 
 from pyrogram import Client
-from pyrogram.types import (InputMediaPhoto,
-                            InlineKeyboardMarkup,
-                            ReplyKeyboardMarkup,
-                            Message,
-                            Chat,
-                            ChatMember,
-                            ChatPermissions,
-                            ChatPreview, 
-                            User)
+from pyrogram.types import (InputMediaPhoto, InlineKeyboardMarkup, ReplyKeyboardMarkup, Message, Chat, ChatMember,
+                            ChatPermissions, ChatPreview, User)
+from pyrogram.raw.base import InputChannel, InputUser, InputPeer
 from pyrogram.raw.functions.users import GetFullUser
 from pyrogram.raw.types import InputPeerUser, InputPeerChannel, UserFull
-from pyrogram.errors import (ChatAdminRequired,
-                            ChatNotModified,
-                            ButtonDataInvalid,
-                            ButtonUrlInvalid,
-                            ChannelInvalid,
-                            ChannelPrivate,
-                            FloodWait,
-                            MessageDeleteForbidden,
-                            MessageNotModified,
-                            PeerIdInvalid,
-                            QueryIdInvalid,
-                            UsernameInvalid,
-                            UsernameNotOccupied,
-                            UserNotParticipant)
+from pyrogram.errors import (ChatAdminRequired, ChatNotModified, ButtonDataInvalid, ButtonUrlInvalid, ChannelInvalid,
+                             ChannelPrivate, FloodWait, MessageDeleteForbidden, MessageNotModified, PeerIdInvalid,
+                             QueryIdInvalid, UsernameInvalid, UsernameNotOccupied, UserNotParticipant)
 
 from .. import glovar
-from .decorators import retry
+from .decorators import retry, threaded
 from .etc import delay, get_int, wait_flood
 
 # Enable logging
@@ -509,7 +492,7 @@ def pin_chat_message(client: Client, cid: int, mid: int) -> Optional[bool]:
 
 
 @retry
-def resolve_peer(client: Client, pid: Union[int, str]) -> Union[bool, InputPeerChannel, InputPeerUser, None]:
+def resolve_peer(client: Client, pid: Union[int, str]) -> Union[bool, InputChannel, InputPeer, InputUser, None]:
     # Get an input peer by id
     result = None
 
@@ -686,23 +669,19 @@ def send_photo(client: Client, cid: int, photo: str, file_ref: str = None, capti
     return result
 
 
-@retry
+@threaded()
 def send_report_message(secs: int, client: Client, cid: int, text: str, mid: int = None,
                         markup: InlineKeyboardMarkup = None) -> Optional[bool]:
     # Send a message that will be auto deleted to a chat
     result = None
 
     try:
-        if not text.strip():
-            return None
-
-        result = client.send_message(
-            chat_id=cid,
+        result = send_message(
+            client=client,
+            cid=cid,
             text=text,
-            parse_mode="html",
-            disable_web_page_preview=True,
-            reply_to_message_id=mid,
-            reply_markup=markup
+            mid=mid,
+            markup=markup
         )
 
         if not result:
@@ -711,12 +690,6 @@ def send_report_message(secs: int, client: Client, cid: int, text: str, mid: int
         mid = result.message_id
         mids = [mid]
         result = delay(secs, delete_messages, [client, cid, mids])
-    except FloodWait as e:
-        raise e
-    except (ButtonDataInvalid, ButtonUrlInvalid):
-        logger.warning(f"Send report message to {cid} - invalid markup: {markup}")
-    except (ChannelInvalid, ChannelPrivate, ChatAdminRequired, PeerIdInvalid):
-        return None
     except Exception as e:
         logger.warning(f"Send report message to {cid} error: {e}", exc_info=True)
 

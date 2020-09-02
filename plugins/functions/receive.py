@@ -30,17 +30,17 @@ from .captcha import send_static, user_captcha
 from .channel import get_debug_text, send_debug, share_data
 from .config import get_config_text
 from .decorators import threaded
-from .etc import code, crypt_str, delay, general_link, get_int, get_now, get_text, lang, thread, mention_id
-from .etc import mention_text
+from .etc import (code, crypt_str, delay, general_link, get_int, get_now, get_text, lang, thread, mention_id,
+                  mention_text)
 from .file import crypt_file, data_to_file, delete_file, get_new_path, get_downloaded_path, save
 from .filters import is_class_e_user, is_flooded, is_should_ignore
 from .group import delete_message, leave_group
 from .ids import init_group_id, init_user_id
-from .telegram import get_chat_member, get_chat_members_count, get_members, pin_chat_message, send_message
-from .telegram import send_report_message
+from .telegram import (get_chat_member, get_chat_members_count, get_members, pin_chat_message, send_message,
+                       send_report_message)
 from .timers import update_admins
-from .user import flood_end, flood_user, forgive_user, forgive_users, kick_users, restrict_user, remove_failed_user
-from .user import remove_new_users, remove_wait_user, terminate_user_banned
+from .user import (flood_end, flood_user, forgive_user, forgive_users, kick_users, restrict_user, remove_failed_user,
+                   remove_new_users, remove_wait_user, terminate_user_banned)
 
 # Enable logging
 logger = logging.getLogger(__name__)

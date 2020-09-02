@@ -533,7 +533,7 @@ usernames: Dict[str, Dict[str, Union[int, str]]] = {}
 #     }
 # }
 
-version: str = "0.6.7"
+version: str = "0.6.8"
 
 # Load data from pics database
 
