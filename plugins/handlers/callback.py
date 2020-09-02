@@ -19,7 +19,8 @@
 import logging
 from json import loads
 
-from pyrogram import Client, CallbackQuery
+from pyrogram import Client
+from pyrogram.types import CallbackQuery
 
 from .. import glovar
 from ..functions.captcha import get_answer, question_answer, question_answer_qns, question_change

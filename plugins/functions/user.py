@@ -20,8 +20,9 @@ import logging
 from time import sleep
 from typing import Dict, Iterable, Union
 
-from pyrogram import ChatPermissions, Client, InlineKeyboardButton, InlineKeyboardMarkup, Message
-from pyrogram.api.types import User
+from pyrogram import Client
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message, ChatPermissions
+from pyrogram.raw.types import User
 
 from .. import glovar
 from .channel import ask_for_help, ask_help_welcome, declare_message, send_debug, share_data, update_score

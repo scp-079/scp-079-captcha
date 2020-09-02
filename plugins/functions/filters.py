@@ -22,7 +22,8 @@ from copy import deepcopy
 from string import ascii_lowercase
 from typing import Match, Optional, Union
 
-from pyrogram import CallbackQuery, Filters, Message, User
+from pyrogram import filters
+from pyrogram.types import Message, User, CallbackQuery 
 
 from .. import glovar
 from .etc import get_full_name, get_now, get_text
@@ -286,67 +287,67 @@ def is_white_user(_, personnel: Union[int, Message, User]) -> bool:
     return result
 
 
-aio = Filters.create(
+aio = filters.create(
     func=is_aio,
     name="AIO"
 )
 
-authorized_group = Filters.create(
+authorized_group = filters.create(
     func=is_authorized_group,
     name="Authorized Group"
 )
 
-captcha_group = Filters.create(
+captcha_group = filters.create(
     func=is_captcha_group,
     name="CAPTCHA Group"
 )
 
-class_c = Filters.create(
+class_c = filters.create(
     func=is_class_c,
     name="Class C"
 )
 
-class_d = Filters.create(
+class_d = filters.create(
     func=is_class_d,
     name="Class D"
 )
 
-class_e = Filters.create(
+class_e = filters.create(
     func=is_class_e,
     name="Class E"
 )
 
-declared_message = Filters.create(
+declared_message = filters.create(
     func=is_declared_message,
     name="Declared message"
 )
 
-exchange_channel = Filters.create(
+exchange_channel = filters.create(
     func=is_exchange_channel,
     name="Exchange Channel"
 )
 
-from_user = Filters.create(
+from_user = filters.create(
     func=is_from_user,
     name="From User"
 )
 
-hide_channel = Filters.create(
+hide_channel = filters.create(
     func=is_hide_channel,
     name="Hide Channel"
 )
 
-new_group = Filters.create(
+new_group = filters.create(
     func=is_new_group,
     name="New Group"
 )
 
-test_group = Filters.create(
+test_group = filters.create(
     func=is_test_group,
     name="Test Group"
 )
 
-white_user = Filters.create(
+white_user = filters.create(
     func=is_white_user,
     name="White User"
 )

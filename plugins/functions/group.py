@@ -19,7 +19,8 @@
 import logging
 from typing import List, Optional
 
-from pyrogram import Chat, ChatMember, Client, InlineKeyboardButton, InlineKeyboardMarkup, Message, User
+from pyrogram import Client
+from pyrogram.types import Chat, ChatMember, InlineKeyboardButton, InlineKeyboardMarkup, Message, User
 
 from .. import glovar
 from .decorators import threaded

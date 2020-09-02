@@ -19,13 +19,32 @@
 import logging
 from typing import Generator, Iterable, List, Optional, Union
 
-from pyrogram import Chat, ChatMember, ChatPermissions, ChatPreview, Client, User
-from pyrogram import InputMediaPhoto, InlineKeyboardMarkup, ReplyKeyboardMarkup, Message
-from pyrogram.api.functions.users import GetFullUser
-from pyrogram.api.types import InputPeerUser, InputPeerChannel, UserFull
-from pyrogram.errors import ChatAdminRequired, ChatNotModified, ButtonDataInvalid, ButtonUrlInvalid, ChannelInvalid
-from pyrogram.errors import ChannelPrivate, FloodWait, MessageDeleteForbidden, MessageNotModified, PeerIdInvalid
-from pyrogram.errors import QueryIdInvalid, UsernameInvalid, UsernameNotOccupied, UserNotParticipant
+from pyrogram import Client
+from pyrogram.types import (InputMediaPhoto,
+                            InlineKeyboardMarkup,
+                            ReplyKeyboardMarkup,
+                            Message,
+                            Chat,
+                            ChatMember,
+                            ChatPermissions,
+                            ChatPreview, 
+                            User)
+from pyrogram.raw.functions.users import GetFullUser
+from pyrogram.raw.types import InputPeerUser, InputPeerChannel, UserFull
+from pyrogram.errors import (ChatAdminRequired,
+                            ChatNotModified,
+                            ButtonDataInvalid,
+                            ButtonUrlInvalid,
+                            ChannelInvalid,
+                            ChannelPrivate,
+                            FloodWait,
+                            MessageDeleteForbidden,
+                            MessageNotModified,
+                            PeerIdInvalid,
+                            QueryIdInvalid,
+                            UsernameInvalid,
+                            UsernameNotOccupied,
+                            UserNotParticipant)
 
 from .. import glovar
 from .decorators import retry
