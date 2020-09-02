@@ -18,7 +18,8 @@
 
 import logging
 
-from pyrogram import Client, filters, Message
+from pyrogram import Client, filters
+from pyrogram.types import Message
 
 from .. import glovar
 from ..functions.captcha import question_answer, question_ask, user_captcha, user_captcha_qns

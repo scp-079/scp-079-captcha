@@ -1416,7 +1416,7 @@ def user_captcha(client: Client, message: Optional[Message], gid: int, user: Use
             )
 
         # Check declare status
-        if message and is_declared_message(None, message):
+        if message and is_declared_message(None, None, message):
             return False
 
         # Add to wait list
@@ -1478,7 +1478,7 @@ def user_captcha_qns(client: Client, message: Optional[Message], gid: int, user:
             return True
 
         # Check declare status
-        if message and is_declared_message(None, message):
+        if message and is_declared_message(None, None, message):
             return False
 
         # Add to wait list

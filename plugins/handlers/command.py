@@ -113,7 +113,7 @@ def captcha(client: Client, message: Message) -> bool:
         gid = message.chat.id
 
         # Check permission
-        if not is_class_c(None, message):
+        if not is_class_c(None, None, message):
             return False
 
         # Basic data
@@ -121,11 +121,11 @@ def captcha(client: Client, message: Message) -> bool:
         r_message = message.reply_to_message
         aid = message.from_user.id
 
-        if not r_message or not is_from_user(None, r_message):
+        if not r_message or not is_from_user(None, None, r_message):
             return False
 
         # Check pass
-        if is_class_c(None, r_message) or is_class_e(None, r_message):
+        if is_class_c(None, None, r_message) or is_class_e(None, None, r_message):
             return False
 
         if r_message.new_chat_members:
@@ -177,7 +177,7 @@ def config(client: Client, message: Message) -> bool:
         mid = message.message_id
 
         # Check permission
-        if not is_class_c(None, message):
+        if not is_class_c(None, None, message):
             return False
 
         # Check command format
@@ -273,7 +273,7 @@ def config_directly(client: Client, message: Message) -> bool:
         now = get_now()
 
         # Check permission
-        if not is_class_c(None, message):
+        if not is_class_c(None, None, message):
             return False
 
         # Get get the command
@@ -346,7 +346,7 @@ def custom(client: Client, message: Message) -> bool:
         aid = message.from_user.id
 
         # Check permission
-        if not is_class_c(None, message):
+        if not is_class_c(None, None, message):
             return True
 
         # Get the command
@@ -554,7 +554,7 @@ def pass_group(client: Client, message: Message) -> bool:
         gid = message.chat.id
 
         # Check permission
-        if not is_class_c(None, message):
+        if not is_class_c(None, None, message):
             return True
 
         # Generate the report message's text
@@ -623,7 +623,7 @@ def qns(client: Client, message: Message) -> bool:
         now = message.date or get_now()
 
         # Check permission
-        if not is_class_c(None, message):
+        if not is_class_c(None, None, message):
             return True
 
         # Check the group status
@@ -872,7 +872,7 @@ def static(client: Client, message: Message) -> bool:
         aid = message.from_user.id
 
         # Check permission
-        if not is_class_c(None, message):
+        if not is_class_c(None, None, message):
             return True
 
         # Proceed

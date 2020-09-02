@@ -449,7 +449,7 @@ def get_uid(client: Client, message: Message) -> int:
         r_msg = message.reply_to_message
 
         # Get the user id
-        if r_msg and is_from_user(None, r_msg):
+        if r_msg and is_from_user(None, None, r_msg):
             result = get_uid_from_reply(client, r_msg)
         else:
             result = get_uid_from_command(client, message)
