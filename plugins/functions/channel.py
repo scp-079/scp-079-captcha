@@ -280,8 +280,8 @@ def share_data(client: Client, receivers: List[str], action: str, action_type: s
                 data=data
             )
             result = send_message(client, channel_id, text)
-            return ((result is False and not glovar.should_hide)
-                    and share_data_failed(client, receivers, action, action_type, data, file, encrypt))
+            return ((result is not False or glovar.should_hide)
+                    or share_data_failed(client, receivers, action, action_type, data, file, encrypt))
 
         # Share with a file
         text = format_data(
@@ -303,8 +303,8 @@ def share_data(client: Client, receivers: List[str], action: str, action_type: s
         result = send_document(client, channel_id, file_path, None, text)
 
         if not result:
-            return ((result is False and not glovar.should_hide)
-                    and share_data_failed(client, receivers, action, action_type, data, file, encrypt))
+            return ((result is not False or glovar.should_hide)
+                    or share_data_failed(client, receivers, action, action_type, data, file, encrypt))
 
         # Delete the tmp file
         for f in {file, file_path}:

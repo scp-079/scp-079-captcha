@@ -53,7 +53,8 @@ def add_start(until: int, cid: int, uid: int, action: str) -> str:
             "until": until,
             "cid": cid,
             "uid": uid,
-            "action": action
+            "action": action,
+            "active": False
         }
         save("starts")
 
@@ -849,7 +850,7 @@ def remove_wait_user(client: Client, uid: int) -> bool:
 
 
 @threaded()
-def restrict_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
+def restrict_user(client: Client, gid: int, uid: Union[int, str], until_date: int = 0) -> bool:
     # Restrict a user
     result = False
 
@@ -857,7 +858,7 @@ def restrict_user(client: Client, gid: int, uid: Union[int, str]) -> bool:
         if uid in glovar.bad_ids["users"] and gid not in glovar.ignore_ids["user"]:
             return True
 
-        result = restrict_chat_member(client, gid, uid, ChatPermissions())
+        result = restrict_chat_member(client, gid, uid, ChatPermissions(), until_date)
     except Exception as e:
         logger.warning(f"Restrict user error: {e}", exc_info=True)
 

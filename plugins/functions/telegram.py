@@ -562,7 +562,16 @@ def restrict_chat_member(client: Client, cid: int, uid: int, permissions: ChatPe
             until_date=until_date
         )
     except FloodWait as e:
-        raise e
+        logger.warning(f"Restrict chat member {uid} in {cid} - Sleep for {e.x} second(s)")
+
+        if until_date:
+            new_date = until_date + e.x
+        else:
+            new_date = 0
+
+        wait_flood(e)
+
+        return restrict_chat_member(client, cid, uid, permissions, new_date)
     except Exception as e:
         logger.warning(f"Restrict chat member {uid} in {cid} error: {e}", exc_info=True)
 

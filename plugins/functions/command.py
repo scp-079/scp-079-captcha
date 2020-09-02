@@ -69,7 +69,7 @@ def delete_shared_command(client: Client, message: Message) -> bool:
 
 
 def command_error(client: Client, message: Message, action: str, error: str,
-                  detail: str = "", report: bool = True) -> bool:
+                  detail: str = "", report: bool = True, private: bool = False) -> bool:
     # Command error
     result = False
 
@@ -80,10 +80,14 @@ def command_error(client: Client, message: Message, action: str, error: str,
         mid = message.message_id
 
         # Generate the text
-        text = (f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
-                f"{lang('action')}{lang('colon')}{code(action)}\n"
-                f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
-                f"{lang('reason')}{lang('colon')}{code(error)}\n")
+        if private:
+            text = ""
+        else:
+            text = f"{lang('user_id')}{lang('colon')}{code(uid)}\n"
+
+        text += (f"{lang('action')}{lang('colon')}{code(action)}\n"
+                 f"{lang('status')}{lang('colon')}{code(lang('status_failed'))}\n"
+                 f"{lang('reason')}{lang('colon')}{code(error)}\n")
 
         if detail:
             text += f"{lang('detail')}{lang('colon')}{code(detail)}\n"
