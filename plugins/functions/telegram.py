@@ -253,7 +253,7 @@ def get_admins(client: Client, cid: int) -> Union[bool, List[ChatMember], None]:
         result = client.get_chat_members(chat_id=cid, filter="administrators")
     except FloodWait as e:
         raise e
-    except (ChannelInvalid, ChannelPrivate, PeerIdInvalid):
+    except (AttributeError, ChannelInvalid, ChannelPrivate, PeerIdInvalid):
         return False
     except Exception as e:
         logger.warning(f"Get admins in {cid} error: {e}", exc_info=True)

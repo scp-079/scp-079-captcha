@@ -117,9 +117,9 @@ def captcha(client: Client, message: Message) -> bool:
             return False
 
         # Basic data
+        aid = message.from_user.id
         now = message.date or get_now()
         r_message = message.reply_to_message
-        aid = message.from_user.id
 
         if not r_message or not is_from_user(None, None, r_message):
             return False
