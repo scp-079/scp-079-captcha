@@ -609,7 +609,8 @@ def kick_users(client: Client, gid: int, uids: Iterable[int]) -> bool:
             return False
 
         for uid in uids:
-            kick_chat_member(client, gid, uid)
+            now = get_now()
+            kick_chat_member(client, gid, uid, now + 600)
 
         result = True
     except Exception as e:
@@ -1366,7 +1367,7 @@ def terminate_user_timeout_qns(client: Client, gid: int, uid: int) -> bool:
         if level == "kick":
             failed = abs(int(glovar.user_ids[uid]["failed"][gid]))
             n = pow(2, failed)
-            kick_user(client, gid, uid, until_date=now + 86460 * n, lock=True)
+            kick_user(client, gid, uid, until_date=now + 86400 * n, lock=True)
         elif level == "ban":
             ban_user(client, gid, uid)
 
@@ -1546,12 +1547,12 @@ def terminate_user_wrong_qns(client: Client, gid: int, uid: int, qid: str) -> bo
 
         # Kick the user (ban for 3600 * 2^failed seconds) or ban the user
         custom_text = glovar.custom_texts[gid].get("wrong", "")
-        # TODO
+
         if level == "kick":
             failed = abs(int(glovar.user_ids[uid]["failed"][gid]))
             n = pow(2, failed)
-            kick_user(client, gid, uid, until_date=now + 86460 * n, lock=True)
-            callback_text = custom_text.format(n) or lang("description_wrong_qns").format(n * 24)
+            kick_user(client, gid, uid, until_date=now + 3600 * n, lock=True)
+            callback_text = custom_text.format(n) or lang("description_wrong_qns").format(n)
         elif level == "ban":
             ban_user(client, gid, uid)
             callback_text = custom_text or lang("description_wrong")
