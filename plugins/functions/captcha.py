@@ -1015,7 +1015,7 @@ def question_change(client: Client, uid: int, mid: int) -> bool:
 
 
 @threaded()
-def question_status(client: Client, uid: int, the_type: str, link: str) -> bool:
+def question_status(client: Client, uid: int, the_type: str, link: str = "") -> bool:
     # Reply question status
     result = False
 
