@@ -20,6 +20,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from random import randint
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from pyrogram import Client, idle
@@ -58,7 +59,7 @@ scheduler = BackgroundScheduler(job_defaults={"misfire_grace_time": 60})
 scheduler.add_job(interval_min_01, "interval", [app], minutes=1)
 scheduler.add_job(interval_min_10, "interval", [app], minutes=10)
 scheduler.add_job(interval_hour_01, "interval", hours=1)
-scheduler.add_job(update_status, "cron", [app, "awake"], minute=30)
+scheduler.add_job(update_status, "cron", [app, "awake"], minute=randint(30, 34), second=randint(0, 59))
 scheduler.add_job(backup_files, "cron", [app], hour=20)
 scheduler.add_job(send_count, "cron", [app], hour=21)
 scheduler.add_job(share_failed_users, "cron", [app], hour=21, minute=30)
