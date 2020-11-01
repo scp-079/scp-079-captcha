@@ -632,10 +632,16 @@ def qns(client: Client, message: Message) -> bool:
             return command_error(client, message, lang("action_qns_start"), lang("error_qns_occupied"),
                                  lang("detail_qns_occupied").format(aid))
 
+        # TODO
+        if glovar.compromise_channel_id:
+            channel_id = glovar.compromise_channel_id
+        else:
+            channel_id = glovar.logging_channel_id
+
         # Save evidence
         result = forward_messages(
             client=client,
-            cid=glovar.logging_channel_id,
+            cid=channel_id,
             fid=gid,
             mids=mid
         )
@@ -647,7 +653,7 @@ def qns(client: Client, message: Message) -> bool:
                 f"{lang('user_id')}{lang('colon')}{code(aid)}\n"
                 f"{lang('level')}{lang('colon')}{code(lang('config_create'))}\n"
                 f"{lang('rule')}{lang('colon')}{code(lang('rule_custom'))}\n")
-        result = send_message(client, glovar.logging_channel_id, text, result.message_id)
+        result = send_message(client, channel_id, text, result.message_id)
 
         # Save the data
         glovar.questions[gid]["lock"] = now

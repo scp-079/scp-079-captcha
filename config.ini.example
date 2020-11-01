@@ -41,6 +41,7 @@ noise = 0.4
 
 [channels]
 captcha_group_id = [DATA EXPUNGED]
+compromise_channel_id = 0
 critical_channel_id = [DATA EXPUNGED]
 debug_channel_id = [DATA EXPUNGED]
 exchange_channel_id = [DATA EXPUNGED]

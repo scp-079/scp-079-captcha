@@ -76,6 +76,7 @@ noise: float = 0.4
 
 # [channels]
 captcha_group_id: int = 0
+compromise_channel_id: int = 0
 critical_channel_id: int = 0
 debug_channel_id: int = 0
 exchange_channel_id: int = 0
@@ -166,6 +167,7 @@ try:
 
     # [channels]
     captcha_group_id = int(config.get("channels", "captcha_group_id", fallback=captcha_group_id))
+    compromise_channel_id = int(config.get("channels", "compromise_channel_id", fallback=compromise_channel_id))
     critical_channel_id = int(config.get("channels", "critical_channel_id", fallback=critical_channel_id))
     debug_channel_id = int(config.get("channels", "debug_channel_id", fallback=debug_channel_id))
     exchange_channel_id = int(config.get("channels", "exchange_channel_id", fallback=exchange_channel_id))
@@ -239,6 +241,7 @@ except Exception as e:
     print("[ERROR] Read data from config.ini error, please check the log file")
     logger.warning(f"Read data from config.ini error: {e}", exc_info=True)
 
+# TODO
 # Check
 check_all(
     {
