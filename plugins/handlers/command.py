@@ -481,6 +481,80 @@ def edit(client: Client, message: Message) -> bool:
     return result
 
 
+@Client.on_message(filters.incoming & filters.group & filters.command(["flood"], glovar.prefix)
+                   & ~captcha_group & ~test_group & authorized_group
+                   & from_user)
+def flood(client: Client, message: Message) -> bool:
+    # Turn off flood mode manually
+    result = False
+
+    glovar.locks["config"].acquire()
+
+    try:
+        # Basic data
+        gid = message.chat.id
+        aid = message.from_user.id
+        now = message.date or get_now()
+
+        # Check permission
+        if not is_class_c(None, None, message):
+            return False
+
+        # Check command format
+        command_type = get_command_type(message)
+
+        if not command_type or not re.search("off", command_type, re.I):
+            return False
+
+        # Share command
+        share_data(
+            client=client,
+            receivers=["USER"],
+            action="help",
+            action_type="confirm",
+            data={
+                "group_id": gid,
+                "begin": now,
+                "end": now,
+                "limit": 42
+            }
+        )
+
+        # Adjust the config
+        glovar.configs[gid]["manual"] = True
+        save("configs")
+
+        # Generate the report text
+        description = ("已尝试关闭炸群模式，视 USER 的工作状态，这可能稍有延迟。"
+                       "请注意：在关闭之前触发验证的用户，仍需要完成验证，并且，已为您自动开启「仅手动」模式，此后入群的用户不会触发验证，"
+                       "请在群组恢复正常状态后发送 /config_captcha manual off 来关闭仅手动模式。")
+        text = (f"{lang('admin')}{lang('colon')}{code(aid)}\n"
+                f"{lang('action')}{lang('colon')}{code(lang('手动关闭炸群模式'))}\n"
+                f"{lang('status')}{lang('colon')}{code(lang('status_succeeded'))}\n"
+                f"{lang('description')}{lang('colon')}{code(lang(description))}\n")
+
+        # Send the report message
+        thread(send_report_message, (30, client, gid, text))
+
+        # Send the debug message
+        send_debug(
+            client=client,
+            gids=[gid],
+            action=lang("手动关闭炸群模式"),
+            aid=aid,
+            time=now
+        )
+
+        result = False
+    except Exception as e:
+        logger.warning(f"Flood error: {e}", exc_info=True)
+    finally:
+        glovar.locks["config"].release()
+        delete_shared_command(client, message)
+
+    return result
+
+
 @Client.on_message(filters.incoming & filters.group & filters.command(["pass"], glovar.prefix)
                    & captcha_group & ~test_group
                    & from_user & class_e)

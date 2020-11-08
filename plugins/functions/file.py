@@ -22,6 +22,7 @@ from os import remove
 from os.path import exists
 from pickle import dump
 from shutil import copyfile
+from time import sleep
 from typing import Any, List
 
 from pyAesCrypt import decryptFile, encryptFile
@@ -172,6 +173,9 @@ def save(file: str) -> bool:
             dump(eval(f"glovar.{file}"), f)
 
         result = copyfile(f"data/.{file}", f"data/{file}") or True
+    except RuntimeError:
+        sleep(1)
+        return save(file)
     except Exception as e:
         logger.warning(f"Save error: {e}", exc_info=True)
 
