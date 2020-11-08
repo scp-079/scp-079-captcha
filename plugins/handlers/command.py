@@ -34,8 +34,8 @@ from ..functions.config import update_config
 from ..functions.etc import code, code_block, general_link, get_int, get_now, get_readable_time, lang, mention_id
 from ..functions.etc import message_link, random_str, thread
 from ..functions.file import save
-from ..functions.filters import authorized_group, captcha_group, class_e, from_user
-from ..functions.filters import is_class_c, is_class_e, is_class_e_user, is_from_user, is_should_qns, test_group
+from ..functions.filters import (authorized_group, captcha_group, class_e, from_user, is_class_c, is_class_e,
+                                 is_class_e_user, is_from_user, is_flooded, is_should_qns, test_group)
 from ..functions.group import delete_message
 from ..functions.ids import init_user_id
 from ..functions.markup import get_text_and_markup
@@ -498,6 +498,10 @@ def flood(client: Client, message: Message) -> bool:
 
         # Check permission
         if not is_class_c(None, None, message):
+            return False
+
+        # Check flood status
+        if not is_flooded(gid):
             return False
 
         # Check command format
