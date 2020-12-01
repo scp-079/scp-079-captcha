@@ -68,7 +68,7 @@ def hint(client: Client, message: Message) -> bool:
             delete_message(client, gid, mid)
 
         # Check config
-        if glovar.configs[gid].get("manual", False):
+        if glovar.configs[gid].get("manual", False) or (is_class_e_user(message.from_user) and not is_should_qns(gid)):
             return bool([ask_help_welcome(client, new.id, [gid], mid)
                          for new in message.new_chat_members if not new.is_bot])
 
