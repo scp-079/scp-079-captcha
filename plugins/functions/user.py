@@ -1559,6 +1559,12 @@ def terminate_user_wrong_qns(client: Client, gid: int, uid: int, qid: str) -> bo
         else:
             callback_text = custom_text or lang("description_wrong")
 
+        # Decide the unban pending
+        if level in {"ban", "restrict"}:
+            glovar.user_ids[uid]["failed"][gid] = 0
+        else:
+            glovar.user_ids[uid]["failed"][gid] = now
+
         # Delete all messages from the user
         not is_flooded(gid) and ask_for_help(client, "delete", gid, uid)
 
