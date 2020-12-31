@@ -95,12 +95,12 @@ def delete_messages_100(client: Client, cid: int, mids: Iterable[int]) -> Option
 
 
 @retry
-def download_media(client: Client, file_id: str, file_ref: str, file_path: str) -> Optional[str]:
+def download_media(client: Client, file_id: str, file_path: str) -> Optional[str]:
     # Download a media file
     result = None
 
     try:
-        result = client.download_media(message=file_id, file_ref=file_ref, file_name=file_path)
+        result = client.download_media(message=file_id, file_name=file_path)
     except FloodWait as e:
         raise e
     except Exception as e:
@@ -110,7 +110,7 @@ def download_media(client: Client, file_id: str, file_ref: str, file_path: str) 
 
 
 @retry
-def edit_message_photo(client: Client, cid: int, mid: int, photo: str, file_ref: str = None, caption: str = "",
+def edit_message_photo(client: Client, cid: int, mid: int, photo: str, caption: str = "",
                        markup: InlineKeyboardMarkup = None) -> Union[bool, Message, None]:
     # Edit the message's photo
     result = None
@@ -118,7 +118,6 @@ def edit_message_photo(client: Client, cid: int, mid: int, photo: str, file_ref:
     try:
         media = InputMediaPhoto(
             media=photo,
-            file_ref=file_ref,
             caption=caption,
             parse_mode="html"
         )
@@ -581,7 +580,7 @@ def restrict_chat_member(client: Client, cid: int, uid: int, permissions: ChatPe
 
 
 @retry
-def send_document(client: Client, cid: int, document: str, file_ref: str = None, caption: str = "", mid: int = None,
+def send_document(client: Client, cid: int, document: str, caption: str = "", mid: int = None,
                   markup: Union[InlineKeyboardMarkup, ReplyKeyboardMarkup] = None) -> Union[bool, Message, None]:
     # Send a document to a chat
     result = None
@@ -590,7 +589,6 @@ def send_document(client: Client, cid: int, document: str, file_ref: str = None,
         result = client.send_document(
             chat_id=cid,
             document=document,
-            file_ref=file_ref,
             caption=caption,
             parse_mode="html",
             reply_to_message_id=mid,
@@ -639,7 +637,7 @@ def send_message(client: Client, cid: int, text: str, mid: int = None,
 
 
 @retry
-def send_photo(client: Client, cid: int, photo: str, file_ref: str = None, caption: str = "", mid: int = None,
+def send_photo(client: Client, cid: int, photo: str, caption: str = "", mid: int = None,
                markup: Union[InlineKeyboardMarkup, ReplyKeyboardMarkup] = None) -> Union[bool, Message, None]:
     # Send a photo to a chat
     result = None
@@ -651,7 +649,6 @@ def send_photo(client: Client, cid: int, photo: str, file_ref: str = None, capti
         result = client.send_photo(
             chat_id=cid,
             photo=photo,
-            file_ref=file_ref,
             caption=caption,
             parse_mode="html",
             reply_to_message_id=mid,

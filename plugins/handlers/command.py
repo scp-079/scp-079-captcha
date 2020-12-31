@@ -25,7 +25,7 @@ from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
-from ..functions.captcha import send_static, user_captcha, user_captcha_qns
+from ..functions.challenge import send_static, user_captcha, user_captcha_qns
 from ..functions.channel import get_debug_text, send_debug, share_data
 from ..functions.command import delete_normal_command, delete_shared_command, command_error, get_command_context
 from ..functions.command import get_command_type

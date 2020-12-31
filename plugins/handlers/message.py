@@ -22,7 +22,7 @@ from pyrogram import Client, filters
 from pyrogram.types import Message
 
 from .. import glovar
-from ..functions.captcha import question_answer, question_ask, user_captcha, user_captcha_qns
+from ..functions.challenge import question_answer, question_ask, user_captcha, user_captcha_qns
 from ..functions.channel import ask_help_welcome, get_debug_text
 from ..functions.command import delete_normal_command
 from ..functions.etc import code, general_link, get_now, lang, thread, mention_id

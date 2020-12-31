@@ -24,7 +24,7 @@ from pyrogram import Client
 from pyrogram.types import Message
 
 from .. import glovar
-from .captcha import get_answers
+from .challenge import get_answers
 from .channel import send_debug
 from .command import command_error
 from .decorators import threaded
@@ -342,7 +342,7 @@ def qns_show_file(client: Client, message: Message, gid: int,
         file = file_txt(text)
 
         # Send the report message
-        send_document(client, cid, file, None, caption, mid)
+        send_document(client, cid, file, caption, mid)
 
         # Delete the file
         thread(delete_file, (file,))

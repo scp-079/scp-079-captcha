@@ -243,7 +243,7 @@ def send_debug(client: Client, gids: List[int], action: str,
             text += f"{lang('more')}{lang('colon')}{code(more)}\n"
 
         if file:
-            result = bool(send_document(client, glovar.debug_channel_id, file, None, text))
+            result = bool(send_document(client, glovar.debug_channel_id, file, text))
             thread(delete_file, (file,))
         else:
             result = bool(send_message(client, glovar.debug_channel_id, text))
@@ -301,7 +301,7 @@ def share_data(client: Client, receivers: List[str], action: str, action_type: s
             # Send directly
             file_path = file
 
-        result = send_document(client, channel_id, file_path, None, text)
+        result = send_document(client, channel_id, file_path, text)
 
         if not result:
             return ((result is not False or glovar.should_hide)

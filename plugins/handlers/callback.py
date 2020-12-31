@@ -23,7 +23,7 @@ from pyrogram import Client
 from pyrogram.types import CallbackQuery
 
 from .. import glovar
-from ..functions.captcha import get_answer, question_answer, question_answer_qns, question_change
+from ..functions.challenge import get_answer, question_answer, question_answer_qns, question_change
 from ..functions.etc import get_int, get_now, get_text, lang, thread
 from ..functions.filters import authorized_group, captcha_group, from_user, is_class_e_user, test_group
 from ..functions.group import delete_message

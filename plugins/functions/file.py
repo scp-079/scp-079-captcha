@@ -127,7 +127,7 @@ def file_txt(text: str) -> str:
     return result
 
 
-def get_downloaded_path(client: Client, file_id: str, file_ref: str) -> str:
+def get_downloaded_path(client: Client, file_id: str) -> str:
     # Download file, get it's path on local machine
     result = ""
 
@@ -136,7 +136,7 @@ def get_downloaded_path(client: Client, file_id: str, file_ref: str) -> str:
             return ""
 
         file_path = get_new_path()
-        result = download_media(client, file_id, file_ref, file_path)
+        result = download_media(client, file_id, file_path)
     except Exception as e:
         logger.warning(f"Get downloaded path error: {e}", exc_info=True)
 

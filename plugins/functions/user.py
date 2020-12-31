@@ -833,7 +833,7 @@ def remove_wait_user(client: Client, uid: int) -> bool:
         if question_type in glovar.question_types["image"]:
             thread(
                 target=edit_message_photo,
-                args=(client, glovar.captcha_group_id, mid, "assets/fail.png", None, text)
+                args=(client, glovar.captcha_group_id, mid, "assets/fail.png", text)
             )
         elif question_type in glovar.question_types["text"]:
             thread(
@@ -905,7 +905,7 @@ def terminate_user_banned(client: Client, uid: int, gid: int) -> bool:
         if question_type in glovar.question_types["image"]:
             thread(
                 target=edit_message_photo,
-                args=(client, glovar.captcha_group_id, mid, "assets/fail.png", None, text)
+                args=(client, glovar.captcha_group_id, mid, "assets/fail.png", text)
             )
         elif question_type in glovar.question_types["text"]:
             thread(
@@ -1012,7 +1012,7 @@ def terminate_user_pass(client: Client, uid: int, gid: int, aid: int) -> bool:
         if question_type in glovar.question_types["image"]:
             thread(
                 target=edit_message_photo,
-                args=(client, glovar.captcha_group_id, mid, "assets/succeed.png", None, text)
+                args=(client, glovar.captcha_group_id, mid, "assets/succeed.png", text)
             )
         elif question_type in glovar.question_types["text"]:
             thread(
@@ -1174,7 +1174,7 @@ def terminate_user_succeed(client: Client, uid: int) -> bool:
         if question_type in glovar.question_types["image"]:
             thread(
                 target=edit_message_photo,
-                args=(client, glovar.captcha_group_id, mid, "assets/succeed.png", None, text, markup)
+                args=(client, glovar.captcha_group_id, mid, "assets/succeed.png", text, markup)
             )
         elif question_type in glovar.question_types["text"]:
             thread(
@@ -1323,7 +1323,7 @@ def terminate_user_timeout(client: Client, uid: int) -> bool:
         if question_type in glovar.question_types["image"]:
             thread(
                 target=edit_message_photo,
-                args=(client, glovar.captcha_group_id, mid, "assets/fail.png", None, text)
+                args=(client, glovar.captcha_group_id, mid, "assets/fail.png", text)
             )
         elif question_type in glovar.question_types["text"]:
             thread(
@@ -1510,7 +1510,7 @@ def terminate_user_wrong(client: Client, uid: int) -> bool:
         if question_type in glovar.question_types["image"]:
             thread(
                 target=edit_message_photo,
-                args=(client, glovar.captcha_group_id, mid, "assets/fail.png", None, text)
+                args=(client, glovar.captcha_group_id, mid, "assets/fail.png", text)
             )
         elif question_type in glovar.question_types["text"]:
             thread(

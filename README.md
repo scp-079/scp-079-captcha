@@ -29,7 +29,7 @@ This bot is used to provide challenges for newly joined members.
    - `en.yml` : English
 - plugins
     - functions
-        - `captcha.py` : Functions about CAPTCHA
+        - `challenge.py` : Functions about CAPTCHA
         - `channel.py` : Functions about channel
         - `command.py` : Functions about command
         - `config.py` : Functions about group settings

@@ -26,7 +26,7 @@ from pyrogram import Client
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from .. import glovar
-from .captcha import send_static, user_captcha
+from .challenge import send_static, user_captcha
 from .channel import get_debug_text, send_debug, share_data
 from .config import get_config_text
 from .decorators import threaded
@@ -363,8 +363,7 @@ def receive_file_data(client: Client, message: Message, decrypt: bool = True) ->
             return None
 
         file_id = message.document.file_id
-        file_ref = message.document.file_ref
-        path = get_downloaded_path(client, file_id, file_ref)
+        path = get_downloaded_path(client, file_id)
 
         if not path:
             return None
