@@ -6,11 +6,11 @@ claptcha==0.3.3
 cryptography==3.3.1
 emoji==0.6.0
 OpenCC==1.1.1.post1
-Pillow==8.0.1
+Pillow==8.1.0
 pyaes==1.6.1
 pyAesCrypt==0.4.4
 pycparser==2.20
-Pyrogram==1.1.7
+Pyrogram==1.1.8
 PySocks==1.7.1
 pytz==2020.5
 PyYAML==5.3.1
