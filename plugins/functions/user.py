@@ -937,6 +937,7 @@ def terminate_user_delete(client: Client, gid: int, mid: int) -> bool:
 
         delete_message(client, gid, mid)
         declare_message(client, gid, mid)
+        logger.warning(f"Terminate {mid} in {gid}")
 
         result = True
     except Exception as e:
