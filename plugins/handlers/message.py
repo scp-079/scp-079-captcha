@@ -141,6 +141,8 @@ def hint_further(client: Client, chat_member_updated: ChatMemberUpdated) -> bool
         mid = 0
         now = chat_member_updated.date or get_now()
 
+        logger.warning(gid)
+
         # Check new chat member
         if not chat_member_updated.new_chat_member:
             return False
