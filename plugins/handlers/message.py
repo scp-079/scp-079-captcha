@@ -19,7 +19,7 @@
 import logging
 
 from pyrogram import Client, filters
-from pyrogram.types import Message
+from pyrogram.types import ChatMemberUpdated, Message
 
 from .. import glovar
 from ..functions.challenge import question_answer, question_ask, user_captcha, user_captcha_qns
@@ -29,7 +29,7 @@ from ..functions.etc import code, general_link, get_now, lang, thread, mention_i
 from ..functions.file import save
 from ..functions.filters import aio, authorized_group, captcha_group, class_c, class_d, class_e, declared_message
 from ..functions.filters import exchange_channel, from_user, hide_channel, is_class_d_user, is_class_e_user
-from ..functions.filters import is_flooded, is_should_qns, new_group, test_group
+from ..functions.filters import is_flooded, is_should_qns, new_group, test_group, is_class_c_user
 from ..functions.group import delete_message, save_admins, leave_group
 from ..functions.ids import init_group_id
 from ..functions.receive import receive_add_bad, receive_check_log, receive_clear_data, receive_config_commit
@@ -122,6 +122,76 @@ def hint(client: Client, message: Message) -> bool:
     return result
 
 
+@Client.on_chat_member_updated()
+def hint_further(client: Client, chat_member_updated: ChatMemberUpdated) -> bool:
+    # Check new joined user
+    result = False
+
+    glovar.locks["message"].acquire()
+
+    try:
+        # Basic data
+        gid = chat_member_updated.chat.id
+        mid = 0
+        now = chat_member_updated.date or get_now()
+
+        # Check new chat member
+        if not chat_member_updated.new_chat_member:
+            return False
+
+        # Get user
+        user = chat_member_updated.new_chat_member.user
+        uid = user.id
+
+        # Check class C status
+        if is_class_c_user(gid, user):
+            return False
+
+        # Check config
+        if glovar.configs[gid].get("manual", False) or (is_class_e_user(user) and not is_should_qns(gid)):
+            return ask_help_welcome(client, uid, [gid])
+
+        # Check user status
+        if (glovar.user_ids.get(uid, {})
+                and (glovar.user_ids[uid]["wait"].get(gid, 0)
+                     or (glovar.user_ids[uid]["failed"].get(gid, 0) > 0 and get_level(gid) != "kick"))):
+            return False
+
+        # Process
+        if is_should_qns(gid):
+            result = user_captcha_qns(
+                client=client,
+                message=None,
+                gid=gid,
+                user=user,
+                mid=mid
+            )
+        else:
+            result = user_captcha(
+                client=client,
+                message=None,
+                gid=gid,
+                user=user,
+                mid=mid,
+                now=now
+            )
+
+        if not result:
+            return False
+
+        # Update user's join status
+        glovar.user_ids[uid]["join"][gid] = now
+        save("user_ids")
+
+        result = True
+    except Exception as e:
+        logger.warning(f"Hint error: {e}", exc_info=True)
+    finally:
+        glovar.locks["message"].release()
+
+    return result
+
+
 @Client.on_message(filters.incoming & filters.group & ~filters.new_chat_members
                    & ~captcha_group & ~test_group & authorized_group
                    & from_user & ~class_c & ~class_d & ~class_e
@@ -198,7 +268,7 @@ def verify_ask(client: Client, message: Message) -> bool:
                 continue
 
             # Check if the user is Class D personnel
-            if is_class_d_user(new) and all(gid not in glovar.ignore_ids["user"] for gid in wait_group_list):
+            if is_class_d_user(new) and all(g not in glovar.ignore_ids["user"] for g in wait_group_list):
                 kick_user(client, gid, uid)
                 delete_message(client, gid, mid)
                 continue

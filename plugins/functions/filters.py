@@ -419,6 +419,26 @@ def is_ban_text(text: str, ocr: bool, message: Message = None) -> bool:
     return result
 
 
+def is_class_c_user(gid: int, user: Union[int, User]) -> bool:
+    # Check if the user is Class C personnel
+    result = False
+
+    try:
+        if isinstance(user, int):
+            uid = user
+        else:
+            uid = user.id
+
+        if uid in glovar.bot_ids:
+            return True
+
+        result = uid in glovar.admin_ids.get(gid, set())
+    except Exception as e:
+        logger.warning(f"Is class c user error: {e}", exc_info=True)
+
+    return result
+
+
 def is_class_d_user(user: Union[int, User]) -> bool:
     # Check if the user is a Class D personnel
     result = False
