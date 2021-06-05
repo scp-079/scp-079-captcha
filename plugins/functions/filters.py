@@ -23,7 +23,7 @@ from string import ascii_lowercase
 from typing import Match, Optional, Union
 
 from pyrogram import filters
-from pyrogram.types import Message, User, CallbackQuery 
+from pyrogram.types import ChatMemberUpdated, Message, User, CallbackQuery
 
 from .. import glovar
 from .etc import get_full_name, get_now, get_text
@@ -46,13 +46,31 @@ def is_aio(_, __, ___) -> bool:
     return result
 
 
-def is_authorized_group(_, __, update: Union[CallbackQuery, Message]) -> bool:
+def is_authorized_group(_, __, update: Union[CallbackQuery, ChatMemberUpdated, Message]) -> bool:
     # Check if the message is send from the authorized group
     result = False
 
     try:
         if isinstance(update, CallbackQuery):
             message = update.message
+        elif isinstance(update, ChatMemberUpdated):
+            message = update
+
+            chat_member_update = update
+
+            if not chat_member_update.new_chat_member:
+                return False
+
+            user = chat_member_update.new_chat_member.user
+
+            if user.is_self:
+                return False
+
+            cid = chat_member_update.chat.id
+
+            if cid in {glovar.captcha_group_id, glovar.test_group_id}:
+                return False
+
         else:
             message = update
 
