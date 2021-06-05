@@ -220,6 +220,7 @@ def check(client: Client, message: Message) -> bool:
             return False
 
         # Delete the message
+        logger.warning(f"Plan to terminate {mid} in {gid}")
         result = terminate_user_delete(
             client=client,
             gid=gid,
