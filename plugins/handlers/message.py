@@ -122,7 +122,7 @@ def hint(client: Client, message: Message) -> bool:
     return result
 
 
-@Client.on_chat_member_updated()
+@Client.on_chat_member_updated(authorized_group)
 def hint_further(client: Client, chat_member_updated: ChatMemberUpdated) -> bool:
     # Check new joined user
     result = False
