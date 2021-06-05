@@ -141,8 +141,6 @@ def hint_further(client: Client, chat_member_updated: ChatMemberUpdated) -> bool
         mid = 0
         now = chat_member_updated.date or get_now()
 
-        logger.warning(gid)
-
         # Check new chat member
         if not chat_member_updated.new_chat_member:
             return False
@@ -156,6 +154,8 @@ def hint_further(client: Client, chat_member_updated: ChatMemberUpdated) -> bool
         # Get user
         user = chat_member_updated.new_chat_member.user
         uid = user.id
+
+        logger.warning(f"Further in {gid} for {uid}, at {now}")
 
         # Check class C status
         if is_class_c_user(gid, user) or is_class_c_user(gid, chat_member_updated.from_user):
