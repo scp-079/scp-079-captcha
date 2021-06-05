@@ -75,6 +75,7 @@ def hint(client: Client, message: Message) -> bool:
         for new in message.new_chat_members:
             # Basic data
             uid = new.id
+            logger.warning(uid)
 
             # Check user status
             if (glovar.user_ids.get(uid, {})
