@@ -185,7 +185,7 @@ def hint_further(client: Client, chat_member_updated: ChatMemberUpdated) -> bool
 
         result = True
     except Exception as e:
-        logger.warning(f"Hint error: {e}", exc_info=True)
+        logger.warning(f"Hint further error: {e}", exc_info=True)
     finally:
         glovar.locks["message"].release()
 
