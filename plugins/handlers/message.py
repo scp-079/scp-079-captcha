@@ -83,7 +83,9 @@ def hint(client: Client, message: Message) -> bool:
                          or (glovar.user_ids[uid]["failed"].get(gid, 0) > 0 and get_level(gid) != "kick")))
             if test_result:
                 logger.warning(test_result)
-                logger.warning(glovar.user_ids.get(uid, {}))
+                logger.warning(glovar.user_ids[uid]["wait"].get(gid, 0))
+                logger.warning(glovar.user_ids[uid]["wait"].get(gid, 0))
+                logger.warning(glovar.user_ids[uid]["failed"].get(gid, 0))
                 terminate_user_delete(
                     client=client,
                     gid=gid,
