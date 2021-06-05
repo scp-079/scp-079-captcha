@@ -150,7 +150,7 @@ def hint_further(client: Client, chat_member_updated: ChatMemberUpdated) -> bool
         uid = user.id
 
         # Check class C status
-        if is_class_c_user(gid, user) or is_class_c_user(gid, from_user):
+        if is_class_c_user(gid, user) or is_class_c_user(gid, chat_member_updated.from_user):
             return False
 
         # Check config
