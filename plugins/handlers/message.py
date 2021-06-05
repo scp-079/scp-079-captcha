@@ -84,7 +84,6 @@ def hint(client: Client, message: Message) -> bool:
             if test_result:
                 logger.warning(f"result {test_result}")
                 logger.warning(glovar.user_ids[uid]["wait"].get(gid, 0))
-                logger.warning(glovar.user_ids[uid]["wait"].get(gid, 0))
                 logger.warning(glovar.user_ids[uid]["failed"].get(gid, 0))
                 terminate_user_delete(
                     client=client,
