@@ -143,6 +143,10 @@ def hint_further(client: Client, chat_member_updated: ChatMemberUpdated) -> bool
         user = chat_member_updated.new_chat_member.user
         uid = user.id
 
+        # Check user has
+        if chat_member_updated.from_user.is_self or chat_member_updated.from_user.is_bot:
+            return False
+
         # Check class C status
         if is_class_c_user(gid, user):
             return False
