@@ -742,8 +742,6 @@ def is_should_ignore(gid: int, user: Union[int, User], aid: int = 0) -> bool:
     result = False
 
     try:
-        # TODO TEMP
-        return False
         if aid:
             return False
 
