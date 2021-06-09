@@ -77,6 +77,9 @@ def is_authorized_group(_, __, update: Union[CallbackQuery, ChatMemberUpdated, M
         if not message.chat:
             return False
 
+        if message.chat.type != "supergroup":
+            return False
+
         cid = message.chat.id
 
         if cid > 0:
