@@ -79,8 +79,8 @@ def hint(client: Client, message: Message) -> bool:
 
             # Check user status
             test_result = (glovar.user_ids.get(uid, {})
-                    and (glovar.user_ids[uid]["wait"].get(gid, 0)
-                         or (glovar.user_ids[uid]["failed"].get(gid, 0) > 0 and get_level(gid) != "kick")))
+                           and (glovar.user_ids[uid]["wait"].get(gid, 0)
+                                or (glovar.user_ids[uid]["failed"].get(gid, 0) > 0 and get_level(gid) != "kick")))
             if test_result:
                 logger.warning(f"result {test_result}")
                 logger.warning(glovar.user_ids[uid]["wait"].get(gid, 0))
